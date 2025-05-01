@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <div className="space-y-3">
-            <h3 className="text-xl font-bold text-pp-purple">Path Piolet</h3>
+            <h3 className="text-xl font-bold text-pp-purple">Path Pilot</h3>
             <p className="text-gray-600 dark:text-gray-400">
               Helping every Indian student choose the right path with clarity and confidence.
             </p>
@@ -48,14 +48,14 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2 mb-2 text-gray-600 dark:text-gray-400">
                 <Mail size={18} />
-                <span>career@pathpiolet.in</span>
+                <span>career@pathpilot.in</span>
               </div>
             </address>
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <p className="text-center text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} Path Piolet. All rights reserved.
+            © {new Date().getFullYear()} Path Pilot. All rights reserved.
           </p>
         </div>
       </div>

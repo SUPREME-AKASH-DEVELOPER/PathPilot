@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <span className="text-pp-purple text-2xl font-bold">Path Piolet</span>
+              <span className="text-pp-purple text-2xl font-bold">Path Pilot</span>
             </Link>
           </div>
           
