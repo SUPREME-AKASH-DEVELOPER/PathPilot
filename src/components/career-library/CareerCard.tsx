@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Star, GraduationCap, Briefcase, TrendingUp } from "lucide-react";
+import { BookOpen, Star, GraduationCap, Briefcase, TrendingUp, Palette, PieChart, Plane, Microscope, Brain, Leaf } from "lucide-react";
 
 export interface Career {
   id: string;
@@ -17,9 +17,11 @@ export interface Career {
 
 interface CareerCardProps {
   career: Career;
+  onSave?: () => void;
+  onViewDetails?: () => void;
 }
 
-export default function CareerCard({ career }: CareerCardProps) {
+export default function CareerCard({ career, onSave, onViewDetails }: CareerCardProps) {
   // Get appropriate icon based on category
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
@@ -31,6 +33,18 @@ export default function CareerCard({ career }: CareerCardProps) {
         return <TrendingUp className="h-5 w-5" />;
       case 'education':
         return <GraduationCap className="h-5 w-5" />;
+      case 'finance':
+        return <PieChart className="h-5 w-5" />;
+      case 'creative':
+        return <Palette className="h-5 w-5" />;
+      case 'marketing':
+        return <TrendingUp className="h-5 w-5" />;
+      case 'aviation':
+        return <Plane className="h-5 w-5" />;
+      case 'science':
+        return <Microscope className="h-5 w-5" />;
+      case 'engineering':
+        return <Leaf className="h-5 w-5" />;
       default:
         return <BookOpen className="h-5 w-5" />;
     }
@@ -84,9 +98,16 @@ export default function CareerCard({ career }: CareerCardProps) {
       
       <CardFooter>
         <div className="flex gap-2 w-full">
-          <Button variant="outline" className="flex-1">Save</Button>
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={onSave}
+          >
+            Save
+          </Button>
           <Button 
             className="flex-1 bg-pp-purple hover:bg-pp-bright-purple"
+            onClick={onViewDetails}
           >
             Details
           </Button>

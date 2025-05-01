@@ -4,9 +4,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CareerCard, { Career } from "@/components/career-library/CareerCard";
 import CareerFilter from "@/components/career-library/CareerFilter";
+import { toast } from "@/components/ui/use-toast";
 
 export default function LibraryPage() {
-  // Sample career data
+  // Enhanced career data with more options
   const [careers, setCareers] = useState<Career[]>([
     {
       id: "1",
@@ -58,10 +59,80 @@ export default function LibraryPage() {
       colleges: ["Central Universities", "State Universities", "Private Universities"],
       recruiters: ["Universities", "Research Institutions", "Think Tanks"]
     },
+    {
+      id: "6",
+      title: "Chartered Accountant",
+      category: "Finance",
+      description: "Provide financial advice, audit accounts, and prepare tax returns for businesses and individuals.",
+      salary: "₹6L - ₹30L per annum",
+      entranceExams: ["CA Foundation", "CA Intermediate", "CA Final"],
+      colleges: ["ICAI Registered Colleges"],
+      recruiters: ["Big 4 Accounting Firms", "Banks", "Corporate Finance Departments"]
+    },
+    {
+      id: "7",
+      title: "Fashion Designer",
+      category: "Creative",
+      description: "Create original clothing, accessories, and footwear designs for fashion brands or individual clients.",
+      salary: "₹3L - ₹25L per annum",
+      entranceExams: ["NIFT Entrance", "NID Entrance", "UCEED"],
+      colleges: ["NIFT", "NID", "Pearl Academy", "Symbiosis"],
+      recruiters: ["Fashion Houses", "Retail Brands", "Export Houses"]
+    },
+    {
+      id: "8",
+      title: "Digital Marketing Specialist",
+      category: "Marketing",
+      description: "Plan and execute online marketing campaigns to promote products and services using various digital channels.",
+      salary: "₹4L - ₹20L per annum",
+      entranceExams: ["CAT", "XAT", "MAT (for MBA)"],
+      colleges: ["IIMs", "MICA", "Symbiosis", "SPJIMR"],
+      recruiters: ["Ad Agencies", "E-commerce Companies", "Startups", "MNCs"]
+    },
+    {
+      id: "9",
+      title: "Airline Pilot",
+      category: "Aviation",
+      description: "Operate aircraft for passenger and cargo transport, ensuring safety and following aviation regulations.",
+      salary: "₹12L - ₹60L per annum",
+      entranceExams: ["DGCA CPL Exam", "Airline Specific Tests"],
+      colleges: ["Indira Gandhi Rashtriya Uran Akademi", "Bombay Flying Club", "Flying Training Schools"],
+      recruiters: ["Air India", "IndiGo", "SpiceJet", "Vistara"]
+    },
+    {
+      id: "10",
+      title: "Biotechnologist",
+      category: "Science",
+      description: "Apply biological processes to develop new products in fields like medicine, agriculture, and environmental conservation.",
+      salary: "₹4L - ₹20L per annum",
+      entranceExams: ["GATE (BT)", "JAM", "CSIR-NET"],
+      colleges: ["IITs", "IISc", "TIFR", "NCBS"],
+      recruiters: ["Pharmaceutical Companies", "Research Labs", "Biotech Startups"]
+    },
+    {
+      id: "11",
+      title: "Clinical Psychologist",
+      category: "Medical",
+      description: "Diagnose and treat mental, emotional, and behavioral disorders using therapeutic approaches.",
+      salary: "₹5L - ₹15L per annum",
+      entranceExams: ["UGC-NET", "M.Phil Entrance Tests"],
+      colleges: ["NIMHANS", "TISS", "Delhi University", "Christ University"],
+      recruiters: ["Hospitals", "Mental Health Centers", "Educational Institutions"]
+    },
+    {
+      id: "12",
+      title: "Environmental Engineer",
+      category: "Engineering",
+      description: "Develop solutions to environmental problems using engineering principles to improve air, water and soil quality.",
+      salary: "₹4L - ₹15L per annum",
+      entranceExams: ["GATE", "JEE Advanced"],
+      colleges: ["IITs", "NITs", "BITS", "VIT"],
+      recruiters: ["Government Agencies", "Consulting Firms", "Industries"]
+    }
   ]);
 
   const [filteredCareers, setFilteredCareers] = useState<Career[]>(careers);
-  const categories = ["Technical", "Medical", "Government", "Education"];
+  const categories = Array.from(new Set(careers.map(career => career.category)));
 
   const handleSearch = (query: string) => {
     if (!query.trim()) {
@@ -91,6 +162,21 @@ export default function LibraryPage() {
     setFilteredCareers(filteredResults);
   };
 
+  const handleSaveCareer = (careerId: string) => {
+    toast({
+      title: "Career saved",
+      description: "This career has been saved to your profile.",
+    });
+  };
+
+  const handleViewDetails = (careerId: string) => {
+    // In a real app, this would navigate to a detailed view
+    toast({
+      title: "Career details",
+      description: "Showing detailed information for this career path.",
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -112,7 +198,12 @@ export default function LibraryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCareers.length > 0 ? (
               filteredCareers.map((career) => (
-                <CareerCard key={career.id} career={career} />
+                <CareerCard 
+                  key={career.id} 
+                  career={career} 
+                  onSave={() => handleSaveCareer(career.id)}
+                  onViewDetails={() => handleViewDetails(career.id)}
+                />
               ))
             ) : (
               <div className="col-span-full text-center py-10">
