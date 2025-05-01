@@ -49,8 +49,8 @@ export default function Hero() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-full h-full max-w-md">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Student exploring career paths" 
+                  src="https://thumbs.dreamstime.com/b/confused-student-girl-thinking-future-career-plan-over-white-background-43759162.jpg" 
+                  alt="Confused student thinking about career choices" 
                   className="w-full h-full object-cover rounded-lg shadow-lg"
                 />
               </div>
