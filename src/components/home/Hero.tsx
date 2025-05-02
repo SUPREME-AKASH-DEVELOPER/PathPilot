@@ -37,7 +37,7 @@ export default function Hero() {
     transition: {
       duration: 3,
       repeat: Infinity,
-      repeatType: "reverse", // Changed from string to specific allowed value
+      repeatType: "reverse" as const, // Explicitly typed as literal "reverse"
       ease: "easeInOut"
     }
   };
