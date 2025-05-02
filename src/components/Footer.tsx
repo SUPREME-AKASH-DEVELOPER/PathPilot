@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="space-y-3">
             <h3 className="text-xl font-bold text-pp-purple">Path Pilot</h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Helping every Indian student choose the right path with clarity and confidence.
+              {t("helpingEveryIndian")}
             </p>
             <div className="flex space-x-4">
               {/* Social media icons would go here */}

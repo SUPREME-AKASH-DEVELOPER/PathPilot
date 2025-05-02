@@ -4,9 +4,10 @@ import StageSelector from "@/components/quiz/StageSelector";
 import QuizQuestion, { Question } from "@/components/quiz/QuizQuestion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button"; // Add this import
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Enhanced quiz questions with more detailed options
 const after10thQuestions: Question[] = [
@@ -186,6 +187,7 @@ const afterGraduationQuestions: Question[] = [
 type Stage = 'after10th' | 'after12th' | 'afterGraduation' | null;
 
 const QuizPage = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedStage, setSelectedStage] = useState<Stage>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -255,8 +257,8 @@ const QuizPage = () => {
     setQuizCompleted(true);
     
     toast({
-      title: "Quiz completed!",
-      description: "Your personalized career recommendations are ready.",
+      title: t("quizCompleted"),
+      description: t("personalizedRecommendations"),
     });
   };
   
@@ -283,13 +285,13 @@ const QuizPage = () => {
             />
           ) : (
             <div className="py-12 text-center">
-              <h2 className="text-2xl font-bold mb-4">Thank you for completing the quiz!</h2>
+              <h2 className="text-2xl font-bold mb-4">{t("thankYouQuiz")}</h2>
               <p className="text-gray-600 mb-8">
-                Based on your responses, here are some recommended paths:
+                {t("basedOnResponses")}
               </p>
               
               <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-                <h3 className="text-lg font-semibold mb-4">Your Recommendations</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("yourRecommendations")}</h3>
                 <ul className="space-y-2">
                   {recommendedCareers.map((career, index) => (
                     <li key={index} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
@@ -306,7 +308,7 @@ const QuizPage = () => {
                     className="bg-pp-purple hover:bg-pp-bright-purple w-full"
                     onClick={handleViewCareers}
                   >
-                    Explore Careers in Library
+                    {t("exploreCareersLibrary")}
                   </Button>
                 </div>
               </div>
@@ -316,7 +318,7 @@ const QuizPage = () => {
                 onClick={() => setSelectedStage(null)}
                 className="mt-4"
               >
-                Take Another Quiz
+                {t("takeAnotherQuiz")}
               </Button>
             </div>
           )}

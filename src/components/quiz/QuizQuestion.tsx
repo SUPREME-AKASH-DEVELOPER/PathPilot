@@ -1,15 +1,16 @@
 
-import { useState } from 'react';
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { ProgressBar } from './ProgressBar';
+import ProgressBar from "./ProgressBar";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Question {
   id: number;
   question: string;
   options: string[];
-  category: 'personality' | 'academic' | 'interest' | 'worklife' | 'aptitude';
+  category: string;
 }
 
 interface QuizQuestionProps {
@@ -31,17 +32,18 @@ export default function QuizQuestion({
   onPrevQuestion,
   onComplete
 }: QuizQuestionProps) {
-  const [selectedOption, setSelectedOption] = useState<string>(
-    answers[questions[currentQuestionIndex].id] || ''
+  const { t } = useLanguage();
+  const [selectedOption, setSelectedOption] = useState<string | null>(
+    answers[questions[currentQuestionIndex]?.id] || null
   );
   
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   
-  const handleOptionChange = (value: string) => {
-    setSelectedOption(value);
-    onAnswerSelected(currentQuestion.id, value);
+  const handleOptionClick = (option: string) => {
+    setSelectedOption(option);
+    onAnswerSelected(currentQuestion.id, option);
   };
   
   const handleNext = () => {
@@ -49,74 +51,103 @@ export default function QuizQuestion({
       onComplete();
     } else {
       onNextQuestion();
+      // Reset selected option for the next question
+      setSelectedOption(answers[questions[currentQuestionIndex + 1]?.id] || null);
     }
   };
   
+  const handlePrevious = () => {
+    onPrevQuestion();
+    // Set selected option to the previously selected answer
+    setSelectedOption(answers[questions[currentQuestionIndex - 1]?.id] || null);
+  };
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
+    <div className="py-10 max-w-3xl mx-auto">
       <ProgressBar progress={progress} />
       
-      <div className="mb-8">
-        <div className="text-sm font-medium text-pp-saffron mb-2">
-          {getCategoryLabel(currentQuestion.category)} • Question {currentQuestionIndex + 1} of {questions.length}
-        </div>
-        <h3 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-white mb-6">
-          {currentQuestion.question}
-        </h3>
-        
-        <RadioGroup 
-          value={selectedOption} 
-          onValueChange={handleOptionChange}
-          className="space-y-4"
-        >
-          {currentQuestion.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2 p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-              <RadioGroupItem 
-                value={option} 
-                id={`option-${index}`} 
-              />
-              <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                {option}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
+      <div className="flex justify-between text-sm text-gray-500 mt-2 mb-8">
+        <span>{t("question")} {currentQuestionIndex + 1} {t("of")} {questions.length}</span>
+        <span>Category: {currentQuestion.category}</span>
       </div>
       
-      <div className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={onPrevQuestion}
-          disabled={currentQuestionIndex === 0}
-        >
-          Previous
-        </Button>
+      <motion.div
+        key={currentQuestionIndex}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="text-2xl font-bold mb-6">{currentQuestion.question}</h2>
         
-        <Button 
-          onClick={handleNext}
-          disabled={!selectedOption}
-          className="bg-pp-purple hover:bg-pp-bright-purple"
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-3"
         >
-          {isLastQuestion ? 'Submit' : 'Next'}
-        </Button>
-      </div>
+          {currentQuestion.options.map((option, index) => (
+            <motion.div key={index} variants={itemVariants}>
+              <Card
+                className={`cursor-pointer ${
+                  selectedOption === option
+                    ? "border-pp-purple bg-pp-purple/10"
+                    : "hover:border-gray-400"
+                }`}
+                onClick={() => handleOptionClick(option)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-6 h-6 rounded-full flex items-center justify-center border ${
+                        selectedOption === option
+                          ? "bg-pp-purple border-pp-purple text-white"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {selectedOption === option && "✓"}
+                    </div>
+                    <div>{option}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+        
+        <div className="mt-8 flex justify-between">
+          <Button 
+            onClick={handlePrevious} 
+            disabled={currentQuestionIndex === 0}
+            variant="outline"
+          >
+            {t("previous")}
+          </Button>
+          
+          <Button 
+            onClick={handleNext}
+            disabled={!selectedOption}
+            className="bg-pp-purple hover:bg-pp-bright-purple"
+          >
+            {isLastQuestion ? t("submit") : t("next")}
+          </Button>
+        </div>
+      </motion.div>
     </div>
   );
-}
-
-function getCategoryLabel(category: string): string {
-  switch (category) {
-    case 'personality':
-      return 'Personality Traits';
-    case 'academic':
-      return 'Academic Strengths';
-    case 'interest':
-      return 'Interests & Hobbies';
-    case 'worklife':
-      return 'Work-Life Expectations';
-    case 'aptitude':
-      return 'Mindset & Aptitude';
-    default:
-      return 'Question';
-  }
 }

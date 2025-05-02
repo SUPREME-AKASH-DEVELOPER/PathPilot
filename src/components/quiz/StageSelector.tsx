@@ -1,68 +1,66 @@
 
-import { useState } from 'react';
-import { BookOpen, GraduationCap, BookText } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { BookOpen, GraduationCap, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+type Stage = 'after10th' | 'after12th' | 'afterGraduation';
 
 interface StageSelectorProps {
-  onSelectStage: (stage: 'after10th' | 'after12th' | 'afterGraduation') => void;
+  onSelectStage: (stage: Stage) => void;
 }
 
 export default function StageSelector({ onSelectStage }: StageSelectorProps) {
-  const [hoveredStage, setHoveredStage] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const stages = [
     {
       id: 'after10th',
-      title: 'After 10th',
-      icon: <BookOpen className="h-12 w-12 mb-4 text-pp-purple" />,
-      description: 'Explore science, commerce, arts streams and vocational options'
+      title: t("after10th"),
+      icon: <BookOpen className="h-8 w-8 text-pp-purple mb-2" />,
+      delay: 0
     },
     {
       id: 'after12th',
-      title: 'After 12th',
-      icon: <BookText className="h-12 w-12 mb-4 text-pp-purple" />,
-      description: 'Discover degree courses, diploma programs and career paths'
+      title: t("after12th"),
+      icon: <GraduationCap className="h-8 w-8 text-pp-purple mb-2" />,
+      delay: 0.1
     },
     {
       id: 'afterGraduation',
-      title: 'After Graduation',
-      icon: <GraduationCap className="h-12 w-12 mb-4 text-pp-purple" />,
-      description: 'Find postgraduate courses, professional paths and job opportunities'
+      title: t("afterGraduation"),
+      icon: <Award className="h-8 w-8 text-pp-purple mb-2" />,
+      delay: 0.2
     }
   ];
 
   return (
-    <div className="py-8">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-2 text-gray-800 dark:text-white">
-        Where are you in your journey?
-      </h2>
-      <p className="text-center text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-        Select your current educational stage to get personalized career guidance tailored to your situation.
-      </p>
+    <div className="py-12">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t("selectStage")}</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          {t("chooseStageDescription")}
+        </p>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {stages.map((stage) => (
-          <Card 
+          <motion.div
             key={stage.id}
-            className={`gradient-card hover-scale overflow-hidden ${
-              hoveredStage === stage.id ? 'ring-2 ring-pp-purple' : ''
-            }`}
-            onMouseEnter={() => setHoveredStage(stage.id)}
-            onMouseLeave={() => setHoveredStage(null)}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: stage.delay }}
           >
-            <CardContent className="p-6 flex flex-col items-center text-center">
-              {stage.icon}
-              <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{stage.title}</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">{stage.description}</p>
-              <Button 
-                className="bg-pp-purple hover:bg-pp-bright-purple w-full" 
-                onClick={() => onSelectStage(stage.id as 'after10th' | 'after12th' | 'afterGraduation')}
-              >
-                Start Here
-              </Button>
-            </CardContent>
-          </Card>
+            <Card 
+              className="hover:border-pp-purple hover:shadow-md cursor-pointer transition-all duration-300 h-full"
+              onClick={() => onSelectStage(stage.id as Stage)}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                {stage.icon}
+                <h3 className="font-semibold text-xl mb-2">{stage.title}</h3>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </div>
