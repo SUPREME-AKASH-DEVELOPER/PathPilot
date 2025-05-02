@@ -99,6 +99,91 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
   ]
 };
 
+// Define education path appropriateness for career fields
+const educationPathMapping: Record<string, Record<string, number>> = {
+  "Technical": {
+    "after10th": 0.7, // Can pursue technical diploma after 10th
+    "after12th": 0.9,
+    "afterGraduation": 1.0
+  },
+  "Medical": {
+    "after10th": 0.3, // Medical requires 12th PCB at minimum
+    "after12th": 0.8,
+    "afterGraduation": 1.0
+  },
+  "Engineering": {
+    "after10th": 0.5, // Can pursue diploma after 10th
+    "after12th": 0.9,
+    "afterGraduation": 1.0
+  },
+  "Finance": {
+    "after10th": 0.6, // Can pursue commerce after 10th
+    "after12th": 0.9,
+    "afterGraduation": 1.0
+  },
+  "Creative": {
+    "after10th": 0.9, // Creative fields can be started early
+    "after12th": 0.95,
+    "afterGraduation": 1.0
+  },
+  "Education": {
+    "after10th": 0.4, // Education careers require higher education
+    "after12th": 0.7,
+    "afterGraduation": 1.0
+  },
+  "Government": {
+    "after10th": 0.4, // Most government jobs require 12th as minimum
+    "after12th": 0.8,
+    "afterGraduation": 1.0
+  },
+  "Marketing": {
+    "after10th": 0.5, // Marketing can be pursued via diploma after 10th
+    "after12th": 0.8,
+    "afterGraduation": 1.0
+  },
+  "Science": {
+    "after10th": 0.4, // Science careers typically require higher education
+    "after12th": 0.7,
+    "afterGraduation": 1.0
+  },
+  "Aviation": {
+    "after10th": 0.3, // Aviation typically requires higher education
+    "after12th": 0.6,
+    "afterGraduation": 0.9
+  },
+  "Hospitality": {
+    "after10th": 0.8, // Hospitality can be pursued after 10th via diploma
+    "after12th": 0.9,
+    "afterGraduation": 1.0
+  }
+};
+
+// Practical next steps for students based on education stage
+const practicalNextSteps: Record<string, string[]> = {
+  "after10th": [
+    "Science (PCM/PCB) stream in 11th-12th",
+    "Commerce stream in 11th-12th",
+    "Arts/Humanities stream in 11th-12th",
+    "Vocational courses/ITI",
+    "Diploma programs in technical fields",
+    "Certificate courses in skill development"
+  ],
+  "after12th": [
+    "Bachelor's degree programs",
+    "Professional courses (CA, CS, etc.)",
+    "Diploma in specialized fields",
+    "Entrance preparation for competitive exams",
+    "Vocational training programs"
+  ],
+  "afterGraduation": [
+    "Master's degree programs",
+    "Professional certifications",
+    "Entry-level job opportunities",
+    "Competitive exams for government services",
+    "Entrepreneurship opportunities"
+  ]
+};
+
 // Helper function to calculate match score based on user answers and career data
 export const calculateMatchScore = (
   answers: QuizAnswers, 
@@ -135,35 +220,39 @@ export const calculateMatchScore = (
     }
   });
   
-  // Education stage filter - adjust scores based on education requirements
+  // Apply education stage filter with more significant adjustments
   if (educationStage) {
-    switch (educationStage) {
-      case 'after10th':
-        // Lower match score for careers that require advanced degrees
-        if (
-          career.entranceExams.some(exam => 
-            exam.includes("PhD") || 
-            exam.includes("Masters") ||
-            exam.includes("M.Phil")
-          )
-        ) {
-          totalScore *= 0.7; // Reduce score by 30%
-        }
-        break;
-      case 'after12th':
-        // Lower match score for careers requiring postgraduate degrees
-        if (
-          career.entranceExams.some(exam => 
-            exam.includes("PhD") || 
-            exam.includes("M.Phil")
-          )
-        ) {
-          totalScore *= 0.8; // Reduce score by 20%
-        }
-        break;
-      default:
-        // No adjustment for graduate students
-        break;
+    const categoryFactor = educationPathMapping[career.category]?.[educationStage] || 0.5;
+    totalScore *= categoryFactor;
+    
+    // Further adjustments based on specific career requirements
+    if (educationStage === 'after10th') {
+      // Reduce score more significantly for careers that clearly require advanced degrees
+      if (
+        career.entranceExams.some(exam => 
+          exam.includes("PhD") || 
+          exam.includes("Masters") ||
+          exam.includes("M.Phil") ||
+          exam.includes("UPSC") ||
+          exam.includes("NEET-PG") ||
+          exam.includes("UGC-NET")
+        )
+      ) {
+        totalScore *= 0.3; // More significant reduction for careers requiring advanced degrees
+      }
+      
+      // Check if any entrance exam specifies "after 12th" or graduate level
+      if (
+        career.entranceExams.some(exam =>
+          exam.includes("JEE Advanced") ||
+          exam.includes("NEET") ||
+          exam.includes("CA Final") ||
+          exam.includes("CS") ||
+          exam.includes("CAT")
+        )
+      ) {
+        totalScore *= 0.5; // Reduce score for exams that can only be taken after 12th
+      }
     }
   }
   
@@ -189,10 +278,14 @@ export const getMatchedCareers = (
 };
 
 // Generate a summary of strengths and recommended career paths based on quiz answers
-export const generateQuizSummary = (answers: QuizAnswers): {
+export const generateQuizSummary = (
+  answers: QuizAnswers, 
+  educationStage?: string
+): {
   strengths: string[];
   recommendedPaths: string[];
   skills: SkillAssessment;
+  nextSteps?: string[];
 } => {
   // Initialize skill assessment
   const skills: SkillAssessment = {
@@ -279,11 +372,32 @@ export const generateQuizSummary = (answers: QuizAnswers): {
     scientific: ["Healthcare", "Research Science", "Environmental Science"]
   };
   
-  const recommendedPaths = topSkills.flatMap(skill => pathsMap[skill] || []);
+  // Get generic recommended paths based on skills
+  let recommendedPaths = topSkills.flatMap(skill => pathsMap[skill] || []);
+  
+  // Filter paths based on education stage
+  if (educationStage === 'after10th') {
+    // For 10th students, focus more on general streams rather than specific careers
+    recommendedPaths = recommendedPaths.map(path => {
+      if (path === "Software Development" || path === "Engineering" || path === "Information Technology") 
+        return "Science/Technical Education (PCM)";
+      if (path === "Healthcare" || path === "Research Science")
+        return "Science Education (PCB)";
+      if (path === "Finance" || path === "Management")
+        return "Commerce Education";
+      if (path === "Design" || path === "Arts" || path === "Teaching")
+        return "Arts/Humanities Education";
+      return path;
+    });
+  }
+  
+  // Add next steps based on education stage
+  const nextSteps = educationStage ? practicalNextSteps[educationStage] : undefined;
   
   return {
     strengths,
     recommendedPaths: [...new Set(recommendedPaths)], // Remove duplicates
-    skills
+    skills,
+    nextSteps
   };
 };

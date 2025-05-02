@@ -12,7 +12,7 @@ import { QuizAnswers, getMatchedCareers, generateQuizSummary, SkillAssessment } 
 import { Career } from "@/components/career-library/CareerCard";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
-import { Book, Briefcase, GraduationCap, PieChart, StarHalf } from "lucide-react";
+import { Book, Briefcase, GraduationCap, PieChart, StarHalf, SchoolIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Enhanced quiz questions with more detailed options for 10th grade
@@ -300,6 +300,7 @@ const QuizPage = () => {
     strengths: string[];
     recommendedPaths: string[];
     skills: SkillAssessment;
+    nextSteps?: string[];
   } | null>(null);
   
   const handleStageSelection = (stage: Stage) => {
@@ -345,8 +346,8 @@ const QuizPage = () => {
   };
   
   const handleQuizComplete = () => {
-    // Generate skills and strengths summary
-    const summary = generateQuizSummary(answers);
+    // Generate skills and strengths summary with education stage
+    const summary = generateQuizSummary(answers, selectedStage);
     setQuizSummary(summary);
     
     // Get matched careers with scores based on user's answers and education stage
@@ -474,6 +475,29 @@ const QuizPage = () => {
                         ))}
                       </ul>
                       
+                      {/* Add practical next steps based on education stage */}
+                      {quizSummary.nextSteps && (
+                        <>
+                          <h3 className="text-lg font-semibold mt-6 mb-4 flex items-center">
+                            <GraduationCap className="h-5 w-5 mr-2 text-pp-purple" />
+                            Practical Next Steps
+                          </h3>
+                          <ul className="space-y-2">
+                            {quizSummary.nextSteps.map((step, index) => (
+                              <motion.li 
+                                key={index}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0, transition: { delay: 0.8 + index * 0.1 } }}
+                                className="flex items-center text-sm"
+                              >
+                                <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
+                                {step}
+                              </motion.li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      
                       {renderSkillsGraph()}
                     </>
                   )}
@@ -488,6 +512,16 @@ const QuizPage = () => {
                     <Briefcase className="h-5 w-5 mr-2 text-pp-purple" />
                     {t("yourRecommendations")}
                   </h3>
+                  
+                  {selectedStage === 'after10th' && (
+                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-700 rounded-md">
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        These are career options you can aim for after completing the necessary education path. 
+                        First focus on choosing the right stream in 11th-12th that aligns with these careers.
+                      </p>
+                    </div>
+                  )}
+                  
                   <ul className="space-y-4">
                     {recommendedCareers.map((career, index) => (
                       <motion.li 
