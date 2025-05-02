@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
 import QuizQuestion, { Question } from "@/components/quiz/QuizQuestion";
 import Navbar from "@/components/Navbar";
@@ -7,11 +8,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { QuizAnswers, getMatchedCareers } from "@/utils/quizMatchUtils";
+import { QuizAnswers, getMatchedCareers, generateQuizSummary, SkillAssessment } from "@/utils/quizMatchUtils";
 import { Career } from "@/components/career-library/CareerCard";
 import { motion } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
+import { Book, Briefcase, GraduationCap, PieChart, StarHalf } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Enhanced quiz questions with more detailed options
+// Enhanced quiz questions with more detailed options for 10th grade
 const after10thQuestions: Question[] = [
   {
     id: 1,
@@ -26,6 +30,17 @@ const after10thQuestions: Question[] = [
   },
   {
     id: 2,
+    question: "What are your strongest skills?",
+    options: [
+      "Problem-solving and logical thinking",
+      "Memory and observation",
+      "Communication and expression",
+      "Design and creativity"
+    ],
+    category: "skills"
+  },
+  {
+    id: 3,
     question: "How do you prefer to solve problems?",
     options: [
       "By analyzing data and finding patterns",
@@ -36,7 +51,7 @@ const after10thQuestions: Question[] = [
     category: "aptitude"
   },
   {
-    id: 3,
+    id: 4,
     question: "What type of career environment appeals to you most?",
     options: [
       "Corporate office with a stable schedule",
@@ -47,7 +62,7 @@ const after10thQuestions: Question[] = [
     category: "worklife"
   },
   {
-    id: 4,
+    id: 5,
     question: "Which stream are you most interested in pursuing after 10th?",
     options: [
       "Science (PCM - Physics, Chemistry, Mathematics)",
@@ -58,7 +73,7 @@ const after10thQuestions: Question[] = [
     category: "interest"
   },
   {
-    id: 5,
+    id: 6,
     question: "What skills do others often compliment you on?",
     options: [
       "Analytical thinking and problem-solving",
@@ -67,9 +82,33 @@ const after10thQuestions: Question[] = [
       "Organization and attention to detail"
     ],
     category: "personality"
+  },
+  {
+    id: 7,
+    question: "Which career field are you most drawn to?",
+    options: [
+      "Computer Science related fields",
+      "Life Sciences related fields",
+      "Commerce and Economics related fields",
+      "Humanities and Arts related fields"
+    ],
+    category: "interest",
+    weight: 1.5 // Higher weight as this directly relates to career interest
+  },
+  {
+    id: 8,
+    question: "What type of work would you find most satisfying?",
+    options: [
+      "Building and creating new things",
+      "Helping and serving others",
+      "Analyzing and solving complex problems",
+      "Leading teams and projects"
+    ],
+    category: "worktype"
   }
 ];
 
+// More detailed questions for 12th grade
 const after12thQuestions: Question[] = [
   {
     id: 1,
@@ -80,7 +119,8 @@ const after12thQuestions: Question[] = [
       "Business, Commerce, and Management",
       "Arts, Humanities, and Social Sciences"
     ],
-    category: "academic"
+    category: "academic",
+    weight: 1.5 // Higher weight as this is a key decision point
   },
   {
     id: 2,
@@ -102,7 +142,7 @@ const after12thQuestions: Question[] = [
       "Self-study through books and online resources",
       "Mentorship and guided learning"
     ],
-    category: "aptitude"
+    category: "learning"
   },
   {
     id: 4,
@@ -113,7 +153,7 @@ const after12thQuestions: Question[] = [
       "Work-life balance",
       "Social impact and contribution"
     ],
-    category: "interest"
+    category: "values"
   },
   {
     id: 5,
@@ -125,9 +165,44 @@ const after12thQuestions: Question[] = [
       "Collaborate with others to find the best solution"
     ],
     category: "personality"
+  },
+  {
+    id: 6,
+    question: "Which skills would you like to develop further?",
+    options: [
+      "Technical and specialized knowledge",
+      "Leadership and management abilities",
+      "Creative and innovative thinking",
+      "Communication and interpersonal skills"
+    ],
+    category: "development"
+  },
+  {
+    id: 7,
+    question: "What type of educational path are you considering?",
+    options: [
+      "Traditional university degree (Bachelor's)",
+      "Professional certification or diploma",
+      "Vocational training or skill-based programs",
+      "Online courses and self-learning"
+    ],
+    category: "education"
+  },
+  {
+    id: 8,
+    question: "Which broad career category aligns with your strengths?",
+    options: [
+      "STEM (Science, Technology, Engineering, Math)",
+      "Healthcare and Life Sciences",
+      "Business and Finance",
+      "Creative Arts and Communication"
+    ],
+    category: "alignment",
+    weight: 1.3
   }
 ];
 
+// More specialized questions for graduates
 const afterGraduationQuestions: Question[] = [
   {
     id: 1,
@@ -221,6 +296,11 @@ const QuizPage = () => {
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [recommendedCareers, setRecommendedCareers] = useState<Career[]>([]);
+  const [quizSummary, setQuizSummary] = useState<{
+    strengths: string[];
+    recommendedPaths: string[];
+    skills: SkillAssessment;
+  } | null>(null);
   
   const handleStageSelection = (stage: Stage) => {
     setSelectedStage(stage);
@@ -228,6 +308,7 @@ const QuizPage = () => {
     setCurrentQuestionIndex(0);
     setAnswers({});
     setQuizCompleted(false);
+    setQuizSummary(null);
   };
   
   const getQuestionsForStage = (): Question[] => {
@@ -264,8 +345,12 @@ const QuizPage = () => {
   };
   
   const handleQuizComplete = () => {
-    // Get matched careers with scores based on user's answers
-    const matchedCareers = getMatchedCareers(answers, allCareers);
+    // Generate skills and strengths summary
+    const summary = generateQuizSummary(answers);
+    setQuizSummary(summary);
+    
+    // Get matched careers with scores based on user's answers and education stage
+    const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
     
     // Take top 5 matches
     setRecommendedCareers(matchedCareers.slice(0, 5));
@@ -278,9 +363,37 @@ const QuizPage = () => {
   };
   
   const handleViewCareers = () => {
-    // Pass the recommended careers to the library page through localStorage
+    // Pass the recommended careers and quiz stage to the library page
     localStorage.setItem('matchedCareers', JSON.stringify(recommendedCareers));
+    localStorage.setItem('educationStage', selectedStage || '');
     navigate('/library');
+  };
+
+  // Function to render the skills graph
+  const renderSkillsGraph = () => {
+    if (!quizSummary) return null;
+    
+    const { skills } = quizSummary;
+    const maxSkillValue = Math.max(...Object.values(skills));
+    const normalizeSkill = (value: number) => maxSkillValue > 0 ? (value / maxSkillValue) * 100 : 0;
+    
+    return (
+      <div className="mt-6 space-y-3">
+        <h4 className="font-medium text-gray-800 dark:text-gray-200">Your Skills Assessment:</h4>
+        
+        <div className="space-y-3">
+          {Object.entries(skills).map(([skill, value]) => (
+            <div key={skill} className="space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="text-sm capitalize">{skill}</span>
+                <span className="text-xs font-medium">{value}</span>
+              </div>
+              <Progress value={normalizeSkill(value)} className="h-2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
   
   return (
@@ -301,74 +414,129 @@ const QuizPage = () => {
               onComplete={handleQuizComplete}
             />
           ) : (
-            <div className="py-12 text-center">
+            <div className="py-12">
               <motion.h2 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-2xl font-bold mb-4"
+                className="text-2xl font-bold mb-4 text-center"
               >
                 {t("thankYouQuiz")}
               </motion.h2>
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { delay: 0.2 } }}
-                className="text-gray-600 dark:text-gray-300 mb-8"
+                className="text-gray-600 dark:text-gray-300 mb-8 text-center"
               >
                 {t("basedOnResponses")}
               </motion.p>
               
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1, transition: { delay: 0.4 } }}
-                className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
-              >
-                <h3 className="text-lg font-semibold mb-4">{t("yourRecommendations")}</h3>
-                <ul className="space-y-2">
-                  {recommendedCareers.map((career, index) => (
-                    <motion.li 
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0, transition: { delay: 0.5 + index * 0.1 } }}
-                      className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded"
-                    >
-                      <div className="flex items-center justify-center h-8 w-8 rounded-full bg-pp-purple dark:bg-pp-bright-purple text-white font-semibold text-sm">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{career.title}</p>
-                        <div className="flex items-center mt-1">
-                          <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                            <div 
-                              className="bg-pp-bright-purple dark:bg-pp-saffron h-2 rounded-full"
-                              style={{ width: `${career.matchScore || 0}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs font-medium ml-2 min-w-[40px]">
-                            {career.matchScore}%
-                          </span>
-                        </div>
-                      </div>
-                    </motion.li>
-                  ))}
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1, transition: { delay: 0.3 } }}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                >
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <StarHalf className="h-5 w-5 mr-2 text-pp-purple" />
+                    {t("yourStrengths")}
+                  </h3>
+                  {quizSummary && (
+                    <>
+                      <ul className="space-y-2 mb-6">
+                        {quizSummary.strengths.map((strength, index) => (
+                          <motion.li 
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0, transition: { delay: 0.4 + index * 0.1 } }}
+                            className="flex items-center text-sm"
+                          >
+                            <div className="h-2 w-2 bg-pp-purple rounded-full mr-2"></div>
+                            {strength}
+                          </motion.li>
+                        ))}
+                      </ul>
+                      
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <Book className="h-5 w-5 mr-2 text-pp-purple" />
+                        {t("recommendedPaths")}
+                      </h3>
+                      <ul className="space-y-2">
+                        {quizSummary.recommendedPaths.map((path, index) => (
+                          <motion.li 
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
+                            className="flex items-center text-sm"
+                          >
+                            <div className="h-2 w-2 bg-pp-saffron rounded-full mr-2"></div>
+                            {path}
+                          </motion.li>
+                        ))}
+                      </ul>
+                      
+                      {renderSkillsGraph()}
+                    </>
+                  )}
+                </motion.div>
                 
-                <div className="mt-6">
-                  <Button 
-                    className="bg-pp-purple hover:bg-pp-bright-purple dark:bg-pp-saffron dark:hover:bg-amber-500 w-full"
-                    onClick={handleViewCareers}
-                  >
-                    {t("exploreCareersLibrary")}
-                  </Button>
-                </div>
-              </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                >
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2 text-pp-purple" />
+                    {t("yourRecommendations")}
+                  </h3>
+                  <ul className="space-y-4">
+                    {recommendedCareers.map((career, index) => (
+                      <motion.li 
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
+                        className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded"
+                      >
+                        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-pp-purple dark:bg-pp-bright-purple text-white font-semibold text-sm mt-1">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm md:text-base">{career.title}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{career.category}</p>
+                          <div className="flex items-center mt-1">
+                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                              <div 
+                                className="bg-pp-bright-purple dark:bg-pp-saffron h-2 rounded-full"
+                                style={{ width: `${career.matchScore || 0}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs font-medium ml-2 min-w-[40px]">
+                              {career.matchScore}%
+                            </span>
+                          </div>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  
+                  <div className="mt-6">
+                    <Button 
+                      className="bg-pp-purple hover:bg-pp-bright-purple dark:bg-pp-saffron dark:hover:bg-amber-500 w-full"
+                      onClick={handleViewCareers}
+                    >
+                      {t("exploreCareersLibrary")}
+                    </Button>
+                  </div>
+                </motion.div>
+              </div>
               
-              <Button 
-                variant="outline" 
-                onClick={() => setSelectedStage(null)}
-                className="mt-4"
-              >
-                {t("takeAnotherQuiz")}
-              </Button>
+              <div className="flex justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedStage(null)}
+                >
+                  {t("takeAnotherQuiz")}
+                </Button>
+              </div>
             </div>
           )}
         </div>

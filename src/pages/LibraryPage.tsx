@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -6,6 +7,10 @@ import CareerCard, { Career } from "@/components/career-library/CareerCard";
 import CareerFilter from "@/components/career-library/CareerFilter";
 import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { BarChart4, Search, Filter, Percent } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LibraryPage() {
   const { language, translations } = useLanguage();
@@ -238,14 +243,22 @@ export default function LibraryPage() {
 
   const [filteredCareers, setFilteredCareers] = useState<Career[]>(careers);
   const [savedCareers, setSavedCareers] = useState<string[]>([]);
+  const [educationStage, setEducationStage] = useState<string | null>(null);
+  const [hasQuizResults, setHasQuizResults] = useState(false);
   const categories = Array.from(new Set(careers.map(career => career.category)));
 
   // Load matched careers from quiz if available
   useEffect(() => {
+    // Get education stage
+    const stageData = localStorage.getItem('educationStage');
+    const currentStage = stageData || null;
+    setEducationStage(currentStage);
+    
     const matchedCareersData = localStorage.getItem('matchedCareers');
     if (matchedCareersData) {
       try {
         const matchedCareers = JSON.parse(matchedCareersData);
+        setHasQuizResults(true);
         
         // Update career list with match scores from quiz results
         const updatedCareers = careers.map(career => {
@@ -259,12 +272,18 @@ export default function LibraryPage() {
         );
         
         setCareers(sortedCareers);
-        setFilteredCareers(sortedCareers);
+        
+        // Filter careers by match score - only show those above 40% match
+        const matchedFiltered = sortedCareers.filter(career => 
+          (career.matchScore || 0) >= 40
+        );
+        
+        setFilteredCareers(matchedFiltered.length > 0 ? matchedFiltered : sortedCareers);
         
         // Show a toast notification
         toast({
           title: "Quiz results loaded",
-          description: "Careers are now sorted by your personal match score",
+          description: "Showing careers that match your profile.",
         });
         
         // Clear localStorage after using it
@@ -277,7 +296,13 @@ export default function LibraryPage() {
 
   const handleSearch = (query: string) => {
     if (!query.trim()) {
-      setFilteredCareers(careers);
+      // If search is cleared, apply education filter again
+      if (hasQuizResults) {
+        const matchingCareers = careers.filter(career => (career.matchScore || 0) >= 40);
+        setFilteredCareers(matchingCareers.length > 0 ? matchingCareers : careers);
+      } else {
+        setFilteredCareers(careers);
+      }
       return;
     }
     
@@ -291,16 +316,27 @@ export default function LibraryPage() {
   };
 
   const handleFilterChange = (selectedCategories: string[]) => {
-    if (selectedCategories.length === 0) {
-      setFilteredCareers(careers);
-      return;
+    let results = careers;
+    
+    // Apply category filter if categories are selected
+    if (selectedCategories.length > 0) {
+      results = results.filter((career) => 
+        selectedCategories.includes(career.category)
+      );
     }
     
-    const filteredResults = careers.filter((career) => 
-      selectedCategories.includes(career.category)
-    );
+    // Apply match score filter if coming from quiz
+    if (hasQuizResults) {
+      results = results.filter(career => (career.matchScore || 0) >= 40);
+      if (results.length === 0) {
+        // If no high matches, just use the category filter
+        results = careers.filter((career) => 
+          selectedCategories.length === 0 || selectedCategories.includes(career.category)
+        );
+      }
+    }
     
-    setFilteredCareers(filteredResults);
+    setFilteredCareers(results);
   };
 
   const handleSaveCareer = (careerId: string) => {
@@ -351,6 +387,23 @@ export default function LibraryPage() {
     }
   };
 
+  const handleTakeQuiz = () => {
+    navigate('/quiz');
+  };
+
+  const getStageLabel = () => {
+    switch (educationStage) {
+      case 'after10th':
+        return "10th Grade";
+      case 'after12th':
+        return "12th Grade";
+      case 'afterGraduation':
+        return "Graduation";
+      default:
+        return "All Levels";
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -359,17 +412,61 @@ export default function LibraryPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-900 dark:text-white">
             {language === 'english' ? 'Career Library' : translations.hindi.careerLibraryTitle}
           </h1>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-4 max-w-2xl mx-auto">
             {language === 'english' 
-              ? 'Explore 100+ career paths tailored for Indian students, complete with entrance exams, top colleges, and salary information.'
+              ? 'Explore career paths tailored for Indian students, complete with entrance exams, top colleges, and salary information.'
               : translations.hindi.exploreCareerPaths}
           </p>
+          
+          {hasQuizResults && (
+            <div className="mb-6 max-w-2xl mx-auto">
+              <Alert className="bg-pp-purple/10 border-pp-purple">
+                <BarChart4 className="h-4 w-4 text-pp-purple" />
+                <AlertTitle className="text-pp-purple">
+                  Personalized Career Recommendations
+                </AlertTitle>
+                <AlertDescription className="text-gray-700 dark:text-gray-300">
+                  Showing careers matched to your {getStageLabel()} profile. 
+                  These recommendations are based on your quiz responses.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+          
+          {!hasQuizResults && (
+            <div className="mb-6 flex justify-center">
+              <Button 
+                onClick={handleTakeQuiz}
+                className="bg-pp-purple hover:bg-pp-bright-purple flex items-center gap-2"
+              >
+                <Percent className="h-4 w-4" />
+                Take Career Match Quiz
+              </Button>
+            </div>
+          )}
           
           <CareerFilter 
             onSearch={handleSearch} 
             onFilterChange={handleFilterChange}
             categories={categories}
           />
+          
+          {hasQuizResults && filteredCareers.length > 0 && (
+            <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-pp-purple" />
+                  Showing {filteredCareers.length} careers matched to {getStageLabel()} students
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  These careers are filtered based on your education level and quiz responses. 
+                  The match percentage indicates how well each career aligns with your interests and aptitudes.
+                </p>
+              </CardContent>
+            </Card>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCareers.length > 0 ? (
@@ -384,7 +481,20 @@ export default function LibraryPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-10">
-                <p className="text-gray-500 dark:text-gray-400">No careers found matching your criteria.</p>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  No careers found matching your criteria.
+                </p>
+                {hasQuizResults && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setFilteredCareers(careers);
+                      setHasQuizResults(false);
+                    }}
+                  >
+                    View All Careers Instead
+                  </Button>
+                )}
               </div>
             )}
           </div>

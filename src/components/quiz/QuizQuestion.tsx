@@ -1,16 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "./ProgressBar";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Badge } from "@/components/ui/badge";
 
 export interface Question {
   id: number;
   question: string;
   options: string[];
   category: string;
+  weight?: number; // Question importance weight
+  skillMapping?: Record<string, number>; // Maps answers to skill scores
 }
 
 interface QuizQuestionProps {
@@ -41,6 +44,11 @@ export default function QuizQuestion({
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   
+  // Update selected option when changing questions
+  useEffect(() => {
+    setSelectedOption(answers[currentQuestion?.id] || null);
+  }, [currentQuestionIndex, answers, currentQuestion?.id]);
+  
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
     onAnswerSelected(currentQuestion.id, option);
@@ -51,15 +59,7 @@ export default function QuizQuestion({
       onComplete();
     } else {
       onNextQuestion();
-      // Reset selected option for the next question
-      setSelectedOption(answers[questions[currentQuestionIndex + 1]?.id] || null);
     }
-  };
-  
-  const handlePrevious = () => {
-    onPrevQuestion();
-    // Set selected option to the previously selected answer
-    setSelectedOption(answers[questions[currentQuestionIndex - 1]?.id] || null);
   };
   
   const containerVariants = {
@@ -81,9 +81,11 @@ export default function QuizQuestion({
     <div className="py-10 max-w-3xl mx-auto">
       <ProgressBar progress={progress} />
       
-      <div className="flex justify-between text-sm text-gray-500 mt-2 mb-8">
+      <div className="flex justify-between text-sm text-gray-500 mt-2 mb-4">
         <span>{t("question")} {currentQuestionIndex + 1} {t("of")} {questions.length}</span>
-        <span>Category: {currentQuestion.category}</span>
+        <Badge variant="secondary" className="text-xs font-normal">
+          {currentQuestion.category}
+        </Badge>
       </div>
       
       <motion.div
@@ -93,7 +95,7 @@ export default function QuizQuestion({
         exit={{ opacity: 0, x: -20 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-2xl font-bold mb-6">{currentQuestion.question}</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-6">{currentQuestion.question}</h2>
         
         <motion.div
           variants={containerVariants}
@@ -104,10 +106,10 @@ export default function QuizQuestion({
           {currentQuestion.options.map((option, index) => (
             <motion.div key={index} variants={itemVariants}>
               <Card
-                className={`cursor-pointer ${
+                className={`cursor-pointer transition-all ${
                   selectedOption === option
                     ? "border-pp-purple bg-pp-purple/10"
-                    : "hover:border-gray-400"
+                    : "hover:border-gray-400 hover:shadow-md"
                 }`}
                 onClick={() => handleOptionClick(option)}
               >
@@ -122,7 +124,7 @@ export default function QuizQuestion({
                     >
                       {selectedOption === option && "✓"}
                     </div>
-                    <div>{option}</div>
+                    <div className="text-sm md:text-base">{option}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -132,7 +134,7 @@ export default function QuizQuestion({
         
         <div className="mt-8 flex justify-between">
           <Button 
-            onClick={handlePrevious} 
+            onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
             variant="outline"
           >
@@ -150,4 +152,8 @@ export default function QuizQuestion({
       </motion.div>
     </div>
   );
+  
+  function handlePrevious() {
+    onPrevQuestion();
+  }
 }
