@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
-import { Briefcase, Search } from "lucide-react";
+import { Briefcase, Search, X } from "lucide-react";
 import careerPaths from "@/data/careers";
 import { toast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CareersPage() {
   const { t } = useLanguage();
@@ -19,7 +21,23 @@ export default function CareersPage() {
   const [savedCareers, setSavedCareers] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
   const careersPerPage = 12;
+  
+  // Load saved careers from localStorage on component mount
+  useEffect(() => {
+    const savedCareerIds = localStorage.getItem('savedCareers');
+    if (savedCareerIds) {
+      setSavedCareers(JSON.parse(savedCareerIds));
+    }
+  }, []);
+
+  // Save careers to localStorage whenever savedCareers changes
+  useEffect(() => {
+    localStorage.setItem('savedCareers', JSON.stringify(savedCareers));
+  }, [savedCareers]);
   
   // Extract all unique categories
   const categories = Array.from(new Set(careerPaths.map(career => career.category)));
@@ -35,8 +53,14 @@ export default function CareersPage() {
     setSelectedCategories(filters);
     setCurrentPage(1); // Reset to first page on filter change
   };
+
+  // Handle tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1); // Reset to first page on tab change
+  };
   
-  // Filter careers based on search query and selected categories
+  // Filter careers based on search query, selected categories, and active tab
   useEffect(() => {
     let filtered = careerPaths;
     
@@ -54,8 +78,13 @@ export default function CareersPage() {
       filtered = filtered.filter(career => selectedCategories.includes(career.category));
     }
     
+    // Apply saved filter if active tab is "saved"
+    if (activeTab === "saved") {
+      filtered = filtered.filter(career => savedCareers.includes(career.id));
+    }
+    
     setFilteredCareers(filtered);
-  }, [searchQuery, selectedCategories]);
+  }, [searchQuery, selectedCategories, savedCareers, activeTab]);
   
   // Calculate current careers to display
   const indexOfLastCareer = currentPage * careersPerPage;
@@ -66,31 +95,28 @@ export default function CareersPage() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   
   // Handle save career
-  const handleSaveCareer = (careerId: string) => {
+  const handleSaveCareer = (career: Career) => {
     setSavedCareers(prev => {
-      if (prev.includes(careerId)) {
+      if (prev.includes(career.id)) {
         toast({
           title: "Career removed from saved list",
           description: "You can always save it again later.",
         });
-        return prev.filter(id => id !== careerId);
+        return prev.filter(id => id !== career.id);
       } else {
         toast({
           title: "Career saved successfully",
-          description: "You can find it in your saved careers.",
+          description: "You can find it in your saved careers tab.",
         });
-        return [...prev, careerId];
+        return [...prev, career.id];
       }
     });
   };
   
   // View career details
-  const handleViewDetails = (careerId: string) => {
-    // In a future implementation, this would navigate to a detailed view
-    toast({
-      title: "Career Details",
-      description: "This feature will be implemented in the next update.",
-    });
+  const handleViewDetails = (career: Career) => {
+    setSelectedCareer(career);
+    setShowDetailsDialog(true);
   };
   
   return (
@@ -126,6 +152,16 @@ export default function CareersPage() {
               categories={categories}
             />
             
+            {/* Career tabs */}
+            <div className="mb-6">
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="all">All Careers</TabsTrigger>
+                  <TabsTrigger value="saved">Saved Careers ({savedCareers.length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            
             {/* Career cards */}
             <div className="mb-8">
               {currentCareers.length > 0 ? (
@@ -139,8 +175,8 @@ export default function CareersPage() {
                     >
                       <CareerCard 
                         career={career}
-                        onSave={() => handleSaveCareer(career.id)}
-                        onViewDetails={() => handleViewDetails(career.id)}
+                        onSave={handleSaveCareer}
+                        onViewDetails={handleViewDetails}
                         isSaved={savedCareers.includes(career.id)}
                       />
                     </motion.div>
@@ -151,18 +187,25 @@ export default function CareersPage() {
                   <div className="flex justify-center mb-4">
                     <Search className="h-12 w-12 text-gray-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">{t("noResults")}</h3>
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {activeTab === "saved" ? "No saved careers yet" : t("noResults")}
+                  </h3>
                   <p className="text-gray-500 dark:text-gray-400">
-                    {t("tryAdjusting")}
+                    {activeTab === "saved" 
+                      ? "Start saving careers that interest you!" 
+                      : t("tryAdjusting")}
                   </p>
                   <Button 
                     className="mt-4 bg-pp-purple hover:bg-pp-bright-purple"
                     onClick={() => {
                       setSearchQuery("");
                       setSelectedCategories([]);
+                      if (activeTab === "saved") {
+                        setActiveTab("all");
+                      }
                     }}
                   >
-                    {t("resetFilters")}
+                    {activeTab === "saved" ? "View All Careers" : t("resetFilters")}
                   </Button>
                 </div>
               )}
@@ -229,7 +272,125 @@ export default function CareersPage() {
         </section>
       </main>
       
+      {/* Career Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl md:text-2xl">{selectedCareer?.title}</DialogTitle>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
+            </div>
+            <div className="flex items-center mt-1">
+              <div className="flex items-center px-2 py-1 rounded-full bg-pp-purple/10 text-pp-purple">
+                {selectedCareer && getCategoryIcon(selectedCareer.category)}
+                <span className="text-xs ml-1">{selectedCareer?.category}</span>
+              </div>
+              {selectedCareer?.matchScore && (
+                <span className="ml-2 text-sm text-gray-500">
+                  {selectedCareer.matchScore}% match with your profile
+                </span>
+              )}
+            </div>
+          </DialogHeader>
+          
+          {selectedCareer && (
+            <div className="mt-4 space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedCareer.description}
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Salary Range</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedCareer.salary}
+                </p>
+              </div>
+              
+              {selectedCareer.entranceExams.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Key Entrance Exams</h3>
+                  <ul className="list-disc pl-5 text-gray-600 dark:text-gray-400">
+                    {selectedCareer.entranceExams.map((exam, index) => (
+                      <li key={index}>{exam}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {selectedCareer.colleges.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Recommended Colleges</h3>
+                  <ul className="list-disc pl-5 text-gray-600 dark:text-gray-400">
+                    {selectedCareer.colleges.map((college, index) => (
+                      <li key={index}>{college}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {selectedCareer.recruiters.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Top Recruiters</h3>
+                  <ul className="list-disc pl-5 text-gray-600 dark:text-gray-400">
+                    {selectedCareer.recruiters.map((recruiter, index) => (
+                      <li key={index}>{recruiter}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              <div className="pt-4 flex justify-end gap-3 border-t">
+                <Button 
+                  variant={savedCareers.includes(selectedCareer.id) ? "default" : "outline"}
+                  className={savedCareers.includes(selectedCareer.id) ? "bg-green-600 hover:bg-green-700" : ""}
+                  onClick={() => handleSaveCareer(selectedCareer)}
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  {savedCareers.includes(selectedCareer.id) ? "Saved" : "Save"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      
       <Footer />
     </div>
   );
+
+  function getCategoryIcon(category: string) {
+    switch (category.toLowerCase()) {
+      case 'technical':
+        return <Briefcase className="h-5 w-5" />;
+      case 'medical':
+        return <Star className="h-5 w-5" />;
+      case 'government':
+        return <TrendingUp className="h-5 w-5" />;
+      case 'education':
+        return <GraduationCap className="h-5 w-5" />;
+      case 'finance':
+        return <PieChart className="h-5 w-5" />;
+      case 'creative':
+        return <Palette className="h-5 w-5" />;
+      case 'marketing':
+        return <TrendingUp className="h-5 w-5" />;
+      case 'aviation':
+        return <Plane className="h-5 w-5" />;
+      case 'science':
+        return <Microscope className="h-5 w-5" />;
+      case 'engineering':
+        return <Leaf className="h-5 w-5" />;
+      case 'hospitality':
+        return <BookOpen className="h-5 w-5" />; 
+      default:
+        return <BookOpen className="h-5 w-5" />;
+    }
+  }
 }

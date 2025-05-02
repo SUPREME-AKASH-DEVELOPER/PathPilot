@@ -17,8 +17,8 @@ export interface Career {
 
 interface CareerCardProps {
   career: Career;
-  onSave?: () => void;
-  onViewDetails?: () => void;
+  onSave?: (career: Career) => void;
+  onViewDetails?: (career: Career) => void;
   isSaved?: boolean;
 }
 
@@ -50,6 +50,18 @@ export default function CareerCard({ career, onSave, onViewDetails, isSaved }: C
         return <BookOpen className="h-5 w-5" />; 
       default:
         return <BookOpen className="h-5 w-5" />;
+    }
+  };
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(career);
+    }
+  };
+
+  const handleViewDetails = () => {
+    if (onViewDetails) {
+      onViewDetails(career);
     }
   };
 
@@ -104,14 +116,14 @@ export default function CareerCard({ career, onSave, onViewDetails, isSaved }: C
           <Button 
             variant={isSaved ? "default" : "outline"}
             className={`flex-1 ${isSaved ? "bg-green-600 hover:bg-green-700" : ""}`}
-            onClick={onSave}
+            onClick={handleSave}
           >
             <Save className="h-4 w-4 mr-1" />
             {isSaved ? "Saved" : "Save"}
           </Button>
           <Button 
             className="flex-1 bg-pp-purple hover:bg-pp-bright-purple"
-            onClick={onViewDetails}
+            onClick={handleViewDetails}
           >
             <Info className="h-4 w-4 mr-1" />
             Details
