@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Star, GraduationCap, Briefcase, TrendingUp, Palette, PieChart, Plane, Microscope, Brain, Leaf } from "lucide-react";
+import { BookOpen, Star, GraduationCap, Briefcase, TrendingUp, Palette, PieChart, Plane, Microscope, Brain, Leaf, Save, Info } from "lucide-react";
 
 export interface Career {
   id: string;
@@ -19,9 +19,10 @@ interface CareerCardProps {
   career: Career;
   onSave?: () => void;
   onViewDetails?: () => void;
+  isSaved?: boolean;
 }
 
-export default function CareerCard({ career, onSave, onViewDetails }: CareerCardProps) {
+export default function CareerCard({ career, onSave, onViewDetails, isSaved }: CareerCardProps) {
   // Get appropriate icon based on category
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
@@ -45,6 +46,8 @@ export default function CareerCard({ career, onSave, onViewDetails }: CareerCard
         return <Microscope className="h-5 w-5" />;
       case 'engineering':
         return <Leaf className="h-5 w-5" />;
+      case 'hospitality':
+        return <BookOpen className="h-5 w-5" />; 
       default:
         return <BookOpen className="h-5 w-5" />;
     }
@@ -99,16 +102,18 @@ export default function CareerCard({ career, onSave, onViewDetails }: CareerCard
       <CardFooter>
         <div className="flex gap-2 w-full">
           <Button 
-            variant="outline" 
-            className="flex-1"
+            variant={isSaved ? "default" : "outline"}
+            className={`flex-1 ${isSaved ? "bg-green-600 hover:bg-green-700" : ""}`}
             onClick={onSave}
           >
-            Save
+            <Save className="h-4 w-4 mr-1" />
+            {isSaved ? "Saved" : "Save"}
           </Button>
           <Button 
             className="flex-1 bg-pp-purple hover:bg-pp-bright-purple"
             onClick={onViewDetails}
           >
+            <Info className="h-4 w-4 mr-1" />
             Details
           </Button>
         </div>

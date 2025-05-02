@@ -1,12 +1,17 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CareerCard, { Career } from "@/components/career-library/CareerCard";
 import CareerFilter from "@/components/career-library/CareerFilter";
 import { toast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function LibraryPage() {
+  const { language, translations } = useLanguage();
+  const navigate = useNavigate();
+  
   // Enhanced career data with more options
   const [careers, setCareers] = useState<Career[]>([
     {
@@ -128,10 +133,112 @@ export default function LibraryPage() {
       entranceExams: ["GATE", "JEE Advanced"],
       colleges: ["IITs", "NITs", "BITS", "VIT"],
       recruiters: ["Government Agencies", "Consulting Firms", "Industries"]
+    },
+    // Adding 10 more careers below
+    {
+      id: "13",
+      title: "Artificial Intelligence Specialist",
+      category: "Technical",
+      description: "Develop and implement AI systems and applications like machine learning models, neural networks, and natural language processing.",
+      salary: "₹8L - ₹45L per annum",
+      entranceExams: ["GATE (CS)", "GRE"],
+      colleges: ["IITs", "IIITs", "IISc", "BITS"],
+      recruiters: ["Google", "Microsoft", "Amazon", "AI Startups"]
+    },
+    {
+      id: "14",
+      title: "Architect",
+      category: "Creative",
+      description: "Design buildings and structures, combining artistic vision with technical knowledge for functionality and aesthetics.",
+      salary: "₹4L - ₹25L per annum",
+      entranceExams: ["NATA", "JEE (B.Arch)", "GATE (AR)"],
+      colleges: ["SPA", "CEPT", "IITs", "NIT"],
+      recruiters: ["Architectural Firms", "Construction Companies", "Government"]
+    },
+    {
+      id: "15",
+      title: "Investment Banker",
+      category: "Finance",
+      description: "Help companies and governments raise capital, provide financial advice, and facilitate mergers and acquisitions.",
+      salary: "₹10L - ₹50L per annum",
+      entranceExams: ["CAT", "XAT", "GMAT"],
+      colleges: ["IIMs", "FMS Delhi", "XLRI", "ISB"],
+      recruiters: ["JP Morgan", "Goldman Sachs", "Morgan Stanley", "HSBC"]
+    },
+    {
+      id: "16",
+      title: "Pharmacist",
+      category: "Medical",
+      description: "Dispense medications, advise patients on drug interactions, and ensure proper usage of prescription medicines.",
+      salary: "₹3L - ₹12L per annum",
+      entranceExams: ["GPAT", "NIPER JEE"],
+      colleges: ["NIPER", "Jamia Hamdard", "BHU", "BITS"],
+      recruiters: ["Hospitals", "Pharmacy Chains", "Pharmaceutical Companies"]
+    },
+    {
+      id: "17",
+      title: "Content Creator",
+      category: "Creative",
+      description: "Produce engaging digital content including videos, blogs, podcasts and social media posts for various platforms.",
+      salary: "₹3L - ₹30L per annum",
+      entranceExams: ["Portfolio-based Selection"],
+      colleges: ["MICA", "Symbiosis", "XIC", "FTII"],
+      recruiters: ["Media Houses", "Digital Agencies", "Freelance"]
+    },
+    {
+      id: "18",
+      title: "Aerospace Engineer",
+      category: "Engineering",
+      description: "Design, develop and test aircraft, spacecraft, satellites, and missiles using principles of physics and engineering.",
+      salary: "₹6L - ₹35L per annum",
+      entranceExams: ["GATE (AE)", "JEE Advanced"],
+      colleges: ["IITs", "IIST", "MIT Manipal", "PEC"],
+      recruiters: ["ISRO", "HAL", "DRDO", "Boeing India"]
+    },
+    {
+      id: "19",
+      title: "Cyber Security Expert",
+      category: "Technical",
+      description: "Protect computer systems, networks, and data from cyber threats, unauthorized access, and security breaches.",
+      salary: "₹6L - ₹40L per annum",
+      entranceExams: ["GATE (CS)", "CEH Certification"],
+      colleges: ["IITs", "NITs", "IIIT Hyderabad", "DIAT"],
+      recruiters: ["Banks", "IT Companies", "Government Agencies", "Consultancies"]
+    },
+    {
+      id: "20",
+      title: "Hotel Management Professional",
+      category: "Hospitality",
+      description: "Oversee operations of hotels, resorts, and other accommodation establishments to ensure excellent guest experiences.",
+      salary: "₹3L - ₹20L per annum",
+      entranceExams: ["NCHMCT JEE"],
+      colleges: ["IHMs", "Welcomgroup", "Christ University", "Manipal"],
+      recruiters: ["Taj Group", "Oberoi", "ITC Hotels", "International Chains"]
+    },
+    {
+      id: "21",
+      title: "Nutritionist",
+      category: "Medical",
+      description: "Provide advice on diet and food choices to help people achieve specific health-related goals and manage medical conditions.",
+      salary: "₹3L - ₹15L per annum",
+      entranceExams: ["AIIMS PG", "PG Entrance Tests"],
+      colleges: ["Lady Irwin College", "SNDT Women's University", "Institute of Home Economics"],
+      recruiters: ["Hospitals", "Fitness Centers", "Schools", "Private Practice"]
+    },
+    {
+      id: "22",
+      title: "Urban Planner",
+      category: "Government",
+      description: "Develop comprehensive plans and programs for land use and growth of urban and rural communities.",
+      salary: "₹5L - ₹20L per annum",
+      entranceExams: ["GATE (AR/PL)", "CEPT Entrance"],
+      colleges: ["SPA", "CEPT", "IIT Kharagpur", "JMI"],
+      recruiters: ["Municipal Corporations", "Development Authorities", "Consulting Firms"]
     }
   ]);
 
   const [filteredCareers, setFilteredCareers] = useState<Career[]>(careers);
+  const [savedCareers, setSavedCareers] = useState<string[]>([]);
   const categories = Array.from(new Set(careers.map(career => career.category)));
 
   const handleSearch = (query: string) => {
@@ -163,18 +270,51 @@ export default function LibraryPage() {
   };
 
   const handleSaveCareer = (careerId: string) => {
-    toast({
-      title: "Career saved",
-      description: "This career has been saved to your profile.",
+    // Toggle saved state
+    setSavedCareers(prev => {
+      if (prev.includes(careerId)) {
+        // If already saved, remove it
+        toast({
+          title: "Career removed",
+          description: "This career has been removed from your saved list.",
+        });
+        return prev.filter(id => id !== careerId);
+      } else {
+        // If not saved, add it
+        toast({
+          title: "Career saved",
+          description: "This career has been saved to your profile.",
+        });
+        return [...prev, careerId];
+      }
     });
   };
 
   const handleViewDetails = (careerId: string) => {
-    // In a real app, this would navigate to a detailed view
-    toast({
-      title: "Career details",
-      description: "Showing detailed information for this career path.",
-    });
+    // Get the career details
+    const career = careers.find(c => c.id === careerId);
+    if (career) {
+      toast({
+        title: `${career.title} details`,
+        description: `Showing detailed information for ${career.title}.`,
+      });
+      
+      // In a real app, this would navigate to a detail page
+      // navigate(`/library/${careerId}`);
+      
+      // For now, just show more details in a toast
+      toast({
+        title: "Top Colleges",
+        description: career.colleges.join(", "),
+      });
+      
+      setTimeout(() => {
+        toast({
+          title: "Top Recruiters",
+          description: career.recruiters.join(", "),
+        });
+      }, 500);
+    }
   };
 
   return (
@@ -183,10 +323,12 @@ export default function LibraryPage() {
       <main className="flex-grow bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-900 dark:text-white">
-            Career Library
+            {language === 'english' ? 'Career Library' : translations.hindi.careerLibraryTitle}
           </h1>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-            Explore 100+ career paths tailored for Indian students, complete with entrance exams, top colleges, and salary information.
+            {language === 'english' 
+              ? 'Explore 100+ career paths tailored for Indian students, complete with entrance exams, top colleges, and salary information.'
+              : translations.hindi.exploreCareerPaths}
           </p>
           
           <CareerFilter 
@@ -203,6 +345,7 @@ export default function LibraryPage() {
                   career={career} 
                   onSave={() => handleSaveCareer(career.id)}
                   onViewDetails={() => handleViewDetails(career.id)}
+                  isSaved={savedCareers.includes(career.id)}
                 />
               ))
             ) : (
