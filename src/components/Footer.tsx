@@ -22,7 +22,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">{t("quickLinks")}</h4>
             <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-600 dark:text-gray-400 hover:text-pp-purple dark:hover:text-pp-bright-purple">{t("aboutUs")}</Link></li>
+              <li><Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-pp-purple dark:hover:text-pp-bright-purple">{t("aboutUs")}</Link></li>
               <li><Link to="/quiz" className="text-gray-600 dark:text-gray-400 hover:text-pp-purple dark:hover:text-pp-bright-purple">{t("careerQuiz")}</Link></li>
               <li><Link to="/library" className="text-gray-600 dark:text-gray-400 hover:text-pp-purple dark:hover:text-pp-bright-purple">{t("careerLibrary")}</Link></li>
               <li><Link to="/mentors" className="text-gray-600 dark:text-gray-400 hover:text-pp-purple dark:hover:text-pp-bright-purple">{t("findMentors")}</Link></li>

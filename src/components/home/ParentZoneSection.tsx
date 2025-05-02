@@ -162,7 +162,7 @@ export default function ParentZoneSection() {
                 className="w-full border-pp-purple text-pp-purple hover:bg-pp-purple/10 dark:border-pp-bright-purple dark:text-pp-bright-purple" 
                 asChild
               >
-                <Link to="/parent-zone/careers">{t("learnMore")}</Link>
+                <Link to="/parent-zone">{t("learnMore")}</Link>
               </Button>
             </div>
           </motion.div>
