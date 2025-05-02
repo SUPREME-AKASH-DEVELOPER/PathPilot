@@ -8,7 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
-import { Briefcase, Search, X } from "lucide-react";
+import { 
+  Briefcase, 
+  Search, 
+  X, 
+  Save, 
+  Star, 
+  TrendingUp, 
+  GraduationCap, 
+  PieChart, 
+  Palette, 
+  Plane, 
+  Microscope, 
+  Leaf, 
+  BookOpen, 
+  Info 
+} from "lucide-react";
 import careerPaths from "@/data/careers";
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
