@@ -11,6 +11,7 @@ import QuizPage from "./pages/QuizPage";
 import CareersPage from "./pages/CareersPage";
 import LibraryPage from "./pages/LibraryPage";
 import MentorsPage from "./pages/MentorsPage";
+import ParentZonePage from "./pages/ParentZonePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/library" element={<LibraryPage />} />
               <Route path="/mentors" element={<MentorsPage />} />
+              <Route path="/parent-zone" element={<ParentZonePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

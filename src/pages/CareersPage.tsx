@@ -1,146 +1,235 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CareerFilter from "@/components/career-library/CareerFilter";
 import CareerCard, { Career } from "@/components/career-library/CareerCard";
+import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { motion } from "framer-motion";
+import { Briefcase, Search } from "lucide-react";
+import careerPaths from "@/data/careers";
+import { toast } from "@/components/ui/use-toast";
 
-const sampleCareers: Career[] = [
-  {
-    id: "1",
-    title: "Data Scientist",
-    category: "Technical",
-    description: "Analyze complex data to help businesses make better decisions. Combine statistics, programming, and domain expertise to extract insights from data.",
-    salary: "₹8,00,000 - ₹25,00,000 per annum",
-    entranceExams: ["GATE", "GRE"],
-    colleges: ["IITs", "NITs", "IIITs", "BITS"],
-    recruiters: ["Amazon", "Microsoft", "Google", "IBM"],
-    matchScore: 92
-  },
-  {
-    id: "2",
-    title: "Medical Officer",
-    category: "Medical",
-    description: "Provide healthcare services in hospitals, clinics, or government health centers. Diagnose and treat illnesses, prescribe medications, and educate patients.",
-    salary: "₹6,00,000 - ₹12,00,000 per annum (Government), ₹8,00,000 - ₹20,00,000 (Private)",
-    entranceExams: ["NEET-PG", "AIIMS PG"],
-    colleges: ["AIIMS", "JIPMER", "CMC Vellore", "AFMC"],
-    recruiters: ["Government Hospitals", "Apollo", "Fortis", "Max Healthcare"],
-    matchScore: 78
-  },
-  {
-    id: "3",
-    title: "Civil Services Officer",
-    category: "Government",
-    description: "Work in administrative positions within the Indian government. Shape and implement policies, oversee public services, and work towards national development.",
-    salary: "₹56,100 - ₹2,50,000 per month (depends on position and grade)",
-    entranceExams: ["UPSC Civil Services Exam", "State PSC Exams"],
-    colleges: ["Lal Bahadur Shastri National Academy of Administration", "State Administrative Training Institutes"],
-    recruiters: ["Government of India", "State Governments"],
-    matchScore: 85
-  },
-  {
-    id: "4",
-    title: "UI/UX Designer",
-    category: "Technical",
-    description: "Create user-friendly digital interfaces by combining visual design, interaction design, and user research to enhance user experience with products and services.",
-    salary: "₹5,00,000 - ₹18,00,000 per annum",
-    entranceExams: ["NID DAT", "CEED", "UCEED"],
-    colleges: ["NID", "IIT Bombay", "IIT Delhi", "IDC School of Design"],
-    recruiters: ["Amazon", "Flipkart", "Google", "Microsoft", "Startups"],
-    matchScore: 89
-  },
-  {
-    id: "5",
-    title: "Professor/Lecturer",
-    category: "Education",
-    description: "Teach and mentor students at colleges and universities. Conduct research in your field of expertise and contribute to academic literature and knowledge.",
-    salary: "₹4,50,000 - ₹15,00,000 per annum",
-    entranceExams: ["UGC NET", "CSIR NET", "GATE", "JRF"],
-    colleges: ["Central Universities", "State Universities", "IITs", "NITs"],
-    recruiters: ["Universities", "Colleges", "Research Institutions"],
-    matchScore: 76
-  },
-  {
-    id: "6",
-    title: "Financial Analyst",
-    category: "Finance",
-    description: "Analyze financial data to guide investment decisions, evaluate business opportunities, and provide insights for financial planning and strategy.",
-    salary: "₹6,00,000 - ₹20,00,000 per annum",
-    entranceExams: ["CAT", "XAT", "CFA", "FRM"],
-    colleges: ["IIMs", "XLRI", "FMS", "JBIMS"],
-    recruiters: ["HDFC Bank", "ICICI Bank", "JP Morgan", "Goldman Sachs"],
-    matchScore: 82
-  }
-];
-
-const CareersPage = () => {
-  const [filteredCareers, setFilteredCareers] = useState<Career[]>(sampleCareers);
+export default function CareersPage() {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filteredCareers, setFilteredCareers] = useState<Career[]>(careerPaths);
+  const [savedCareers, setSavedCareers] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const careersPerPage = 12;
   
-  const allCategories = Array.from(new Set(sampleCareers.map(career => career.category)));
+  // Extract all unique categories
+  const categories = Array.from(new Set(careerPaths.map(career => career.category)));
   
+  // Handle search query
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    filterCareers(query, activeFilters);
+    setCurrentPage(1); // Reset to first page on new search
   };
   
+  // Handle filter changes
   const handleFilterChange = (filters: string[]) => {
-    setActiveFilters(filters);
-    filterCareers(searchQuery, filters);
+    setSelectedCategories(filters);
+    setCurrentPage(1); // Reset to first page on filter change
   };
   
-  const filterCareers = (query: string, filters: string[]) => {
-    let result = [...sampleCareers];
+  // Filter careers based on search query and selected categories
+  useEffect(() => {
+    let filtered = careerPaths;
     
-    // Apply text search
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      result = result.filter(career => 
-        career.title.toLowerCase().includes(lowerQuery) || 
-        career.description.toLowerCase().includes(lowerQuery)
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(career => 
+        career.title.toLowerCase().includes(query) || 
+        career.description.toLowerCase().includes(query)
       );
     }
     
-    // Apply category filters
-    if (filters.length > 0) {
-      result = result.filter(career => filters.includes(career.category));
+    // Apply category filter
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(career => selectedCategories.includes(career.category));
     }
     
-    setFilteredCareers(result);
+    setFilteredCareers(filtered);
+  }, [searchQuery, selectedCategories]);
+  
+  // Calculate current careers to display
+  const indexOfLastCareer = currentPage * careersPerPage;
+  const indexOfFirstCareer = indexOfLastCareer - careersPerPage;
+  const currentCareers = filteredCareers.slice(indexOfFirstCareer, indexOfLastCareer);
+  
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  
+  // Handle save career
+  const handleSaveCareer = (careerId: string) => {
+    setSavedCareers(prev => {
+      if (prev.includes(careerId)) {
+        toast({
+          title: "Career removed from saved list",
+          description: "You can always save it again later.",
+        });
+        return prev.filter(id => id !== careerId);
+      } else {
+        toast({
+          title: "Career saved successfully",
+          description: "You can find it in your saved careers.",
+        });
+        return [...prev, careerId];
+      }
+    });
+  };
+  
+  // View career details
+  const handleViewDetails = (careerId: string) => {
+    // In a future implementation, this would navigate to a detailed view
+    toast({
+      title: "Career Details",
+      description: "This feature will be implemented in the next update.",
+    });
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
+      
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold mb-6">Career Library</h1>
-          
-          <CareerFilter 
-            onSearch={handleSearch}
-            onFilterChange={handleFilterChange}
-            categories={allCategories}
-          />
-          
-          {filteredCareers.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2">No careers found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
+        {/* Header section */}
+        <section className="bg-gradient-to-r from-pp-purple to-purple-600 py-12 px-4">
+          <div className="max-w-7xl mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                {t("careerLibraryTitle")}
+              </h1>
+              <p className="text-white/80 text-lg md:text-xl max-w-3xl mx-auto">
+                {t("exploreCareerPaths")} - {filteredCareers.length} {t("careerPaths")}
+              </p>
+            </motion.div>
+          </div>
+        </section>
+        
+        {/* Filters and search */}
+        <section className="py-8 px-4">
+          <div className="max-w-7xl mx-auto">
+            <CareerFilter 
+              onSearch={handleSearch} 
+              onFilterChange={handleFilterChange}
+              categories={categories}
+            />
+            
+            {/* Career cards */}
+            <div className="mb-8">
+              {currentCareers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentCareers.map((career) => (
+                    <motion.div
+                      key={career.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <CareerCard 
+                        career={career}
+                        onSave={() => handleSaveCareer(career.id)}
+                        onViewDetails={() => handleViewDetails(career.id)}
+                        isSaved={savedCareers.includes(career.id)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="flex justify-center mb-4">
+                    <Search className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">{t("noResults")}</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {t("tryAdjusting")}
+                  </p>
+                  <Button 
+                    className="mt-4 bg-pp-purple hover:bg-pp-bright-purple"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategories([]);
+                    }}
+                  >
+                    {t("resetFilters")}
+                  </Button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCareers.map((career) => (
-                <CareerCard key={career.id} career={career} />
-              ))}
+            
+            {/* Pagination */}
+            {filteredCareers.length > careersPerPage && (
+              <div className="flex justify-center mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(filteredCareers.length / careersPerPage)}
+                  onPageChange={paginate}
+                />
+              </div>
+            )}
+            
+            <div className="text-center mt-8 text-gray-500 dark:text-gray-400">
+              <p>Showing {indexOfFirstCareer + 1} - {Math.min(indexOfLastCareer, filteredCareers.length)} of {filteredCareers.length} careers</p>
             </div>
-          )}
-        </div>
+          </div>
+        </section>
+        
+        {/* Career facts section */}
+        <section className="bg-gray-50 dark:bg-gray-800 py-12 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="inline-block p-3 rounded-full bg-pp-purple/10 mb-3">
+                <Briefcase className="h-6 w-6 text-pp-purple" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Why explore various career options?
+              </h2>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Make informed choices
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Exploring various careers helps you understand your options and make decisions aligned with your strengths and interests.
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Discover emerging fields
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Many exciting career paths didn't exist a decade ago. Stay updated with emerging opportunities for better future prospects.
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Plan your education efficiently
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Understanding career requirements helps you choose the right courses, exams, and institutions for your desired profession.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
+      
       <Footer />
     </div>
   );
-};
-
-export default CareersPage;
+}
