@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import ProgressBar from "./ProgressBar";
+import { ProgressBar } from "./ProgressBar";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Question {
