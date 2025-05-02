@@ -1,105 +1,134 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { 
-  Menu, 
-  X,
-  GraduationCap,
-  BookOpen,
-  Users,
-  Briefcase,
-  Home
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import LanguageToggle from "./LanguageToggle";
+import ThemeToggle from "./ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const Navbar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
   const { t } = useLanguage();
-  
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-  
+  const [scrolled, setScrolled] = useState(false);
+
+  // Track scrolling to change navbar appearance
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const navLinks = [
-    { name: t("home"), path: "/", icon: <Home className="mr-2 h-4 w-4" /> },
-    { name: t("quiz"), path: "/quiz", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
-    { name: t("careers"), path: "/careers", icon: <Briefcase className="mr-2 h-4 w-4" /> },
-    { name: t("library"), path: "/library", icon: <BookOpen className="mr-2 h-4 w-4" /> },
-    { name: t("mentors"), path: "/mentors", icon: <Users className="mr-2 h-4 w-4" /> }
+    { name: t("home"), href: "/" },
+    { name: t("quiz"), href: "/quiz" },
+    { name: t("careers"), href: "/careers" },
+    { name: t("library"), href: "/library" },
+    { name: t("mentors"), href: "/mentors" },
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <span className="text-pp-purple text-2xl font-bold">Path Pilot</span>
+    <nav
+      className={cn(
+        "sticky top-0 z-40 w-full transition-all duration-200",
+        scrolled
+          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm"
+          : "bg-white dark:bg-gray-900"
+      )}
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center">
+            <Link
+              to="/"
+              className="flex flex-shrink-0 items-center"
+              aria-label="Home"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="text-2xl font-bold text-pp-purple dark:text-pp-bright-purple"
+              >
+                PathPilot
+              </motion.div>
             </Link>
           </div>
-          
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className="text-gray-700 dark:text-gray-200 hover:text-pp-purple dark:hover:text-pp-bright-purple px-3 py-2 rounded-md text-sm font-medium flex items-center"
-                >
-                  {link.icon}
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-          
-          <div className="hidden md:flex items-center">
-            <LanguageToggle />
-            <Button variant="default" className="ml-4 bg-pp-purple hover:bg-pp-bright-purple">
-              {t("getStarted")}
-            </Button>
-          </div>
-          
-          <div className="flex md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-pp-purple dark:hover:text-pp-bright-purple focus:outline-none"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          {/* Desktop Navigation */}
+          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
-                to={link.path}
-                className="text-gray-700 dark:text-gray-200 hover:text-pp-purple dark:hover:text-pp-bright-purple block px-3 py-2 rounded-md text-base font-medium flex items-center"
-                onClick={() => setIsMenuOpen(false)}
+                to={link.href}
+                className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  location.pathname === link.href
+                    ? "bg-pp-purple/10 text-pp-purple dark:bg-pp-bright-purple/20 dark:text-pp-bright-purple"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                )}
               >
-                {link.icon}
                 {link.name}
               </Link>
             ))}
-            <div className="flex items-center justify-between p-2">
-              <LanguageToggle />
-              <Button variant="default" className="bg-pp-purple hover:bg-pp-bright-purple">
-                {t("getStarted")}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageToggle />
+            
+            {/* Mobile menu button */}
+            <div className="flex md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2"
+              >
+                <span className="sr-only">
+                  {mobileMenuOpen ? t("closeMenu") : t("openMenu")}
+                </span>
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </Button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden ${
+          mobileMenuOpen ? "block" : "hidden"
+        } bg-white dark:bg-gray-900 shadow-lg`}
+      >
+        <div className="px-2 pt-2 pb-3 space-y-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className={cn(
+                "block px-3 py-2 rounded-md text-base font-medium transition-colors",
+                location.pathname === link.href
+                  ? "bg-pp-purple/10 text-pp-purple dark:bg-pp-bright-purple/20 dark:text-pp-bright-purple"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              )}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </div>
+      </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

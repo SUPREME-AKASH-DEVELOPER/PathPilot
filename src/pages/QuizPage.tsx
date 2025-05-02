@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
 import QuizQuestion, { Question } from "@/components/quiz/QuizQuestion";
@@ -8,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { QuizAnswers, getMatchedCareers } from "@/utils/quizMatchUtils";
+import { Career } from "@/components/career-library/CareerCard";
+import { motion } from "framer-motion";
 
 // Enhanced quiz questions with more detailed options
 const after10thQuestions: Question[] = [
@@ -186,14 +188,39 @@ const afterGraduationQuestions: Question[] = [
 
 type Stage = 'after10th' | 'after12th' | 'afterGraduation' | null;
 
+// Sample careers data (in a real app, this would come from a database or API)
+const allCareers: Career[] = [
+  {
+    id: "1",
+    title: "Software Engineer",
+    category: "Technical",
+    description: "Design, develop and maintain software systems and applications using programming languages and development tools.",
+    salary: "₹5L - ₹40L per annum",
+    entranceExams: ["GATE", "Company Specific Tests"],
+    colleges: ["IITs", "NITs", "BITS", "IIIT"],
+    recruiters: ["TCS", "Infosys", "Google", "Microsoft"]
+  },
+  // ... imagine more career objects here - we don't need to list them all
+  {
+    id: "22",
+    title: "Urban Planner",
+    category: "Government",
+    description: "Develop comprehensive plans and programs for land use and growth of urban and rural communities.",
+    salary: "₹5L - ₹20L per annum",
+    entranceExams: ["GATE (AR/PL)", "CEPT Entrance"],
+    colleges: ["SPA", "CEPT", "IIT Kharagpur", "JMI"],
+    recruiters: ["Municipal Corporations", "Development Authorities", "Consulting Firms"]
+  }
+];
+
 const QuizPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedStage, setSelectedStage] = useState<Stage>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<QuizAnswers>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [recommendedCareers, setRecommendedCareers] = useState<string[]>([]);
+  const [recommendedCareers, setRecommendedCareers] = useState<Career[]>([]);
   
   const handleStageSelection = (stage: Stage) => {
     setSelectedStage(stage);
@@ -237,23 +264,11 @@ const QuizPage = () => {
   };
   
   const handleQuizComplete = () => {
-    // In a real app, we would process the answers to determine career recommendations
-    // For now, let's just simulate recommendations based on the stage
-    let careers: string[] = [];
+    // Get matched careers with scores based on user's answers
+    const matchedCareers = getMatchedCareers(answers, allCareers);
     
-    switch (selectedStage) {
-      case 'after10th':
-        careers = ["Science Stream (PCM)", "Science Stream (PCB)", "Commerce Stream", "Arts/Humanities Stream"];
-        break;
-      case 'after12th':
-        careers = ["Engineering", "Medical", "Business Management", "Design", "Law"];
-        break;
-      case 'afterGraduation':
-        careers = ["Masters Degree", "MBA", "Job in Industry", "Civil Services", "Entrepreneurship"];
-        break;
-    }
-    
-    setRecommendedCareers(careers);
+    // Take top 5 matches
+    setRecommendedCareers(matchedCareers.slice(0, 5));
     setQuizCompleted(true);
     
     toast({
@@ -263,6 +278,8 @@ const QuizPage = () => {
   };
   
   const handleViewCareers = () => {
+    // Pass the recommended careers to the library page through localStorage
+    localStorage.setItem('matchedCareers', JSON.stringify(recommendedCareers));
     navigate('/library');
   };
   
@@ -285,33 +302,65 @@ const QuizPage = () => {
             />
           ) : (
             <div className="py-12 text-center">
-              <h2 className="text-2xl font-bold mb-4">{t("thankYouQuiz")}</h2>
-              <p className="text-gray-600 mb-8">
+              <motion.h2 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-2xl font-bold mb-4"
+              >
+                {t("thankYouQuiz")}
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.2 } }}
+                className="text-gray-600 dark:text-gray-300 mb-8"
+              >
                 {t("basedOnResponses")}
-              </p>
+              </motion.p>
               
-              <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1, transition: { delay: 0.4 } }}
+                className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
+              >
                 <h3 className="text-lg font-semibold mb-4">{t("yourRecommendations")}</h3>
                 <ul className="space-y-2">
                   {recommendedCareers.map((career, index) => (
-                    <li key={index} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                      <span className="h-6 w-6 rounded-full bg-pp-purple text-white flex items-center justify-center text-sm">
+                    <motion.li 
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0, transition: { delay: 0.5 + index * 0.1 } }}
+                      className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded"
+                    >
+                      <div className="flex items-center justify-center h-8 w-8 rounded-full bg-pp-purple dark:bg-pp-bright-purple text-white font-semibold text-sm">
                         {index + 1}
-                      </span>
-                      <span>{career}</span>
-                    </li>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{career.title}</p>
+                        <div className="flex items-center mt-1">
+                          <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                            <div 
+                              className="bg-pp-bright-purple dark:bg-pp-saffron h-2 rounded-full"
+                              style={{ width: `${career.matchScore || 0}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-medium ml-2 min-w-[40px]">
+                            {career.matchScore}%
+                          </span>
+                        </div>
+                      </div>
+                    </motion.li>
                   ))}
                 </ul>
                 
                 <div className="mt-6">
                   <Button 
-                    className="bg-pp-purple hover:bg-pp-bright-purple w-full"
+                    className="bg-pp-purple hover:bg-pp-bright-purple dark:bg-pp-saffron dark:hover:bg-amber-500 w-full"
                     onClick={handleViewCareers}
                   >
                     {t("exploreCareersLibrary")}
                   </Button>
                 </div>
-              </div>
+              </motion.div>
               
               <Button 
                 variant="outline" 

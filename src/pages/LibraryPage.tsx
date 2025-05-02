@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -240,6 +239,41 @@ export default function LibraryPage() {
   const [filteredCareers, setFilteredCareers] = useState<Career[]>(careers);
   const [savedCareers, setSavedCareers] = useState<string[]>([]);
   const categories = Array.from(new Set(careers.map(career => career.category)));
+
+  // Load matched careers from quiz if available
+  useEffect(() => {
+    const matchedCareersData = localStorage.getItem('matchedCareers');
+    if (matchedCareersData) {
+      try {
+        const matchedCareers = JSON.parse(matchedCareersData);
+        
+        // Update career list with match scores from quiz results
+        const updatedCareers = careers.map(career => {
+          const match = matchedCareers.find((c: Career) => c.id === career.id);
+          return match ? { ...career, matchScore: match.matchScore } : career;
+        });
+        
+        // Sort by match score if available
+        const sortedCareers = [...updatedCareers].sort((a, b) => 
+          (b.matchScore || 0) - (a.matchScore || 0)
+        );
+        
+        setCareers(sortedCareers);
+        setFilteredCareers(sortedCareers);
+        
+        // Show a toast notification
+        toast({
+          title: "Quiz results loaded",
+          description: "Careers are now sorted by your personal match score",
+        });
+        
+        // Clear localStorage after using it
+        localStorage.removeItem('matchedCareers');
+      } catch (error) {
+        console.error("Error parsing matched careers:", error);
+      }
+    }
+  }, []);
 
   const handleSearch = (query: string) => {
     if (!query.trim()) {

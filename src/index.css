@@ -42,30 +42,31 @@
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    /* Enhanced dark mode colors for a cool, funky look */
+    --card: 240 20% 14%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 240 25% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 42% 54%;
+    --primary: 262 62% 70%; /* Brighter purple */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 251 68% 75%;
+    --secondary: 251 80% 80%; /* More vibrant secondary */
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 20% 20%;
+    --muted-foreground: 215 20.2% 75%;
 
-    --accent: 37 92% 56%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 35 98% 60%; /* Punchier accent */
+    --accent-foreground: 240 20% 12%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 240 20% 20%;
+    --input: 240 20% 20%;
+    --ring: 262 62% 70%;
   }
 }
 
@@ -77,6 +78,17 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  
+  /* Dark mode glow effects */
+  .dark .glow-text {
+    @apply text-pp-bright-purple;
+    text-shadow: 0 0 8px rgba(155, 135, 245, 0.6);
+  }
+  
+  .dark .glow-border {
+    @apply border-pp-bright-purple;
+    box-shadow: 0 0 10px rgba(155, 135, 245, 0.4);
+  }
 }
 
 @layer components {
@@ -86,5 +98,31 @@
   
   .gradient-card {
     @apply bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 shadow-md;
+  }
+  
+  /* Enhanced dark mode card styles */
+  .dark .gradient-card {
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 shadow-lg border-gray-700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Cool neon button effect for dark mode */
+  .dark .neon-button {
+    @apply bg-transparent border border-pp-bright-purple text-pp-bright-purple relative overflow-hidden;
+    box-shadow: 0 0 5px rgba(155, 135, 245, 0.5);
+  }
+  
+  .dark .neon-button::before {
+    content: '';
+    @apply absolute inset-0 bg-pp-bright-purple opacity-0 transition-opacity;
+  }
+  
+  .dark .neon-button:hover {
+    @apply text-white;
+    box-shadow: 0 0 15px rgba(155, 135, 245, 0.8);
+  }
+  
+  .dark .neon-button:hover::before {
+    @apply opacity-20;
   }
 }
