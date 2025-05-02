@@ -77,6 +77,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    transition: background-color 0.3s ease-in-out;
   }
   
   /* Dark mode glow effects */
@@ -89,15 +90,43 @@
     @apply border-pp-bright-purple;
     box-shadow: 0 0 10px rgba(155, 135, 245, 0.4);
   }
+  
+  /* Enhanced transitions */
+  a, button {
+    @apply transition-all duration-300;
+  }
+  
+  /* Enhanced focus styles */
+  button:focus, a:focus, input:focus, textarea:focus, select:focus {
+    @apply outline-none ring-2 ring-offset-2 ring-pp-purple dark:ring-pp-bright-purple;
+  }
 }
 
 @layer components {
+  /* Hover animations */
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
   
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 15px rgba(126, 105, 171, 0.5);
+  }
+  
+  .dark .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(155, 135, 245, 0.5);
+  }
+  
+  /* Card styles */
   .gradient-card {
-    @apply bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 shadow-md;
+    @apply bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-900 shadow-md transition-all duration-300;
   }
   
   /* Enhanced dark mode card styles */
@@ -125,4 +154,122 @@
   .dark .neon-button:hover::before {
     @apply opacity-20;
   }
+  
+  /* Animated backgrounds */
+  .animated-gradient {
+    background: linear-gradient(-45deg, #7e69ab, #9b87f5, #f9a826, #38b2ac);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+  
+  .dark .animated-gradient {
+    background: linear-gradient(-45deg, #7e69ab, #9b87f5, #f9a826, #38b2ac);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    opacity: 0.8;
+  }
+  
+  /* Glassmorphism effect */
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/80 dark:bg-gray-900/70 border border-white/20 dark:border-white/10;
+  }
+  
+  /* Animated border */
+  .animated-border {
+    position: relative;
+  }
+  
+  .animated-border::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #7e69ab, #9b87f5);
+    transition: width 0.3s ease;
+  }
+  
+  .animated-border:hover::after {
+    width: 100%;
+  }
+  
+  /* Text highlight animation */
+  .text-highlight {
+    @apply relative inline-block;
+  }
+  
+  .text-highlight::before {
+    @apply content-[''] absolute bottom-0 left-0 w-0 h-1 bg-pp-purple dark:bg-pp-bright-purple transition-all duration-300 ease-in-out -z-10;
+  }
+  
+  .text-highlight:hover::before {
+    @apply w-full;
+  }
+  
+  /* Floating animation */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  /* Pulse animation */
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Shimmer effect */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.5) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  .dark .shimmer::after {
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(155, 135, 245, 0.1) 20%,
+      rgba(155, 135, 245, 0.2) 60%,
+      rgba(255, 255, 255, 0)
+    );
+  }
+  
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
