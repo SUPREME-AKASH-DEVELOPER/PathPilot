@@ -4,6 +4,7 @@ import StageSelector from "@/components/quiz/StageSelector";
 import QuizQuestion, { Question } from "@/components/quiz/QuizQuestion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button"; // Add this import
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
