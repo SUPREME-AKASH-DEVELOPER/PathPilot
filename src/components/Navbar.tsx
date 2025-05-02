@@ -12,20 +12,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
   
   const navLinks = [
-    { name: "Home", path: "/", icon: <Home className="mr-2 h-4 w-4" /> },
-    { name: "Quiz", path: "/quiz", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
-    { name: "Careers", path: "/careers", icon: <Briefcase className="mr-2 h-4 w-4" /> },
-    { name: "Library", path: "/library", icon: <BookOpen className="mr-2 h-4 w-4" /> },
-    { name: "Mentors", path: "/mentors", icon: <Users className="mr-2 h-4 w-4" /> }
+    { name: t("home"), path: "/", icon: <Home className="mr-2 h-4 w-4" /> },
+    { name: t("quiz"), path: "/quiz", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
+    { name: t("careers"), path: "/careers", icon: <Briefcase className="mr-2 h-4 w-4" /> },
+    { name: t("library"), path: "/library", icon: <BookOpen className="mr-2 h-4 w-4" /> },
+    { name: t("mentors"), path: "/mentors", icon: <Users className="mr-2 h-4 w-4" /> }
   ];
 
   return (
@@ -56,7 +58,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center">
             <LanguageToggle />
             <Button variant="default" className="ml-4 bg-pp-purple hover:bg-pp-bright-purple">
-              Get Started
+              {t("getStarted")}
             </Button>
           </div>
           
@@ -92,7 +94,7 @@ export default function Navbar() {
             <div className="flex items-center justify-between p-2">
               <LanguageToggle />
               <Button variant="default" className="bg-pp-purple hover:bg-pp-bright-purple">
-                Get Started
+                {t("getStarted")}
               </Button>
             </div>
           </div>
