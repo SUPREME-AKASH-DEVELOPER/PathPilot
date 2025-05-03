@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -29,6 +28,24 @@ export const translations = {
     "submit": "Submit",
     "previous": "Previous",
     "next": "Next",
+    "saved": "Saved",
+    "close": "Close",
+    "browseCareers": "Browse Careers",
+    "exploreAllCareers": "Explore All Careers",
+    "match": "Match",
+    "description": "Description",
+    "salaryRange": "Salary Range",
+    "entranceExams": "Entrance Exams",
+    "topColleges": "Top Colleges",
+    "topRecruiters": "Top Recruiters",
+    "personalizedForYou": "Personalized For You",
+    "basedOnQuizResults": "Based on your quiz results, these career paths might be perfect for you. Higher match score indicates better alignment with your profile.",
+    "removedFromSaved": "Removed from Saved",
+    "hasBeenRemoved": "has been removed from saved careers",
+    "savedSuccessfully": "Saved Successfully",
+    "hasBeenSaved": "has been saved to your list",
+    "noSavedCareers": "No Saved Careers",
+    "browseCareersToSave": "Browse careers and save the ones that interest you",
     
     // Quiz page
     "selectStage": "Select Your Current Educational Stage",
@@ -45,6 +62,8 @@ export const translations = {
     "yourRecommendations": "Your Recommendations",
     "exploreCareersLibrary": "Explore Careers in Library",
     "takeAnotherQuiz": "Take Another Quiz",
+    "yourStrengths": "Your Strengths",
+    "recommendedPaths": "Recommended Paths",
     
     // Home page
     "navigateWithClarity": "Navigate Your Path With Clarity & Confidence",
@@ -148,6 +167,24 @@ export const translations = {
     "filter": "फ़िल्टर",
     "save": "सहेजें",
     "details": "विवरण",
+    "saved": "सहेजा गया",
+    "close": "बंद करें",
+    "browseCareers": "करियर ब्राउज़ करें",
+    "exploreAllCareers": "सभी करियर देखें",
+    "match": "मैच",
+    "description": "विवरण",
+    "salaryRange": "वेतन सीमा",
+    "entranceExams": "प्रवेश परीक्षाएँ",
+    "topColleges": "प्रमुख कॉलेज",
+    "topRecruiters": "प्रमुख भर्तीकर्ता",
+    "personalizedForYou": "आपके लिए व्यक्तिगत",
+    "basedOnQuizResults": "आपके प्रश्नोत्तरी के परिणामों के आधार पर, ये करियर मार्ग आपके लिए एकदम सही हो सकते हैं। उच्च मैच स्कोर आपकी प्रोफ़ाइल से बेहतर तालमेल दर्शाता है।",
+    "removedFromSaved": "सहेजे गए से हटाया गया",
+    "hasBeenRemoved": "को सहेजे गए करियर से हटा दिया गया है",
+    "savedSuccessfully": "सफलतापूर्वक सहेजा गया",
+    "hasBeenSaved": "को आपकी सूची में सहेज लिया गया है",
+    "noSavedCareers": "कोई सहेजे गए करियर नहीं",
+    "browseCareersToSave": "करियर ब्राउज़ करें और अपनी पसंद के अनुसार सहेजें",
     "shareProfile": "प्रोफ़ाइल साझा करें",
     "viewDetails": "विवरण देखें",
     "bookSession": "सत्र बुक करें",
@@ -173,6 +210,8 @@ export const translations = {
     "yourRecommendations": "आपकी अनुशंसाएँ",
     "exploreCareersLibrary": "पुस्तकालय में करियर का अन्वेषण करें",
     "takeAnotherQuiz": "एक और प्रश्नोत्तरी लें",
+    "yourStrengths": "आपकी ताकतें",
+    "recommendedPaths": "अनुशंसित मार्ग",
     
     // Home page
     "navigateWithClarity": "स्पष्टता और आत्मविश्वास के साथ अपना रास्ता नेविगेट करें",

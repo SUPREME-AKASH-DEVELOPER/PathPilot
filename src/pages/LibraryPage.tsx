@@ -1,506 +1,446 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CareerCard, { Career } from "@/components/career-library/CareerCard";
-import CareerFilter from "@/components/career-library/CareerFilter";
-import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import CareerFilter from "@/components/career-library/CareerFilter";
+import CareerCard, { Career } from "@/components/career-library/CareerCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PieChart, Bookmark, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BarChart4, Search, Filter, Percent } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from "@/components/ui/dialog";
+
+const careerData: Career[] = [
+  {
+    id: "1",
+    title: "Software Engineer",
+    category: "Technical",
+    description: "Design, develop, and maintain software systems and applications using programming languages and development tools.",
+    salary: "₹5,00,000 - ₹25,00,000 per annum",
+    entranceExams: ["GATE", "Company-specific tests"],
+    colleges: ["IITs", "NITs", "BITS", "Regional Engineering Colleges"],
+    recruiters: ["TCS", "Infosys", "Google", "Microsoft", "Amazon"],
+    matchScore: 92,
+  },
+  {
+    id: "2",
+    title: "Data Scientist",
+    category: "Technical",
+    description: "Analyze complex data sets to find patterns and insights that help organizations make better decisions.",
+    salary: "₹6,00,000 - ₹20,00,000 per annum",
+    entranceExams: ["GATE", "Company-specific tests", "Analytics certifications"],
+    colleges: ["IITs", "IIMs", "ISI Kolkata", "BITS"],
+    recruiters: ["Amazon", "Flipkart", "MuSigma", "IBM"],
+    matchScore: 88,
+  },
+  {
+    id: "3",
+    title: "Doctor (MBBS)",
+    category: "Medical",
+    description: "Diagnose and treat illnesses, prescribe medications, and provide preventive care to patients.",
+    salary: "₹8,00,000 - ₹30,00,000+ per annum",
+    entranceExams: ["NEET-UG", "AIIMS MBBS"],
+    colleges: ["AIIMS", "CMC Vellore", "JIPMER", "Government Medical Colleges"],
+    recruiters: ["Government Hospitals", "Private Hospitals", "Research Institutions"],
+    matchScore: 75,
+  },
+  {
+    id: "4",
+    title: "Chartered Accountant",
+    category: "Finance",
+    description: "Provide financial advice, audit accounts, and prepare financial reports for individuals and businesses.",
+    salary: "₹6,00,000 - ₹20,00,000+ per annum",
+    entranceExams: ["CA Foundation", "CA Intermediate", "CA Final"],
+    colleges: ["ICAI (Institute of Chartered Accountants of India)"],
+    recruiters: ["Big 4 (Deloitte, EY, KPMG, PwC)", "Banks", "Financial Institutions"],
+    matchScore: 82,
+  },
+  {
+    id: "5",
+    title: "Civil Services Officer (IAS/IPS)",
+    category: "Government",
+    description: "Administer government policies, maintain law and order, and implement development programs.",
+    salary: "₹56,100 - ₹2,50,000 per month + perks",
+    entranceExams: ["UPSC Civil Services Examination"],
+    colleges: ["LBSNAA Mussoorie (for IAS)", "SVP NPA Hyderabad (for IPS)"],
+    recruiters: ["Government of India"],
+    matchScore: 79,
+  },
+  {
+    id: "6",
+    title: "UI/UX Designer",
+    category: "Creative",
+    description: "Design user interfaces and experiences for websites, mobile apps, and other digital products.",
+    salary: "₹4,00,000 - ₹18,00,000 per annum",
+    entranceExams: ["College-specific entrance exams", "Portfolio-based admissions"],
+    colleges: ["NID", "NIFT", "IIT Bombay (IDC)", "Srishti Institute"],
+    recruiters: ["Tech Companies", "Design Agencies", "Product Companies"],
+    matchScore: 90,
+  },
+  {
+    id: "7",
+    title: "Digital Marketing Specialist",
+    category: "Marketing",
+    description: "Develop and implement marketing strategies across digital channels to promote products and services.",
+    salary: "₹3,50,000 - ₹15,00,000 per annum",
+    entranceExams: ["CAT/XAT (for MBA)", "Company-specific tests"],
+    colleges: ["IIMs", "XLRI", "SPJIMR", "FMS Delhi"],
+    recruiters: ["Advertising Agencies", "E-commerce Companies", "Digital Marketing Firms"],
+    matchScore: 85,
+  },
+  {
+    id: "8",
+    title: "Commercial Pilot",
+    category: "Aviation",
+    description: "Fly and navigate aircraft for airlines, carrying passengers and cargo to various destinations.",
+    salary: "₹15,00,000 - ₹40,00,000+ per annum",
+    entranceExams: ["DGCA CPL Examination", "Airline-specific tests"],
+    colleges: ["Indira Gandhi Rashtriya Uran Akademi", "Bombay Flying Club", "Rajiv Gandhi Aviation Academy"],
+    recruiters: ["Air India", "IndiGo", "SpiceJet", "Vistara"],
+    matchScore: 70,
+  },
+  {
+    id: "9",
+    title: "Biotechnologist",
+    category: "Science",
+    description: "Apply biological systems and organisms to develop products and processes for various industries.",
+    salary: "₹4,00,000 - ₹15,00,000 per annum",
+    entranceExams: ["GATE", "JNU Entrance", "IIT JAM"],
+    colleges: ["IITs", "JNU", "University of Delhi", "TIFR"],
+    recruiters: ["Pharmaceutical Companies", "Research Institutions", "Biotech Firms"],
+    matchScore: 76,
+  },
+  {
+    id: "10",
+    title: "Architecture",
+    category: "Engineering",
+    description: "Design buildings and structures, considering aesthetics, functionality, safety, and sustainability.",
+    salary: "₹4,50,000 - ₹20,00,000+ per annum",
+    entranceExams: ["NATA", "JEE Main Paper 2"],
+    colleges: ["SPA Delhi", "IIT Kharagpur", "CEPT University", "Sir JJ College of Architecture"],
+    recruiters: ["Architecture Firms", "Construction Companies", "Government Agencies"],
+    matchScore: 83,
+  },
+  {
+    id: "11",
+    title: "Hotel Management",
+    category: "Hospitality",
+    description: "Manage operations of hotels, resorts, and other accommodation establishments to ensure guest satisfaction.",
+    salary: "₹3,00,000 - ₹15,00,000+ per annum",
+    entranceExams: ["NCHMCT JEE", "Institution-specific tests"],
+    colleges: ["IHM Mumbai", "IHM Bangalore", "IHM Chennai", "IHM Delhi"],
+    recruiters: ["Taj Group", "Oberoi Hotels", "Marriott", "International Hotel Chains"],
+    matchScore: 78,
+  },
+  {
+    id: "12",
+    title: "Teacher/Professor",
+    category: "Education",
+    description: "Educate students at various academic levels, develop curriculum, and assess student progress.",
+    salary: "₹3,00,000 - ₹18,00,000+ per annum",
+    entranceExams: ["NET/SET/SLET", "CTET/STET (for school teachers)"],
+    colleges: ["Central Universities", "State Universities", "B.Ed Colleges"],
+    recruiters: ["Schools", "Colleges", "Universities", "EdTech Companies"],
+    matchScore: 87,
+  },
+];
 
 export default function LibraryPage() {
-  const { language, translations } = useLanguage();
-  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [filteredCareers, setFilteredCareers] = useState<Career[]>(careerData);
+  const [savedCareers, setSavedCareers] = useState<Career[]>([]);
+  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+
+  // Get all available categories from the career data
+  const categories = Array.from(new Set(careerData.map(career => career.category)));
+
+  // Your personalized recommendations based on high match scores (80%+)
+  const recommendations = careerData.filter(career => career.matchScore && career.matchScore >= 80)
+    .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
   
-  // Enhanced career data with more options
-  const [careers, setCareers] = useState<Career[]>([
-    {
-      id: "1",
-      title: "Software Engineer",
-      category: "Technical",
-      description: "Design, develop and maintain software systems and applications using programming languages and development tools.",
-      salary: "₹5L - ₹40L per annum",
-      entranceExams: ["GATE", "Company Specific Tests"],
-      colleges: ["IITs", "NITs", "BITS", "IIIT"],
-      recruiters: ["TCS", "Infosys", "Google", "Microsoft"]
-    },
-    {
-      id: "2",
-      title: "Medical Doctor",
-      category: "Medical",
-      description: "Diagnose and treat injuries and illnesses, prescribe medications, and counsel patients on diet, hygiene, and preventive healthcare.",
-      salary: "₹8L - ₹50L per annum",
-      entranceExams: ["NEET-PG", "AIIMS PG", "JIPMER"],
-      colleges: ["AIIMS", "CMC Vellore", "JIPMER", "MAMC"],
-      recruiters: ["Apollo Hospitals", "Fortis", "Max Healthcare"]
-    },
-    {
-      id: "3",
-      title: "Civil Services Officer",
-      category: "Government",
-      description: "Work in various government departments and ministries to formulate and implement policies and ensure proper governance.",
-      salary: "₹6L - ₹25L per annum",
-      entranceExams: ["UPSC CSE", "State PSC"],
-      colleges: ["LBSNAA Mussoorie", "State Administrative Training Institutes"],
-      recruiters: ["Central Government", "State Governments"]
-    },
-    {
-      id: "4",
-      title: "Data Scientist",
-      category: "Technical",
-      description: "Analyze complex data sets to find patterns and insights that help organizations make better decisions.",
-      salary: "₹6L - ₹30L per annum",
-      entranceExams: ["Company Specific Tests"],
-      colleges: ["IITs", "IIITs", "ISI Kolkata", "CMI"],
-      recruiters: ["Amazon", "IBM", "Mu Sigma", "Flipkart"]
-    },
-    {
-      id: "5",
-      title: "Professor",
-      category: "Education",
-      description: "Teach students at colleges and universities, conduct research, and publish scholarly papers in their field of expertise.",
-      salary: "₹7L - ₹20L per annum",
-      entranceExams: ["UGC-NET", "CSIR-NET", "GATE"],
-      colleges: ["Central Universities", "State Universities", "Private Universities"],
-      recruiters: ["Universities", "Research Institutions", "Think Tanks"]
-    },
-    {
-      id: "6",
-      title: "Chartered Accountant",
-      category: "Finance",
-      description: "Provide financial advice, audit accounts, and prepare tax returns for businesses and individuals.",
-      salary: "₹6L - ₹30L per annum",
-      entranceExams: ["CA Foundation", "CA Intermediate", "CA Final"],
-      colleges: ["ICAI Registered Colleges"],
-      recruiters: ["Big 4 Accounting Firms", "Banks", "Corporate Finance Departments"]
-    },
-    {
-      id: "7",
-      title: "Fashion Designer",
-      category: "Creative",
-      description: "Create original clothing, accessories, and footwear designs for fashion brands or individual clients.",
-      salary: "₹3L - ₹25L per annum",
-      entranceExams: ["NIFT Entrance", "NID Entrance", "UCEED"],
-      colleges: ["NIFT", "NID", "Pearl Academy", "Symbiosis"],
-      recruiters: ["Fashion Houses", "Retail Brands", "Export Houses"]
-    },
-    {
-      id: "8",
-      title: "Digital Marketing Specialist",
-      category: "Marketing",
-      description: "Plan and execute online marketing campaigns to promote products and services using various digital channels.",
-      salary: "₹4L - ₹20L per annum",
-      entranceExams: ["CAT", "XAT", "MAT (for MBA)"],
-      colleges: ["IIMs", "MICA", "Symbiosis", "SPJIMR"],
-      recruiters: ["Ad Agencies", "E-commerce Companies", "Startups", "MNCs"]
-    },
-    {
-      id: "9",
-      title: "Airline Pilot",
-      category: "Aviation",
-      description: "Operate aircraft for passenger and cargo transport, ensuring safety and following aviation regulations.",
-      salary: "₹12L - ₹60L per annum",
-      entranceExams: ["DGCA CPL Exam", "Airline Specific Tests"],
-      colleges: ["Indira Gandhi Rashtriya Uran Akademi", "Bombay Flying Club", "Flying Training Schools"],
-      recruiters: ["Air India", "IndiGo", "SpiceJet", "Vistara"]
-    },
-    {
-      id: "10",
-      title: "Biotechnologist",
-      category: "Science",
-      description: "Apply biological processes to develop new products in fields like medicine, agriculture, and environmental conservation.",
-      salary: "₹4L - ₹20L per annum",
-      entranceExams: ["GATE (BT)", "JAM", "CSIR-NET"],
-      colleges: ["IITs", "IISc", "TIFR", "NCBS"],
-      recruiters: ["Pharmaceutical Companies", "Research Labs", "Biotech Startups"]
-    },
-    {
-      id: "11",
-      title: "Clinical Psychologist",
-      category: "Medical",
-      description: "Diagnose and treat mental, emotional, and behavioral disorders using therapeutic approaches.",
-      salary: "₹5L - ₹15L per annum",
-      entranceExams: ["UGC-NET", "M.Phil Entrance Tests"],
-      colleges: ["NIMHANS", "TISS", "Delhi University", "Christ University"],
-      recruiters: ["Hospitals", "Mental Health Centers", "Educational Institutions"]
-    },
-    {
-      id: "12",
-      title: "Environmental Engineer",
-      category: "Engineering",
-      description: "Develop solutions to environmental problems using engineering principles to improve air, water and soil quality.",
-      salary: "₹4L - ₹15L per annum",
-      entranceExams: ["GATE", "JEE Advanced"],
-      colleges: ["IITs", "NITs", "BITS", "VIT"],
-      recruiters: ["Government Agencies", "Consulting Firms", "Industries"]
-    },
-    // Adding 10 more careers below
-    {
-      id: "13",
-      title: "Artificial Intelligence Specialist",
-      category: "Technical",
-      description: "Develop and implement AI systems and applications like machine learning models, neural networks, and natural language processing.",
-      salary: "₹8L - ₹45L per annum",
-      entranceExams: ["GATE (CS)", "GRE"],
-      colleges: ["IITs", "IIITs", "IISc", "BITS"],
-      recruiters: ["Google", "Microsoft", "Amazon", "AI Startups"]
-    },
-    {
-      id: "14",
-      title: "Architect",
-      category: "Creative",
-      description: "Design buildings and structures, combining artistic vision with technical knowledge for functionality and aesthetics.",
-      salary: "₹4L - ₹25L per annum",
-      entranceExams: ["NATA", "JEE (B.Arch)", "GATE (AR)"],
-      colleges: ["SPA", "CEPT", "IITs", "NIT"],
-      recruiters: ["Architectural Firms", "Construction Companies", "Government"]
-    },
-    {
-      id: "15",
-      title: "Investment Banker",
-      category: "Finance",
-      description: "Help companies and governments raise capital, provide financial advice, and facilitate mergers and acquisitions.",
-      salary: "₹10L - ₹50L per annum",
-      entranceExams: ["CAT", "XAT", "GMAT"],
-      colleges: ["IIMs", "FMS Delhi", "XLRI", "ISB"],
-      recruiters: ["JP Morgan", "Goldman Sachs", "Morgan Stanley", "HSBC"]
-    },
-    {
-      id: "16",
-      title: "Pharmacist",
-      category: "Medical",
-      description: "Dispense medications, advise patients on drug interactions, and ensure proper usage of prescription medicines.",
-      salary: "₹3L - ₹12L per annum",
-      entranceExams: ["GPAT", "NIPER JEE"],
-      colleges: ["NIPER", "Jamia Hamdard", "BHU", "BITS"],
-      recruiters: ["Hospitals", "Pharmacy Chains", "Pharmaceutical Companies"]
-    },
-    {
-      id: "17",
-      title: "Content Creator",
-      category: "Creative",
-      description: "Produce engaging digital content including videos, blogs, podcasts and social media posts for various platforms.",
-      salary: "₹3L - ₹30L per annum",
-      entranceExams: ["Portfolio-based Selection"],
-      colleges: ["MICA", "Symbiosis", "XIC", "FTII"],
-      recruiters: ["Media Houses", "Digital Agencies", "Freelance"]
-    },
-    {
-      id: "18",
-      title: "Aerospace Engineer",
-      category: "Engineering",
-      description: "Design, develop and test aircraft, spacecraft, satellites, and missiles using principles of physics and engineering.",
-      salary: "₹6L - ₹35L per annum",
-      entranceExams: ["GATE (AE)", "JEE Advanced"],
-      colleges: ["IITs", "IIST", "MIT Manipal", "PEC"],
-      recruiters: ["ISRO", "HAL", "DRDO", "Boeing India"]
-    },
-    {
-      id: "19",
-      title: "Cyber Security Expert",
-      category: "Technical",
-      description: "Protect computer systems, networks, and data from cyber threats, unauthorized access, and security breaches.",
-      salary: "₹6L - ₹40L per annum",
-      entranceExams: ["GATE (CS)", "CEH Certification"],
-      colleges: ["IITs", "NITs", "IIIT Hyderabad", "DIAT"],
-      recruiters: ["Banks", "IT Companies", "Government Agencies", "Consultancies"]
-    },
-    {
-      id: "20",
-      title: "Hotel Management Professional",
-      category: "Hospitality",
-      description: "Oversee operations of hotels, resorts, and other accommodation establishments to ensure excellent guest experiences.",
-      salary: "₹3L - ₹20L per annum",
-      entranceExams: ["NCHMCT JEE"],
-      colleges: ["IHMs", "Welcomgroup", "Christ University", "Manipal"],
-      recruiters: ["Taj Group", "Oberoi", "ITC Hotels", "International Chains"]
-    },
-    {
-      id: "21",
-      title: "Nutritionist",
-      category: "Medical",
-      description: "Provide advice on diet and food choices to help people achieve specific health-related goals and manage medical conditions.",
-      salary: "₹3L - ₹15L per annum",
-      entranceExams: ["AIIMS PG", "PG Entrance Tests"],
-      colleges: ["Lady Irwin College", "SNDT Women's University", "Institute of Home Economics"],
-      recruiters: ["Hospitals", "Fitness Centers", "Schools", "Private Practice"]
-    },
-    {
-      id: "22",
-      title: "Urban Planner",
-      category: "Government",
-      description: "Develop comprehensive plans and programs for land use and growth of urban and rural communities.",
-      salary: "₹5L - ₹20L per annum",
-      entranceExams: ["GATE (AR/PL)", "CEPT Entrance"],
-      colleges: ["SPA", "CEPT", "IIT Kharagpur", "JMI"],
-      recruiters: ["Municipal Corporations", "Development Authorities", "Consulting Firms"]
-    }
-  ]);
-
-  const [filteredCareers, setFilteredCareers] = useState<Career[]>(careers);
-  const [savedCareers, setSavedCareers] = useState<string[]>([]);
-  const [educationStage, setEducationStage] = useState<string | null>(null);
-  const [hasQuizResults, setHasQuizResults] = useState(false);
-  const categories = Array.from(new Set(careers.map(career => career.category)));
-
-  // Load matched careers from quiz if available
   useEffect(() => {
-    // Get education stage
-    const stageData = localStorage.getItem('educationStage');
-    const currentStage = stageData || null;
-    setEducationStage(currentStage);
-    
-    const matchedCareersData = localStorage.getItem('matchedCareers');
-    if (matchedCareersData) {
-      try {
-        const matchedCareers = JSON.parse(matchedCareersData);
-        setHasQuizResults(true);
-        
-        // Update career list with match scores from quiz results
-        const updatedCareers = careers.map(career => {
-          const match = matchedCareers.find((c: Career) => c.id === career.id);
-          return match ? { ...career, matchScore: match.matchScore } : career;
-        });
-        
-        // Sort by match score if available
-        const sortedCareers = [...updatedCareers].sort((a, b) => 
-          (b.matchScore || 0) - (a.matchScore || 0)
-        );
-        
-        setCareers(sortedCareers);
-        
-        // Filter careers by match score - only show those above 40% match
-        const matchedFiltered = sortedCareers.filter(career => 
-          (career.matchScore || 0) >= 40
-        );
-        
-        setFilteredCareers(matchedFiltered.length > 0 ? matchedFiltered : sortedCareers);
-        
-        // Show a toast notification
-        toast({
-          title: "Quiz results loaded",
-          description: "Showing careers that match your profile.",
-        });
-        
-        // Clear localStorage after using it
-        localStorage.removeItem('matchedCareers');
-      } catch (error) {
-        console.error("Error parsing matched careers:", error);
-      }
-    }
-  }, []);
+    filterCareers(searchQuery, selectedCategories);
+  }, [searchQuery, selectedCategories]);
 
-  const handleSearch = (query: string) => {
-    if (!query.trim()) {
-      // If search is cleared, apply education filter again
-      if (hasQuizResults) {
-        const matchingCareers = careers.filter(career => (career.matchScore || 0) >= 40);
-        setFilteredCareers(matchingCareers.length > 0 ? matchingCareers : careers);
-      } else {
-        setFilteredCareers(careers);
-      }
-      return;
-    }
-    
-    const searchResults = careers.filter((career) => 
-      career.title.toLowerCase().includes(query.toLowerCase()) ||
-      career.description.toLowerCase().includes(query.toLowerCase()) ||
-      career.category.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    setFilteredCareers(searchResults);
-  };
+  const filterCareers = (query: string, categories: string[]) => {
+    let results = [...careerData];
 
-  const handleFilterChange = (selectedCategories: string[]) => {
-    let results = careers;
-    
-    // Apply category filter if categories are selected
-    if (selectedCategories.length > 0) {
-      results = results.filter((career) => 
-        selectedCategories.includes(career.category)
+    // Filter by search query
+    if (query) {
+      const lowerCaseQuery = query.toLowerCase();
+      results = results.filter(
+        career => 
+          career.title.toLowerCase().includes(lowerCaseQuery) || 
+          career.description.toLowerCase().includes(lowerCaseQuery) ||
+          career.category.toLowerCase().includes(lowerCaseQuery)
       );
     }
-    
-    // Apply match score filter if coming from quiz
-    if (hasQuizResults) {
-      results = results.filter(career => (career.matchScore || 0) >= 40);
-      if (results.length === 0) {
-        // If no high matches, just use the category filter
-        results = careers.filter((career) => 
-          selectedCategories.length === 0 || selectedCategories.includes(career.category)
-        );
-      }
+
+    // Filter by categories
+    if (categories.length > 0) {
+      results = results.filter(career => categories.includes(career.category));
     }
-    
+
     setFilteredCareers(results);
   };
 
-  const handleSaveCareer = (careerId: string) => {
-    // Toggle saved state
-    setSavedCareers(prev => {
-      if (prev.includes(careerId)) {
-        // If already saved, remove it
-        toast({
-          title: "Career removed",
-          description: "This career has been removed from your saved list.",
-        });
-        return prev.filter(id => id !== careerId);
-      } else {
-        // If not saved, add it
-        toast({
-          title: "Career saved",
-          description: "This career has been saved to your profile.",
-        });
-        return [...prev, careerId];
-      }
-    });
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
   };
 
-  const handleViewDetails = (careerId: string) => {
-    // Get the career details
-    const career = careers.find(c => c.id === careerId);
-    if (career) {
+  const handleFilterChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
+  const handleSaveCareer = (career: Career) => {
+    if (savedCareers.some(saved => saved.id === career.id)) {
+      setSavedCareers(savedCareers.filter(saved => saved.id !== career.id));
       toast({
-        title: `${career.title} details`,
-        description: `Showing detailed information for ${career.title}.`,
+        title: t("removedFromSaved"),
+        description: `${career.title} ${t("hasBeenRemoved")}`,
+        duration: 3000,
       });
-      
-      // In a real app, this would navigate to a detail page
-      // navigate(`/library/${careerId}`);
-      
-      // For now, just show more details in a toast
+    } else {
+      setSavedCareers([...savedCareers, career]);
       toast({
-        title: "Top Colleges",
-        description: career.colleges.join(", "),
+        title: t("savedSuccessfully"),
+        description: `${career.title} ${t("hasBeenSaved")}`,
+        duration: 3000,
       });
-      
-      setTimeout(() => {
-        toast({
-          title: "Top Recruiters",
-          description: career.recruiters.join(", "),
-        });
-      }, 500);
     }
   };
 
-  const handleTakeQuiz = () => {
-    navigate('/quiz');
+  const handleViewDetails = (career: Career) => {
+    setSelectedCareer(career);
+    setIsDetailsOpen(true);
   };
 
-  const getStageLabel = () => {
-    switch (educationStage) {
-      case 'after10th':
-        return "10th Grade";
-      case 'after12th':
-        return "12th Grade";
-      case 'afterGraduation':
-        return "Graduation";
-      default:
-        return "All Levels";
-    }
+  const isCareerSaved = (id: string) => {
+    return savedCareers.some(career => career.id === id);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Navbar />
-      <main className="flex-grow bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-900 dark:text-white">
-            {language === 'english' ? 'Career Library' : translations.hindi.careerLibraryTitle}
-          </h1>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-4 max-w-2xl mx-auto">
-            {language === 'english' 
-              ? 'Explore career paths tailored for Indian students, complete with entrance exams, top colleges, and salary information.'
-              : translations.hindi.exploreCareerPaths}
-          </p>
-          
-          {hasQuizResults && (
-            <div className="mb-6 max-w-2xl mx-auto">
-              <Alert className="bg-pp-purple/10 border-pp-purple">
-                <BarChart4 className="h-4 w-4 text-pp-purple" />
-                <AlertTitle className="text-pp-purple">
-                  Personalized Career Recommendations
-                </AlertTitle>
-                <AlertDescription className="text-gray-700 dark:text-gray-300">
-                  Showing careers matched to your {getStageLabel()} profile. 
-                  These recommendations are based on your quiz responses.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-          
-          {!hasQuizResults && (
-            <div className="mb-6 flex justify-center">
-              <Button 
-                onClick={handleTakeQuiz}
-                className="bg-pp-purple hover:bg-pp-bright-purple flex items-center gap-2"
-              >
-                <Percent className="h-4 w-4" />
-                Take Career Match Quiz
-              </Button>
-            </div>
-          )}
-          
-          <CareerFilter 
-            onSearch={handleSearch} 
-            onFilterChange={handleFilterChange}
-            categories={categories}
-          />
-          
-          {hasQuizResults && filteredCareers.length > 0 && (
-            <Card className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-pp-purple" />
-                  Showing {filteredCareers.length} careers matched to {getStageLabel()} students
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  These careers are filtered based on your education level and quiz responses. 
-                  The match percentage indicates how well each career aligns with your interests and aptitudes.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCareers.length > 0 ? (
-              filteredCareers.map((career) => (
-                <CareerCard 
-                  key={career.id} 
-                  career={career} 
-                  onSave={() => handleSaveCareer(career.id)}
-                  onViewDetails={() => handleViewDetails(career.id)}
-                  isSaved={savedCareers.includes(career.id)}
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-10">
-                <p className="text-gray-500 dark:text-gray-400 mb-4">
-                  No careers found matching your criteria.
-                </p>
-                {hasQuizResults && (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setFilteredCareers(careers);
-                      setHasQuizResults(false);
-                    }}
-                  >
-                    View All Careers Instead
-                  </Button>
-                )}
-              </div>
-            )}
+      <main className="min-h-screen">
+        <div className="bg-gradient-to-r from-pp-purple to-pp-bright-purple py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{t("careerLibraryTitle")}</h1>
+            <p className="text-xl">{t("exploreCareerPaths")}</p>
           </div>
         </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="mb-8">
+              <TabsTrigger value="recommendations" className="flex items-center gap-2">
+                <PieChart className="h-4 w-4" />
+                {t("yourRecommendations")}
+              </TabsTrigger>
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                {t("exploreCareers")}
+              </TabsTrigger>
+              <TabsTrigger value="saved" className="flex items-center gap-2">
+                <Bookmark className="h-4 w-4" />
+                {t("saved")}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Recommendations Tab */}
+            <TabsContent value="recommendations" className="space-y-8">
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg mb-8 border border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-bold mb-3 text-pp-purple dark:text-pp-bright-purple">
+                  {t("personalizedForYou")}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  {t("basedOnQuizResults")}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recommendations.map(career => (
+                    <motion.div
+                      key={career.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <CareerCard
+                        career={career}
+                        onSave={handleSaveCareer}
+                        onViewDetails={handleViewDetails}
+                        isSaved={isCareerSaved(career.id)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="text-center mt-6">
+                  <Button 
+                    variant="outline" 
+                    className="border-pp-purple text-pp-purple hover:bg-pp-purple/10"
+                    onClick={() => setActiveTab('all')}
+                  >
+                    {t("exploreAllCareers")}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* All Careers Tab */}
+            <TabsContent value="all">
+              <CareerFilter
+                onSearch={handleSearch}
+                onFilterChange={handleFilterChange}
+                categories={categories}
+              />
+
+              {filteredCareers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredCareers.map(career => (
+                    <motion.div
+                      key={career.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <CareerCard
+                        career={career}
+                        onSave={handleSaveCareer}
+                        onViewDetails={handleViewDetails}
+                        isSaved={isCareerSaved(career.id)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <h3 className="text-xl font-semibold mb-2">{t("noResults")}</h3>
+                  <p className="text-gray-500">{t("tryAdjusting")}</p>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Saved Careers Tab */}
+            <TabsContent value="saved">
+              {savedCareers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {savedCareers.map(career => (
+                    <motion.div
+                      key={career.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <CareerCard
+                        career={career}
+                        onSave={handleSaveCareer}
+                        onViewDetails={handleViewDetails}
+                        isSaved={true}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <h3 className="text-xl font-semibold mb-2">{t("noSavedCareers")}</h3>
+                  <p className="text-gray-500">{t("browseCareersToSave")}</p>
+                  <Button 
+                    className="mt-4 bg-pp-purple hover:bg-pp-bright-purple"
+                    onClick={() => setActiveTab('all')}
+                  >
+                    {t("browseCareers")}
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Career Details Dialog */}
+        {selectedCareer && (
+          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <DialogContent className="max-w-3xl overflow-y-auto max-h-[80vh]">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">
+                  {selectedCareer.title}
+                </DialogTitle>
+                <DialogDescription>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="px-2 py-1 bg-pp-purple/10 text-pp-purple rounded-full text-xs">
+                      {selectedCareer.category}
+                    </span>
+                    {selectedCareer.matchScore && (
+                      <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs">
+                        {selectedCareer.matchScore}% {t("match")}
+                      </span>
+                    )}
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2">{t("description")}</h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {selectedCareer.description}
+                </p>
+
+                <h3 className="font-semibold text-lg mb-2">{t("salaryRange")}</h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {selectedCareer.salary}
+                </p>
+
+                <h3 className="font-semibold text-lg mb-2">{t("entranceExams")}</h3>
+                <ul className="list-disc pl-5 mb-4">
+                  {selectedCareer.entranceExams.map((exam, index) => (
+                    <li key={index} className="text-gray-700 dark:text-gray-300">{exam}</li>
+                  ))}
+                </ul>
+
+                <h3 className="font-semibold text-lg mb-2">{t("topColleges")}</h3>
+                <ul className="list-disc pl-5 mb-4">
+                  {selectedCareer.colleges.map((college, index) => (
+                    <li key={index} className="text-gray-700 dark:text-gray-300">{college}</li>
+                  ))}
+                </ul>
+
+                <h3 className="font-semibold text-lg mb-2">{t("topRecruiters")}</h3>
+                <ul className="list-disc pl-5 mb-6">
+                  {selectedCareer.recruiters.map((recruiter, index) => (
+                    <li key={index} className="text-gray-700 dark:text-gray-300">{recruiter}</li>
+                  ))}
+                </ul>
+
+                <div className="flex justify-end gap-4 mt-6">
+                  <Button
+                    variant={isCareerSaved(selectedCareer.id) ? "default" : "outline"}
+                    className={isCareerSaved(selectedCareer.id) ? "bg-green-600 hover:bg-green-700" : ""}
+                    onClick={() => handleSaveCareer(selectedCareer)}
+                  >
+                    {isCareerSaved(selectedCareer.id) ? t("saved") : t("save")}
+                  </Button>
+                  <DialogClose asChild>
+                    <Button variant="outline">{t("close")}</Button>
+                  </DialogClose>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </main>
       <Footer />
-    </div>
+    </>
   );
 }
