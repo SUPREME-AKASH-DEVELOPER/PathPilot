@@ -169,18 +169,33 @@ export default function LibraryPage() {
   const categories = Array.from(new Set(careerData.map(career => career.category)));
   
   useEffect(() => {
-    // Load saved careers from localStorage
-    const savedCareerIds = JSON.parse(localStorage.getItem("savedCareers") || "[]");
-    const loadedSavedCareers = careerData.filter(career => 
-      savedCareerIds.includes(career.id)
-    );
-    setSavedCareers(loadedSavedCareers);
+    // Load saved careers from localStorage with improved handling
+    loadSavedCareers();
     
     // Load personalized recommendations with better handling
     loadRecommendations();
     
     filterCareers(searchQuery, selectedCategories);
   }, []);
+
+  // Enhanced function to load saved careers
+  const loadSavedCareers = () => {
+    try {
+      const savedCareerIds = JSON.parse(localStorage.getItem("savedCareers") || "[]");
+      console.log("Loaded savedCareerIds from localStorage:", savedCareerIds);
+      
+      if (Array.isArray(savedCareerIds) && savedCareerIds.length > 0) {
+        const loadedSavedCareers = careerData.filter(career => 
+          savedCareerIds.includes(career.id)
+        );
+        console.log("Loaded saved careers:", loadedSavedCareers);
+        setSavedCareers(loadedSavedCareers);
+      }
+    } catch (error) {
+      console.error("Error loading saved careers:", error);
+      setSavedCareers([]);
+    }
+  };
   
   // Improved recommendation loading with better fallbacks
   const loadRecommendations = () => {
@@ -316,9 +331,13 @@ export default function LibraryPage() {
 
   const handleSaveCareer = (career: Career) => {
     if (isCareerSaved(career.id)) {
+      // Remove career from saved
       const updatedSavedCareers = savedCareers.filter(saved => saved.id !== career.id);
       setSavedCareers(updatedSavedCareers);
+      
+      // Update localStorage
       localStorage.setItem("savedCareers", JSON.stringify(updatedSavedCareers.map(c => c.id)));
+      console.log("Career removed from saved:", career.title);
       
       toast({
         title: t("removedFromSaved"),
@@ -326,9 +345,13 @@ export default function LibraryPage() {
         duration: 3000,
       });
     } else {
+      // Add career to saved
       const updatedSavedCareers = [...savedCareers, career];
       setSavedCareers(updatedSavedCareers);
+      
+      // Update localStorage
       localStorage.setItem("savedCareers", JSON.stringify(updatedSavedCareers.map(c => c.id)));
+      console.log("Career saved:", career.title, "Total saved:", updatedSavedCareers.length);
       
       toast({
         title: t("savedSuccessfully"),
