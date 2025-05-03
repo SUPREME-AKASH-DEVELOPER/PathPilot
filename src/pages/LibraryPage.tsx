@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
@@ -177,73 +176,108 @@ export default function LibraryPage() {
     );
     setSavedCareers(loadedSavedCareers);
     
-    // Load personalized recommendations from quiz results
-    try {
-      // Try to get matched careers from localStorage (set during quiz completion)
-      const storedMatchedCareers = localStorage.getItem('matchedCareers');
-      
-      if (storedMatchedCareers) {
-        const parsedRecommendations = JSON.parse(storedMatchedCareers) as Career[];
-        if (Array.isArray(parsedRecommendations) && parsedRecommendations.length > 0) {
-          setPersonalRecommendations(parsedRecommendations);
-        } else {
-          // Fallback to algorithm-based recommendations if localStorage data is invalid
-          generateRecommendations();
-        }
-      } else {
-        // If no quiz results, generate algorithm-based recommendations
-        generateRecommendations();
-      }
-    } catch (error) {
-      console.error("Error loading recommendations:", error);
-      generateRecommendations();
-    }
+    // Load personalized recommendations with better handling
+    loadRecommendations();
     
     filterCareers(searchQuery, selectedCategories);
   }, []);
   
+  // Improved recommendation loading with better fallbacks
+  const loadRecommendations = () => {
+    try {
+      // Check for direct quiz results from local storage
+      const storedMatchedCareers = localStorage.getItem('matchedCareers');
+      
+      if (storedMatchedCareers) {
+        // Parse stored careers
+        const parsedRecommendations = JSON.parse(storedMatchedCareers);
+        
+        // Verify we got valid career data with match scores
+        if (Array.isArray(parsedRecommendations) && 
+            parsedRecommendations.length > 0 && 
+            parsedRecommendations[0].title && 
+            parsedRecommendations[0].matchScore) {
+          
+          console.log("Using quiz recommendations:", parsedRecommendations);
+          // Create a deep copy to avoid reference issues
+          const recommendationsWithFullData = parsedRecommendations.map(rec => {
+            // Find the full career data if possible
+            const fullCareerData = careerData.find(c => c.id === rec.id) || 
+                                  careerData.find(c => c.title === rec.title);
+            
+            if (fullCareerData) {
+              // Combine data, preferring the stored match score
+              return {
+                ...fullCareerData,
+                matchScore: rec.matchScore
+              };
+            }
+            return rec; // Use stored data if full data not found
+          });
+          
+          setPersonalRecommendations(recommendationsWithFullData);
+          return;
+        }
+      }
+      
+      // If we didn't return yet, generate fallback recommendations
+      console.log("Generating fallback recommendations");
+      generateRecommendations();
+      
+    } catch (error) {
+      console.error("Error loading recommendations:", error);
+      generateRecommendations();
+    }
+  };
+  
   // Generate recommendations based on career match score or random selection
   const generateRecommendations = () => {
-    // First try to use careers that already have match scores
-    let recommendedCareers = careerData.filter(career => 
-      career.matchScore !== undefined && career.matchScore >= 75
-    );
+    // Create a copy of career data to avoid modifying original
+    let recommendedCareers = [...careerData];
     
-    // Sort by match score if available
+    // Add random match scores (60-95) if none exists
+    recommendedCareers = recommendedCareers.map(career => ({
+      ...career,
+      matchScore: career.matchScore || Math.floor(Math.random() * 36) + 60
+    }));
+    
+    // Sort by match score 
     recommendedCareers = recommendedCareers.sort((a, b) => 
       ((b.matchScore || 0) - (a.matchScore || 0))
     );
     
-    // If we don't have enough recommendations with match scores, add more from diverse categories
-    if (recommendedCareers.length < 4) {
-      // Get a list of all categories
-      const allCategories = Array.from(new Set(careerData.map(career => career.category)));
+    // Select top 5-6 careers from diverse categories
+    const finalRecommendations: Career[] = [];
+    const selectedCategories = new Set<string>();
+    
+    // First try to get unique categories
+    for (const career of recommendedCareers) {
+      if (finalRecommendations.length >= 6) break;
       
-      // For each category, add the first career not already in recommendations
-      allCategories.forEach(category => {
-        if (recommendedCareers.length < 6) {
-          const categoryCareer = careerData.find(career => 
-            career.category === category && 
-            !recommendedCareers.some(rec => rec.id === career.id)
-          );
-          
-          if (categoryCareer) {
-            // Assign a random match score between 75-92 if none exists
-            if (categoryCareer.matchScore === undefined) {
-              categoryCareer.matchScore = Math.floor(Math.random() * 18) + 75;
-            }
-            recommendedCareers.push(categoryCareer);
-          }
-        }
-      });
+      // If we haven't selected from this category yet, add it
+      if (!selectedCategories.has(career.category)) {
+        finalRecommendations.push(career);
+        selectedCategories.add(career.category);
+      }
     }
     
-    // Limit to 6 recommendations and ensure they're sorted by match score
-    recommendedCareers = recommendedCareers.slice(0, 6).sort((a, b) => 
-      ((b.matchScore || 0) - (a.matchScore || 0))
-    );
+    // If we didn't get enough, add more from top scores
+    if (finalRecommendations.length < 5) {
+      for (const career of recommendedCareers) {
+        if (finalRecommendations.length >= 6) break;
+        if (!finalRecommendations.some(c => c.id === career.id)) {
+          finalRecommendations.push(career);
+        }
+      }
+    }
     
-    setPersonalRecommendations(recommendedCareers);
+    // Final sort by match score
+    finalRecommendations.sort((a, b) => ((b.matchScore || 0) - (a.matchScore || 0)));
+    
+    // Store these recommendations in localStorage as a fallback
+    localStorage.setItem('fallbackRecommendations', JSON.stringify(finalRecommendations));
+    
+    setPersonalRecommendations(finalRecommendations);
   };
 
   useEffect(() => {
