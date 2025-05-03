@@ -66,16 +66,6 @@ export default function InteractiveFeature() {
     }
   };
   
-  // Shimmer effect animation
-  const shimmerAnimation = {
-    x: [-100, 100],
-    transition: {
-      repeat: Infinity,
-      duration: 1.5,
-      ease: "easeInOut"
-    }
-  };
-  
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden relative">
       {/* Background decorative elements with enhanced animations */}
@@ -141,7 +131,7 @@ export default function InteractiveFeature() {
           </motion.p>
         </motion.div>
         
-        <div className="grid lg:grid-cols-3 gap-10 items-center">
+        <div className="grid lg:grid-cols-3 gap-10 items-start">
           {/* Interactive left panel with enhanced animations */}
           <motion.div
             variants={containerVariants}
@@ -233,122 +223,82 @@ export default function InteractiveFeature() {
             </Card>
           </motion.div>
           
-          {/* Center interactive image with enhanced animations */}
+          {/* Simplified center visualization */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative mx-auto hidden sm:block"
+            className="flex justify-center items-center"
           >
-            <div className="relative h-[400px] w-full max-w-[300px] mx-auto">
-              {/* Central connection line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-0.5 bg-gradient-to-b from-pp-purple via-pp-bright-purple to-pp-saffron">
-                <motion.div 
-                  animate={{ 
-                    y: [0, 400, 0], 
-                    backgroundColor: ["#7E69AB", "#9b87f5", "#F9A826", "#7E69AB"] 
-                  }}
-                  transition={{ 
-                    duration: 8, 
-                    repeat: Infinity, 
-                    ease: "linear" 
-                  }}
-                  className="absolute w-3 h-3 rounded-full bg-pp-purple -left-1 transform"
-                />
-              </div>
-              
-              {/* Career match badge in center */}
-              <motion.div 
-                animate={pulseAnimation}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-              >
-                <div className="relative">
+            <div className="relative flex flex-col items-center justify-between h-[400px] max-w-[200px] mx-auto">
+              {/* Career path visualization - simplified design */}
+              <div className="relative w-full h-full flex flex-col items-center justify-between">
+                {/* Top profile */}
+                <motion.div
+                  animate={floatingAnimation}
+                  className="relative z-10"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-pp-purple to-pp-bright-purple rounded-full opacity-20 blur-md transform scale-110" />
+                    <div className="h-16 w-16 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-lg">
+                      <img
+                        src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=2940&h=3000"
+                        alt="Student profile"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </motion.div>
+                </motion.div>
+                
+                {/* Path connection - cleaner design */}
+                <div className="absolute top-[20%] bottom-[20%] w-1 bg-gradient-to-b from-pp-purple via-pp-bright-purple to-pp-saffron rounded-full">
                   <motion.div 
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-pp-purple to-pp-bright-purple opacity-20 blur-md"
+                    animate={{ 
+                      y: [0, 200, 0], 
+                      backgroundColor: ["#7E69AB", "#9b87f5", "#F9A826"] 
+                    }}
+                    transition={{ 
+                      duration: 8, 
+                      repeat: Infinity, 
+                      ease: "linear" 
+                    }}
+                    className="absolute w-3 h-3 -left-1 bg-pp-bright-purple rounded-full shadow-md shadow-pp-bright-purple/20"
                   />
-                  <motion.div 
-                    whileHover={{ scale: 1.1 }}
-                    className="relative px-4 py-2 backdrop-blur-md bg-black/30 text-white rounded-full font-medium border border-white/20 shadow-lg"
+                </div>
+                
+                {/* Career match badge - simplified & centered */}
+                <motion.div 
+                  animate={pulseAnimation}
+                  className="absolute top-1/2 -translate-y-1/2 z-20"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="px-4 py-2 bg-black/30 backdrop-blur-md text-white rounded-full font-medium border border-white/20 shadow-lg"
                   >
                     {t("careerMatch") || "Career Match"}
                   </motion.div>
-                </div>
-              </motion.div>
-              
-              {/* Main image */}
-              <motion.div
-                animate={floatingAnimation}
-                className="absolute top-[5%] left-1/2 -translate-x-1/2 z-10"
-              >
+                </motion.div>
+                
+                {/* Bottom result */}
                 <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="relative"
+                  animate={floatingAnimation}
+                  className="relative z-10"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-pp-purple to-pp-bright-purple rounded-full opacity-20 blur-md transform scale-110" />
-                  <img
-                    src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=2940&h=3000"
-                    alt="Student exploring career options"
-                    className="h-[120px] w-[120px] object-cover rounded-full border-4 border-white dark:border-gray-700 shadow-lg"
-                  />
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-pp-saffron to-amber-500 rounded-full opacity-20 blur-md transform scale-110" />
+                    <div className="h-16 w-16 bg-gradient-to-br from-pp-saffron to-amber-500 rounded-full shadow-lg flex items-center justify-center text-white text-xl font-bold">
+                      10+
+                    </div>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-              
-              {/* Icons along the path */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute top-[35%] left-1/2 -translate-x-1/2 z-10"
-              >
-                <motion.div 
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.8 }}
-                  className="h-10 w-10 bg-white dark:bg-gray-800 rounded-full shadow-md flex items-center justify-center"
-                >
-                  <Star className="h-5 w-5 text-pp-saffron" />
-                </motion.div>
-              </motion.div>
-              
-              <motion.div
-                animate={floatingAnimation}
-                className="absolute bottom-[5%] left-1/2 -translate-x-1/2 z-10"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="relative"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-pp-saffron to-amber-500 rounded-full opacity-20 blur-md transform scale-110" />
-                  <div className="h-[80px] w-[80px] bg-gradient-to-br from-pp-saffron to-amber-500 rounded-full shadow-lg flex items-center justify-center text-white text-xl font-bold">
-                    10+
-                  </div>
-                </motion.div>
-              </motion.div>
-              
-              {/* Floating elements */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute top-[15%] -left-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 border border-gray-100 dark:border-gray-700"
-              >
-                <GalleryHorizontal className="h-5 w-5 text-pp-purple dark:text-pp-bright-purple" />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-                className="absolute bottom-[20%] -right-4 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700"
-              >
-                <p className="text-xs font-medium text-gray-900 dark:text-white">
-                  {t("percentMatch") || "98% match"}
-                </p>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
           
@@ -479,4 +429,3 @@ export default function InteractiveFeature() {
     </section>
   );
 }
-
