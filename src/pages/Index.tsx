@@ -7,6 +7,7 @@ import ParentZoneSection from "@/components/home/ParentZoneSection";
 import CTASection from "@/components/home/CTASection";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import InteractiveFeature from "@/components/home/InteractiveFeature";
 
 const Index = () => {
   return (
@@ -14,6 +15,7 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <Hero />
+        <InteractiveFeature />
         <FeatureSection />
         <StatsSection />
         <TestimonialSection />
