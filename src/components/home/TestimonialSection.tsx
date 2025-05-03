@@ -1,13 +1,18 @@
 
-import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TestimonialSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const testimonialsRef = useRef<HTMLDivElement>(null);
-
+  const { t } = useLanguage();
+  
   const testimonials = [
     {
       quote: "Path Piolet helped me discover my passion for design. Now I'm studying at NID and couldn't be happier!",
@@ -26,16 +31,20 @@ export default function TestimonialSection() {
       name: "Anjali Verma",
       role: "B.Ed Student",
       location: "Delhi University"
+    },
+    {
+      quote: "The career counseling sessions helped me understand that I could combine my love for technology and healthcare in biomedical engineering.",
+      name: "Vikram Singh",
+      role: "Biomedical Engineering Student",
+      location: "IIT Bombay"
+    },
+    {
+      quote: "I discovered my passion for psychology through Path Piolet's career library. Now I'm on my way to becoming a clinical psychologist.",
+      name: "Neha Kapoor",
+      role: "Psychology Student",
+      location: "University of Delhi"
     }
   ];
-
-  const nextTestimonial = () => {
-    setActiveIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
-  };
-
-  const prevTestimonial = () => {
-    setActiveIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-  };
 
   return (
     <section className="py-16 bg-gray-50 dark:bg-gray-800">
@@ -48,78 +57,62 @@ export default function TestimonialSection() {
         </p>
         
         <div className="relative">
-          <div 
-            className="overflow-hidden" 
-            ref={testimonialsRef}
+          <Carousel
+            opts={{
+              align: "center",
+              loop: true,
+            }}
+            className="w-full"
           >
-            <div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-            >
+            <CarouselContent>
               {testimonials.map((testimonial, index) => (
-                <div 
-                  key={index}
-                  className="min-w-full px-4"
-                >
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                   <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: activeIndex === index ? 1 : 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="h-full"
                   >
-                    <div className="flex flex-col items-center text-center">
-                      <div className="mb-6">
-                        {/* Placeholder for avatar */}
-                        <div className="w-16 h-16 rounded-full bg-pp-bright-purple flex items-center justify-center text-white text-xl font-bold">
-                          {testimonial.name.charAt(0)}
+                    <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg h-full flex flex-col">
+                      <div className="flex flex-col items-center text-center flex-grow">
+                        <div className="mb-6">
+                          {/* Avatar */}
+                          <div className="w-16 h-16 rounded-full bg-pp-bright-purple flex items-center justify-center text-white text-xl font-bold">
+                            {testimonial.name.charAt(0)}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <blockquote className="mb-4">
-                        <p className="text-xl italic text-gray-700 dark:text-gray-300">
-                          "{testimonial.quote}"
-                        </p>
-                      </blockquote>
-                      
-                      <div>
-                        <div className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
-                        <div className="text-pp-purple">{testimonial.role}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{testimonial.location}</div>
+                        
+                        <blockquote className="mb-4 flex-grow">
+                          <p className="text-lg italic text-gray-700 dark:text-gray-300">
+                            "{testimonial.quote}"
+                          </p>
+                        </blockquote>
+                        
+                        <div className="mt-auto">
+                          <div className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
+                          <div className="text-pp-purple">{testimonial.role}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{testimonial.location}</div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
-                </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="absolute -bottom-10 left-0 right-0 flex justify-center gap-2 py-4">
+              {testimonials.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                    index === 0 ? "bg-pp-purple" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                />
               ))}
             </div>
-          </div>
-          
-          <div className="flex justify-center mt-8 gap-4">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={prevTestimonial}
-              className="rounded-full"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {testimonials.map((_, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveIndex(index)}
-                className={`w-2 h-2 p-0 rounded-full ${index === activeIndex ? 'bg-pp-purple' : 'bg-gray-300 dark:bg-gray-600'}`}
-              />
-            ))}
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={nextTestimonial}
-              className="rounded-full"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2" />
+          </Carousel>
         </div>
       </div>
     </section>
