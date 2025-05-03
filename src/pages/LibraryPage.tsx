@@ -164,14 +164,88 @@ export default function LibraryPage() {
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
-
+  const [personalRecommendations, setPersonalRecommendations] = useState<Career[]>([]);
+  
   // Get all available categories from the career data
   const categories = Array.from(new Set(careerData.map(career => career.category)));
-
-  // Your personalized recommendations based on high match scores (80%+)
-  const recommendations = careerData.filter(career => career.matchScore && career.matchScore >= 80)
-    .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
   
+  useEffect(() => {
+    // Load saved careers from localStorage
+    const savedCareerIds = JSON.parse(localStorage.getItem("savedCareers") || "[]");
+    const loadedSavedCareers = careerData.filter(career => 
+      savedCareerIds.includes(career.id)
+    );
+    setSavedCareers(loadedSavedCareers);
+    
+    // Load personalized recommendations from quiz results
+    try {
+      // Try to get matched careers from localStorage (set during quiz completion)
+      const storedMatchedCareers = localStorage.getItem('matchedCareers');
+      
+      if (storedMatchedCareers) {
+        const parsedRecommendations = JSON.parse(storedMatchedCareers) as Career[];
+        if (Array.isArray(parsedRecommendations) && parsedRecommendations.length > 0) {
+          setPersonalRecommendations(parsedRecommendations);
+        } else {
+          // Fallback to algorithm-based recommendations if localStorage data is invalid
+          generateRecommendations();
+        }
+      } else {
+        // If no quiz results, generate algorithm-based recommendations
+        generateRecommendations();
+      }
+    } catch (error) {
+      console.error("Error loading recommendations:", error);
+      generateRecommendations();
+    }
+    
+    filterCareers(searchQuery, selectedCategories);
+  }, []);
+  
+  // Generate recommendations based on career match score or random selection
+  const generateRecommendations = () => {
+    // First try to use careers that already have match scores
+    let recommendedCareers = careerData.filter(career => 
+      career.matchScore !== undefined && career.matchScore >= 75
+    );
+    
+    // Sort by match score if available
+    recommendedCareers = recommendedCareers.sort((a, b) => 
+      ((b.matchScore || 0) - (a.matchScore || 0))
+    );
+    
+    // If we don't have enough recommendations with match scores, add more from diverse categories
+    if (recommendedCareers.length < 4) {
+      // Get a list of all categories
+      const allCategories = Array.from(new Set(careerData.map(career => career.category)));
+      
+      // For each category, add the first career not already in recommendations
+      allCategories.forEach(category => {
+        if (recommendedCareers.length < 6) {
+          const categoryCareer = careerData.find(career => 
+            career.category === category && 
+            !recommendedCareers.some(rec => rec.id === career.id)
+          );
+          
+          if (categoryCareer) {
+            // Assign a random match score between 75-92 if none exists
+            if (categoryCareer.matchScore === undefined) {
+              categoryCareer.matchScore = Math.floor(Math.random() * 18) + 75;
+            }
+            recommendedCareers.push(categoryCareer);
+          }
+        }
+      });
+    }
+    
+    // Limit to 6 recommendations and ensure they're sorted by match score
+    recommendedCareers = recommendedCareers.slice(0, 6).sort((a, b) => 
+      ((b.matchScore || 0) - (a.matchScore || 0))
+    );
+    
+    setPersonalRecommendations(recommendedCareers);
+  };
+
   useEffect(() => {
     filterCareers(searchQuery, selectedCategories);
   }, [searchQuery, selectedCategories]);
@@ -207,15 +281,21 @@ export default function LibraryPage() {
   };
 
   const handleSaveCareer = (career: Career) => {
-    if (savedCareers.some(saved => saved.id === career.id)) {
-      setSavedCareers(savedCareers.filter(saved => saved.id !== career.id));
+    if (isCareerSaved(career.id)) {
+      const updatedSavedCareers = savedCareers.filter(saved => saved.id !== career.id);
+      setSavedCareers(updatedSavedCareers);
+      localStorage.setItem("savedCareers", JSON.stringify(updatedSavedCareers.map(c => c.id)));
+      
       toast({
         title: t("removedFromSaved"),
         description: `${career.title} ${t("hasBeenRemoved")}`,
         duration: 3000,
       });
     } else {
-      setSavedCareers([...savedCareers, career]);
+      const updatedSavedCareers = [...savedCareers, career];
+      setSavedCareers(updatedSavedCareers);
+      localStorage.setItem("savedCareers", JSON.stringify(updatedSavedCareers.map(c => c.id)));
+      
       toast({
         title: t("savedSuccessfully"),
         description: `${career.title} ${t("hasBeenSaved")}`,
@@ -271,21 +351,35 @@ export default function LibraryPage() {
                   {t("basedOnQuizResults")}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {recommendations.map(career => (
-                    <motion.div
-                      key={career.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <CareerCard
-                        career={career}
-                        onSave={handleSaveCareer}
-                        onViewDetails={handleViewDetails}
-                        isSaved={isCareerSaved(career.id)}
-                      />
-                    </motion.div>
-                  ))}
+                  {personalRecommendations.length > 0 ? (
+                    personalRecommendations.map(career => (
+                      <motion.div
+                        key={career.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <CareerCard
+                          career={career}
+                          onSave={handleSaveCareer}
+                          onViewDetails={handleViewDetails}
+                          isSaved={isCareerSaved(career.id)}
+                        />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-8">
+                      <p className="text-gray-500 dark:text-gray-400">
+                        {t("takeQuizForPersonalized")}
+                      </p>
+                      <Button 
+                        className="mt-4 bg-pp-purple hover:bg-pp-bright-purple"
+                        onClick={() => window.location.href = '/quiz'}
+                      >
+                        {t("takeCareerQuiz")}
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="text-center mt-6">
                   <Button 
