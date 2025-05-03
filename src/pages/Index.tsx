@@ -8,6 +8,7 @@ import CTASection from "@/components/home/CTASection";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InteractiveFeature from "@/components/home/InteractiveFeature";
+import ImageCarousel from "@/components/home/ImageCarousel";
 
 const Index = () => {
   return (
@@ -15,6 +16,7 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <Hero />
+        <ImageCarousel />
         <InteractiveFeature />
         <FeatureSection />
         <StatsSection />
