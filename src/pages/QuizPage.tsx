@@ -15,7 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Book, Briefcase, GraduationCap, PieChart, StarHalf, SchoolIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Enhanced quiz questions with more detailed options for 10th grade
+// Enhanced quiz questions with more detailed options and difficulty levels for 10th grade
 const after10thQuestions: Question[] = [
   {
     id: 1,
@@ -26,7 +26,8 @@ const after10thQuestions: Question[] = [
       "Literature and Languages",
       "Computers and Information Technology"
     ],
-    category: "academic"
+    category: "academic",
+    difficulty: "beginner"
   },
   {
     id: 2,
@@ -37,7 +38,8 @@ const after10thQuestions: Question[] = [
       "Communication and expression",
       "Design and creativity"
     ],
-    category: "skills"
+    category: "skills",
+    difficulty: "beginner"
   },
   {
     id: 3,
@@ -48,7 +50,8 @@ const after10thQuestions: Question[] = [
       "By reading and researching for answers",
       "By trying different approaches until something works"
     ],
-    category: "aptitude"
+    category: "aptitude",
+    difficulty: "intermediate"
   },
   {
     id: 4,
@@ -59,7 +62,8 @@ const after10thQuestions: Question[] = [
       "Laboratory or research facility",
       "Working outdoors or in varied locations"
     ],
-    category: "worklife"
+    category: "worklife",
+    difficulty: "beginner"
   },
   {
     id: 5,
@@ -70,7 +74,8 @@ const after10thQuestions: Question[] = [
       "Commerce with or without Mathematics",
       "Arts/Humanities"
     ],
-    category: "interest"
+    category: "interest",
+    difficulty: "intermediate"
   },
   {
     id: 6,
@@ -81,7 +86,8 @@ const after10thQuestions: Question[] = [
       "Communication and interpersonal skills",
       "Organization and attention to detail"
     ],
-    category: "personality"
+    category: "personality",
+    difficulty: "beginner"
   },
   {
     id: 7,
@@ -93,7 +99,8 @@ const after10thQuestions: Question[] = [
       "Humanities and Arts related fields"
     ],
     category: "interest",
-    weight: 1.5 // Higher weight as this directly relates to career interest
+    weight: 1.5, // Higher weight as this directly relates to career interest
+    difficulty: "intermediate"
   },
   {
     id: 8,
@@ -104,7 +111,57 @@ const after10thQuestions: Question[] = [
       "Analyzing and solving complex problems",
       "Leading teams and projects"
     ],
-    category: "worktype"
+    category: "worktype",
+    difficulty: "intermediate"
+  },
+  // New questions start here
+  {
+    id: 9,
+    question: "How do you handle pressure and stress?",
+    options: [
+      "I stay calm and methodical in high-pressure situations",
+      "I seek support and collaborate to reduce stress",
+      "I become more focused and efficient under pressure",
+      "I prefer to avoid high-stress environments when possible"
+    ],
+    category: "personality",
+    difficulty: "intermediate"
+  },
+  {
+    id: 10,
+    question: "Which of these activities would you most enjoy as a hobby?",
+    options: [
+      "Building electronic gadgets or programming",
+      "Reading about science discoveries and experiments",
+      "Creating art, music, or writing stories",
+      "Organizing events or leading community activities"
+    ],
+    category: "interest",
+    difficulty: "beginner"
+  },
+  {
+    id: 11,
+    question: "In a group project, which role do you naturally take on?",
+    options: [
+      "The planner who organizes tasks and schedules",
+      "The creative who comes up with innovative ideas",
+      "The problem solver who figures out challenges",
+      "The communicator who facilitates discussions"
+    ],
+    category: "teamwork",
+    difficulty: "intermediate"
+  },
+  {
+    id: 12,
+    question: "How important is salary vs. work satisfaction in your future career?",
+    options: [
+      "Salary is more important than day-to-day satisfaction",
+      "Work satisfaction is more important than salary",
+      "Both are equally important to me",
+      "I care more about work-life balance than either"
+    ],
+    category: "values",
+    difficulty: "advanced"
   }
 ];
 
@@ -120,7 +177,8 @@ const after12thQuestions: Question[] = [
       "Arts, Humanities, and Social Sciences"
     ],
     category: "academic",
-    weight: 1.5 // Higher weight as this is a key decision point
+    weight: 1.5, // Higher weight as this is a key decision point
+    difficulty: "intermediate"
   },
   {
     id: 2,
@@ -131,7 +189,8 @@ const after12thQuestions: Question[] = [
       "Creative and design environment",
       "Administrative and organizational roles"
     ],
-    category: "worklife"
+    category: "worklife",
+    difficulty: "beginner"
   },
   {
     id: 3,
@@ -142,7 +201,8 @@ const after12thQuestions: Question[] = [
       "Self-study through books and online resources",
       "Mentorship and guided learning"
     ],
-    category: "learning"
+    category: "learning",
+    difficulty: "intermediate"
   },
   {
     id: 4,
@@ -153,7 +213,8 @@ const after12thQuestions: Question[] = [
       "Work-life balance",
       "Social impact and contribution"
     ],
-    category: "values"
+    category: "values",
+    difficulty: "intermediate"
   },
   {
     id: 5,
@@ -164,7 +225,8 @@ const after12thQuestions: Question[] = [
       "Use creative approaches and think outside the box",
       "Collaborate with others to find the best solution"
     ],
-    category: "personality"
+    category: "personality",
+    difficulty: "intermediate"
   },
   {
     id: 6,
@@ -175,7 +237,8 @@ const after12thQuestions: Question[] = [
       "Creative and innovative thinking",
       "Communication and interpersonal skills"
     ],
-    category: "development"
+    category: "development",
+    difficulty: "intermediate"
   },
   {
     id: 7,
@@ -186,7 +249,8 @@ const after12thQuestions: Question[] = [
       "Vocational training or skill-based programs",
       "Online courses and self-learning"
     ],
-    category: "education"
+    category: "education",
+    difficulty: "beginner"
   },
   {
     id: 8,
@@ -198,7 +262,81 @@ const after12thQuestions: Question[] = [
       "Creative Arts and Communication"
     ],
     category: "alignment",
-    weight: 1.3
+    weight: 1.3,
+    difficulty: "intermediate"
+  },
+  // New questions start here
+  {
+    id: 9,
+    question: "What kind of projects do you enjoy working on the most?",
+    options: [
+      "Complex technical problems requiring deep analysis",
+      "People-focused initiatives involving human interaction",
+      "Data-driven projects with measurable outcomes",
+      "Creative projects with design or artistic elements"
+    ],
+    category: "worktype",
+    difficulty: "intermediate"
+  },
+  {
+    id: 10,
+    question: "How do you feel about taking risks in your career path?",
+    options: [
+      "I prefer stable, predictable career paths with clear advancement",
+      "I'm comfortable with calculated risks for greater rewards",
+      "I actively seek innovative paths, even with uncertainty",
+      "I balance security with occasional, well-researched risks"
+    ],
+    category: "personality",
+    difficulty: "advanced"
+  },
+  {
+    id: 11,
+    question: "When learning something new, what approach works best for you?",
+    options: [
+      "Theoretical understanding before practical application",
+      "Learning by doing and hands-on experimentation",
+      "Watching demonstrations and following examples",
+      "Discussion and questioning to develop understanding"
+    ],
+    category: "learning",
+    difficulty: "intermediate"
+  },
+  {
+    id: 12,
+    question: "Which emerging technology field interests you the most?",
+    options: [
+      "Artificial Intelligence and Machine Learning",
+      "Sustainable Technology and Renewable Energy",
+      "Biotechnology and Genetic Engineering",
+      "Digital Media and Virtual Reality"
+    ],
+    category: "interest",
+    difficulty: "advanced"
+  },
+  {
+    id: 13,
+    question: "In what kind of environment do you perform better?",
+    options: [
+      "Competitive environments that push me to excel",
+      "Collaborative environments with shared goals",
+      "Independent settings where I can self-direct",
+      "Structured environments with clear expectations"
+    ],
+    category: "worklife",
+    difficulty: "intermediate"
+  },
+  {
+    id: 14,
+    question: "What is your approach to long-term career planning?",
+    options: [
+      "I have a detailed 5-10 year plan with specific milestones",
+      "I focus on building versatile skills for multiple opportunities",
+      "I prioritize immediate growth and reassess periodically",
+      "I follow my passions and let them guide my career path"
+    ],
+    category: "planning",
+    difficulty: "advanced"
   }
 ];
 
@@ -213,7 +351,8 @@ const afterGraduationQuestions: Question[] = [
       "Entrepreneurship or startup",
       "Competitive exams for government services"
     ],
-    category: "academic"
+    category: "academic",
+    difficulty: "intermediate"
   },
   {
     id: 2,
@@ -224,7 +363,8 @@ const afterGraduationQuestions: Question[] = [
       "Research and development",
       "Client-facing or service role"
     ],
-    category: "worklife"
+    category: "worklife",
+    difficulty: "intermediate"
   },
   {
     id: 3,
@@ -235,7 +375,8 @@ const afterGraduationQuestions: Question[] = [
       "I prefer mastering one specific skill set deeply",
       "I value experience over formal learning"
     ],
-    category: "aptitude"
+    category: "aptitude",
+    difficulty: "intermediate"
   },
   {
     id: 4,
@@ -246,7 +387,8 @@ const afterGraduationQuestions: Question[] = [
       "Completing advanced education (PhD, etc.)",
       "Working in a specialized niche in my field"
     ],
-    category: "interest"
+    category: "interest",
+    difficulty: "advanced"
   },
   {
     id: 5,
@@ -257,7 +399,129 @@ const afterGraduationQuestions: Question[] = [
       "Following my passion and interests",
       "Balancing multiple factors including practical concerns"
     ],
-    category: "personality"
+    category: "personality",
+    difficulty: "intermediate"
+  },
+  // New questions start here
+  {
+    id: 6,
+    question: "Which industry trends are you most interested in following?",
+    options: [
+      "Digital transformation and technology integration",
+      "Sustainable practices and environmental initiatives",
+      "Global market expansion and international opportunities",
+      "Workplace culture and employee experience innovations"
+    ],
+    category: "interest",
+    difficulty: "advanced"
+  },
+  {
+    id: 7,
+    question: "What is your approach to professional networking?",
+    options: [
+      "I actively build and maintain a large professional network",
+      "I focus on a smaller, high-quality network of key connections",
+      "I network primarily online through professional platforms",
+      "I prefer to let my work speak for itself rather than networking"
+    ],
+    category: "development",
+    difficulty: "intermediate"
+  },
+  {
+    id: 8,
+    question: "How do you feel about relocating for career opportunities?",
+    options: [
+      "I'm willing to relocate anywhere for the right opportunity",
+      "I prefer to stay in my current region but would consider moving",
+      "I'll only relocate for exceptional opportunities",
+      "I strongly prefer not to relocate and look for local opportunities"
+    ],
+    category: "mobility",
+    difficulty: "intermediate"
+  },
+  {
+    id: 9,
+    question: "What role does salary play in your job decisions?",
+    options: [
+      "It's the primary factor in evaluating opportunities",
+      "It's important but secondary to growth potential",
+      "I prioritize work environment over compensation",
+      "I seek a balance of fair compensation and meaningful work"
+    ],
+    category: "values",
+    difficulty: "intermediate"
+  },
+  {
+    id: 10,
+    question: "Which specialized career path within your field interests you most?",
+    options: [
+      "Research and development of new innovations",
+      "Strategy and high-level planning",
+      "Specialized technical implementation",
+      "Training, teaching or mentoring others"
+    ],
+    category: "specialization",
+    difficulty: "advanced"
+  },
+  {
+    id: 11,
+    question: "In the changing job market, how do you approach job security?",
+    options: [
+      "I focus on developing in-demand, transferable skills",
+      "I prefer to work for established organizations with stability",
+      "I diversify my income sources and professional activities",
+      "I prioritize building a strong professional reputation"
+    ],
+    category: "planning",
+    difficulty: "advanced"
+  },
+  {
+    id: 12,
+    question: "How do you handle workplace conflicts or disagreements?",
+    options: [
+      "I address issues directly with clear communication",
+      "I seek compromise and common ground",
+      "I involve a mediator or manager when necessary",
+      "I try to understand all perspectives before responding"
+    ],
+    category: "interpersonal",
+    difficulty: "advanced"
+  },
+  {
+    id: 13,
+    question: "What management style do you prefer to work under?",
+    options: [
+      "Hands-off leadership that provides autonomy",
+      "Mentorship-focused with guidance and development",
+      "Goal-oriented with clear metrics and expectations",
+      "Collaborative leadership that values team input"
+    ],
+    category: "worklife",
+    difficulty: "intermediate"
+  },
+  {
+    id: 14,
+    question: "How do you approach work-life balance?",
+    options: [
+      "I'm willing to prioritize work during important career stages",
+      "I maintain strict boundaries between work and personal life",
+      "I seek flexible arrangements that accommodate both",
+      "I integrate work and life in a way that feels authentic"
+    ],
+    category: "values",
+    difficulty: "advanced"
+  },
+  {
+    id: 15,
+    question: "Which aspect of professional development do you most value?",
+    options: [
+      "Gaining specialized expertise in a niche area",
+      "Developing broad, versatile skill sets across domains",
+      "Building leadership and people management capabilities",
+      "Enhancing creative problem-solving abilities"
+    ],
+    category: "development",
+    difficulty: "advanced"
   }
 ];
 

@@ -1,3 +1,4 @@
+
 import { Career } from "@/components/career-library/CareerCard";
 
 // Define the answer type to store user's quiz responses
@@ -22,6 +23,7 @@ export type SkillAssessment = {
 
 // Career traits mapping based on quiz categories
 const careerTraitMapping: Record<string, CareerTrait[]> = {
+  // Academic interests
   "Mathematics and Physics": [
     { category: "Technical", keywords: ["engineer", "developer", "analyst"], weight: 0.9 },
     { category: "Science", keywords: ["research", "physics", "mathematics"], weight: 0.8 },
@@ -38,7 +40,7 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
   "Computers and Information Technology": [
     { category: "Technical", keywords: ["software", "programmer", "database"], weight: 0.95 },
   ],
-  // Keep existing mappings
+  // Problem-solving approaches
   "By analyzing data and finding patterns": [
     { category: "Technical", keywords: ["data", "analyst", "science"], weight: 0.9 },
     { category: "Finance", keywords: ["accountant", "financial", "analyst"], weight: 0.7 },
@@ -47,6 +49,15 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
     { category: "Marketing", keywords: ["marketing", "sales", "communication"], weight: 0.8 },
     { category: "Hospitality", keywords: ["management", "hotel", "service"], weight: 0.7 },
   ],
+  "By reading and researching for answers": [
+    { category: "Education", keywords: ["researcher", "academic", "scientist"], weight: 0.8 },
+    { category: "Creative", keywords: ["writer", "journalist", "content"], weight: 0.7 },
+  ],
+  "By trying different approaches until something works": [
+    { category: "Technical", keywords: ["developer", "engineer", "designer"], weight: 0.7 },
+    { category: "Creative", keywords: ["artist", "designer", "innovator"], weight: 0.8 },
+  ],
+  // Work environments
   "Corporate office with a stable schedule": [
     { category: "Finance", keywords: ["accountant", "banking", "investment"], weight: 0.8 },
     { category: "Technical", keywords: ["software", "programmer", "developer"], weight: 0.7 },
@@ -59,7 +70,11 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
     { category: "Science", keywords: ["research", "scientist", "laboratory"], weight: 0.9 },
     { category: "Medical", keywords: ["medical", "clinical", "healthcare"], weight: 0.8 },
   ],
-  // Adding more mappings for other quiz options
+  "Working outdoors or in varied locations": [
+    { category: "Engineering", keywords: ["civil", "environmental", "field"], weight: 0.7 },
+    { category: "Creative", keywords: ["photographer", "filmmaker", "journalist"], weight: 0.8 },
+  ],
+  // Career fields (12th grade)
   "Engineering and Technology": [
     { category: "Technical", keywords: ["engineer", "developer", "technology"], weight: 0.95 },
     { category: "Engineering", keywords: ["mechanical", "electrical", "civil"], weight: 0.9 },
@@ -68,15 +83,32 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
     { category: "Medical", keywords: ["doctor", "nurse", "healthcare"], weight: 0.95 },
     { category: "Science", keywords: ["biology", "research", "pharmaceutical"], weight: 0.8 },
   ],
-  // New mappings for additional questions
+  "Business, Commerce, and Management": [
+    { category: "Finance", keywords: ["business", "management", "commerce"], weight: 0.9 },
+    { category: "Marketing", keywords: ["sales", "marketing", "business"], weight: 0.8 },
+  ],
+  "Arts, Humanities, and Social Sciences": [
+    { category: "Creative", keywords: ["arts", "design", "media"], weight: 0.9 },
+    { category: "Education", keywords: ["social", "humanities", "teaching"], weight: 0.8 },
+  ],
+  // Skills
   "Problem-solving and logical thinking": [
     { category: "Technical", keywords: ["engineer", "developer", "analyst"], weight: 0.9 },
     { category: "Science", keywords: ["researcher", "scientist", "mathematician"], weight: 0.85 },
+  ],
+  "Memory and observation": [
+    { category: "Medical", keywords: ["doctor", "diagnostician", "researcher"], weight: 0.8 },
+    { category: "Science", keywords: ["biologist", "chemist", "observer"], weight: 0.7 },
+  ],
+  "Communication and expression": [
+    { category: "Creative", keywords: ["writer", "presenter", "communicator"], weight: 0.9 },
+    { category: "Marketing", keywords: ["marketer", "public relations", "speaker"], weight: 0.8 },
   ],
   "Design and creativity": [
     { category: "Creative", keywords: ["designer", "artist", "architect"], weight: 0.95 },
     { category: "Marketing", keywords: ["advertiser", "content creator"], weight: 0.8 },
   ],
+  // Interest fields
   "Computer Science related fields": [
     { category: "Technical", keywords: ["software", "developer", "engineer"], weight: 0.95 },
     { category: "Technical", keywords: ["data", "analyst", "scientist"], weight: 0.9 },
@@ -96,7 +128,52 @@ const careerTraitMapping: Record<string, CareerTrait[]> = {
   "STEM (Science, Technology, Engineering, Math)": [
     { category: "Technical", keywords: ["engineer", "developer", "analyst"], weight: 0.9 },
     { category: "Science", keywords: ["scientist", "researcher", "mathematician"], weight: 0.85 },
-  ]
+  ],
+  // Work satisfaction vs salary
+  "Salary is more important than day-to-day satisfaction": [
+    { category: "Finance", keywords: ["finance", "investment", "banking"], weight: 0.8 },
+    { category: "Technical", keywords: ["technology", "engineering", "development"], weight: 0.7 },
+  ],
+  "Work satisfaction is more important than salary": [
+    { category: "Education", keywords: ["teaching", "counseling", "nonprofit"], weight: 0.8 },
+    { category: "Creative", keywords: ["arts", "design", "expression"], weight: 0.75 },
+  ],
+  // New mappings for added questions
+  "I stay calm and methodical in high-pressure situations": [
+    { category: "Medical", keywords: ["surgeon", "emergency", "critical"], weight: 0.8 },
+    { category: "Finance", keywords: ["trader", "analyst", "manager"], weight: 0.7 },
+  ],
+  "Building electronic gadgets or programming": [
+    { category: "Technical", keywords: ["electronics", "programming", "engineering"], weight: 0.9 },
+  ],
+  "The planner who organizes tasks and schedules": [
+    { category: "Finance", keywords: ["manager", "administrator", "planner"], weight: 0.8 },
+  ],
+  // Emerging technology interests
+  "Artificial Intelligence and Machine Learning": [
+    { category: "Technical", keywords: ["AI", "machine learning", "data science"], weight: 0.95 },
+  ],
+  "Sustainable Technology and Renewable Energy": [
+    { category: "Engineering", keywords: ["renewable", "sustainable", "environmental"], weight: 0.9 },
+    { category: "Science", keywords: ["green", "climate", "environmental"], weight: 0.85 },
+  ],
+  "Biotechnology and Genetic Engineering": [
+    { category: "Science", keywords: ["biotech", "genetics", "medical research"], weight: 0.9 },
+    { category: "Medical", keywords: ["pharmaceutical", "research", "laboratory"], weight: 0.85 },
+  ],
+  "Digital Media and Virtual Reality": [
+    { category: "Creative", keywords: ["media", "virtual reality", "design"], weight: 0.9 },
+    { category: "Technical", keywords: ["software", "gaming", "development"], weight: 0.85 },
+  ],
+  // Work environments (new)
+  "Competitive environments that push me to excel": [
+    { category: "Finance", keywords: ["investment", "trading", "sales"], weight: 0.8 },
+    { category: "Technical", keywords: ["startup", "innovation", "technology"], weight: 0.75 },
+  ],
+  "Collaborative environments with shared goals": [
+    { category: "Creative", keywords: ["agency", "studio", "team"], weight: 0.8 },
+    { category: "Education", keywords: ["teaching", "research", "academic"], weight: 0.75 },
+  ],
 };
 
 // Define education path appropriateness for career fields
@@ -303,7 +380,9 @@ export const generateQuizSummary = (
   // Update skills based on answers
   if (answerValues.includes("Mathematics and Physics") || 
       answerValues.includes("By analyzing data and finding patterns") ||
-      answerValues.includes("STEM (Science, Technology, Engineering, Math)")) {
+      answerValues.includes("STEM (Science, Technology, Engineering, Math)") ||
+      answerValues.includes("Problem-solving and logical thinking") ||
+      answerValues.includes("Artificial Intelligence and Machine Learning")) {
     skills.analytical += 2;
     skills.technical += 1;
   }
@@ -311,7 +390,8 @@ export const generateQuizSummary = (
   if (answerValues.includes("Biology and Chemistry") || 
       answerValues.includes("Laboratory or research facility") ||
       answerValues.includes("Medical Sciences and Healthcare") ||
-      answerValues.includes("Life Sciences related fields")) {
+      answerValues.includes("Life Sciences related fields") ||
+      answerValues.includes("Biotechnology and Genetic Engineering")) {
     skills.scientific += 2;
     skills.analytical += 1;
   }
@@ -319,25 +399,34 @@ export const generateQuizSummary = (
   if (answerValues.includes("Literature and Languages") || 
       answerValues.includes("Creative studio with flexible hours") ||
       answerValues.includes("Design and creativity") ||
-      answerValues.includes("Humanities and Arts related fields")) {
+      answerValues.includes("Humanities and Arts related fields") ||
+      answerValues.includes("Communication and expression") ||
+      answerValues.includes("Digital Media and Virtual Reality")) {
     skills.creative += 2;
     skills.communication += 1;
   }
   
   if (answerValues.includes("Computers and Information Technology") || 
       answerValues.includes("Engineering and Technology") ||
-      answerValues.includes("Computer Science related fields")) {
+      answerValues.includes("Computer Science related fields") ||
+      answerValues.includes("Technical and specialized knowledge")) {
     skills.technical += 2;
     skills.analytical += 1;
   }
   
   if (answerValues.includes("By discussing with others to find solutions") || 
-      answerValues.includes("Corporate office with a stable schedule")) {
+      answerValues.includes("Corporate office with a stable schedule") ||
+      answerValues.includes("Leadership and management abilities") ||
+      answerValues.includes("The planner who organizes tasks and schedules") ||
+      answerValues.includes("Management and leadership")) {
     skills.communication += 1;
     skills.leadership += 1;
   }
 
-  if (answerValues.includes("Commerce and Economics related fields")) {
+  if (answerValues.includes("Commerce and Economics related fields") ||
+      answerValues.includes("Business, Commerce, and Management") ||
+      answerValues.includes("Financial stability and growth") ||
+      answerValues.includes("Business and Finance")) {
     skills.analytical += 1;
     skills.leadership += 1;
   }

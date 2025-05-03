@@ -12,6 +12,7 @@ export interface Question {
   question: string;
   options: string[];
   category: string;
+  difficulty?: "beginner" | "intermediate" | "advanced"; // Added difficulty level
   weight?: number; // Question importance weight
   skillMapping?: Record<string, number>; // Maps answers to skill scores
 }
@@ -39,6 +40,7 @@ export default function QuizQuestion({
   const [selectedOption, setSelectedOption] = useState<string | null>(
     answers[questions[currentQuestionIndex]?.id] || null
   );
+  const [animateOptions, setAnimateOptions] = useState(true);
   
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -47,6 +49,10 @@ export default function QuizQuestion({
   // Update selected option when changing questions
   useEffect(() => {
     setSelectedOption(answers[currentQuestion?.id] || null);
+    // Reset animation state when changing questions
+    setAnimateOptions(false);
+    const timer = setTimeout(() => setAnimateOptions(true), 50);
+    return () => clearTimeout(timer);
   }, [currentQuestionIndex, answers, currentQuestion?.id]);
   
   const handleOptionClick = (option: string) => {
@@ -77,15 +83,36 @@ export default function QuizQuestion({
     visible: { opacity: 1, y: 0 }
   };
 
+  // Get difficulty badge color
+  const getDifficultyColor = () => {
+    switch (currentQuestion.difficulty) {
+      case "beginner":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "advanced":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="py-10 max-w-3xl mx-auto">
       <ProgressBar progress={progress} />
       
-      <div className="flex justify-between text-sm text-gray-500 mt-2 mb-4">
+      <div className="flex justify-between items-center text-sm text-gray-500 mt-2 mb-4">
         <span>{t("question")} {currentQuestionIndex + 1} {t("of")} {questions.length}</span>
-        <Badge variant="secondary" className="text-xs font-normal">
-          {currentQuestion.category}
-        </Badge>
+        <div className="flex gap-2">
+          {currentQuestion.difficulty && (
+            <Badge variant="outline" className={`text-xs font-normal ${getDifficultyColor()}`}>
+              {currentQuestion.difficulty}
+            </Badge>
+          )}
+          <Badge variant="secondary" className="text-xs font-normal">
+            {currentQuestion.category}
+          </Badge>
+        </div>
       </div>
       
       <motion.div
@@ -100,7 +127,7 @@ export default function QuizQuestion({
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          animate={animateOptions ? "visible" : "hidden"}
           className="space-y-3"
         >
           {currentQuestion.options.map((option, index) => (
