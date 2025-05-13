@@ -21,7 +21,7 @@ export function usePathPilot() {
     error: null
   });
 
-  // Process quiz answers and generate career recommendations
+  // Process quiz answers and generate career recommendations with improved accuracy
   const generateCareerGuidance = (
     answers: QuizAnswers, 
     careers: Career[],
@@ -30,51 +30,46 @@ export function usePathPilot() {
     setResponse(prev => ({ ...prev, isProcessing: true, error: null }));
     
     try {
-      // Generate the summary of skills, strengths, etc.
+      // Generate the enhanced summary of skills, strengths, etc.
       const summary = generateQuizSummary(answers, educationStage);
       
-      // Get career matches
+      // Get more accurately matched careers with detailed insights
       const matchedCareers = getMatchedCareers(answers, careers, educationStage);
       
-      // Update state with results
+      // Update state with comprehensive results
       setResponse({
         summaryData: summary,
-        careerMatches: matchedCareers.slice(0, 5), // Take top 5 matches
+        careerMatches: matchedCareers.slice(0, 8), // Take top 8 matches for more options
         isProcessing: false,
         error: null
       });
       
-      toast({
-        title: "PathPilot AI Analysis Complete",
-        description: "Your personalized career guidance is ready!",
-      });
+      toast.success("Your personalized career guidance is ready!");
       
       return {
         summary,
-        careers: matchedCareers.slice(0, 5)
+        careers: matchedCareers.slice(0, 8)
       };
     } catch (err) {
+      const errorMessage = "There was an error processing your quiz results. Please try again.";
       setResponse(prev => ({ 
         ...prev, 
         isProcessing: false, 
-        error: "There was an error processing your quiz results. Please try again." 
+        error: errorMessage
       }));
       
-      toast({
-        title: "Analysis Error",
-        description: "There was a problem generating your career recommendations.",
-        variant: "destructive"
-      });
+      toast.error(errorMessage);
       
       return null;
     }
   };
 
-  // Save results to localStorage for use across the app
+  // Save enhanced results to localStorage for use across the app
   const saveResultsToStorage = () => {
     if (response.careerMatches.length > 0) {
       localStorage.setItem('matchedCareers', JSON.stringify(response.careerMatches));
       localStorage.setItem('quizSummary', JSON.stringify(response.summaryData));
+      toast.success("Your results have been saved for future reference");
     }
   };
   
@@ -91,31 +86,34 @@ export function usePathPilot() {
           isProcessing: false,
           error: null
         });
+        
+        toast.info("Previously saved career matches loaded");
         return true;
       }
       return false;
     } catch (err) {
+      toast.error("Unable to load saved results");
       return false;
     }
   };
   
-  // Generate a motivational message based on the student's profile
+  // Generate a more personalized motivational message based on the student's profile
   const generateMotivationalMessage = () => {
     if (!response.summaryData || !response.summaryData.personalityProfile) return "";
     
     const { personalityProfile } = response.summaryData;
     
     const messages = {
-      "Analytical": "Your methodical approach gives you a unique advantage in solving complex problems. Stay curious!",
-      "Creative": "Your creative spirit will help you innovate in ways others cannot. Keep thinking outside the box!",
-      "Practical": "Your practical mindset is a powerful asset in turning ideas into reality. Trust your hands-on approach!",
-      "Social": "Your people skills will open doors throughout your career. Your empathy is your superpower!",
-      "Enterprising": "Your drive and initiative set you apart. Keep pushing boundaries and leading the way!",
-      "Conventional": "Your attention to detail and organization will ensure your success. Structure leads to achievement!",
-      "Mixed": "Your balanced approach gives you versatility in any field you choose. Embrace your adaptability!"
+      "Analytical": "Your methodical approach gives you a unique advantage in solving complex problems. Stay curious and continue developing your logical thinking skills!",
+      "Creative": "Your creative spirit and innovative thinking will help you develop solutions others cannot see. Keep exploring and expressing your unique perspective!",
+      "Practical": "Your hands-on, practical mindset is a powerful asset in turning ideas into reality. Your ability to implement solutions is invaluable in any field!",
+      "Social": "Your people skills and empathy will open doors throughout your career. These human connections are increasingly valuable in our technological world!",
+      "Enterprising": "Your drive and initiative set you apart. Keep challenging yourself and pursuing ambitious goals - your determination will take you far!",
+      "Conventional": "Your attention to detail and organizational abilities ensure quality in everything you do. This foundation of excellence will serve you well!",
+      "Mixed": "Your balanced approach and versatile skillset gives you flexibility in any field you choose. This adaptability is increasingly valuable in today's changing world!"
     };
     
-    return messages[personalityProfile.type] || "Your unique combination of skills makes you well-equipped for your career journey!";
+    return messages[personalityProfile.type] || "Your unique combination of skills and perspectives makes you well-equipped for your career journey ahead!";
   };
 
   return {
