@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import QuizPage from "./pages/QuizPage";
 import CareersPage from "./pages/CareersPage";
@@ -13,6 +14,8 @@ import LibraryPage from "./pages/LibraryPage";
 import MentorsPage from "./pages/MentorsPage";
 import ParentZonePage from "./pages/ParentZonePage";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
 
 const queryClient = new QueryClient();
 
@@ -24,16 +27,20 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/quiz" element={<QuizPage />} />
-              <Route path="/careers" element={<CareersPage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/mentors" element={<MentorsPage />} />
-              <Route path="/parent-zone" element={<ParentZonePage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/mentors" element={<MentorsPage />} />
+                <Route path="/parent-zone" element={<ParentZonePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
           </BrowserRouter>
         </LanguageProvider>
       </ThemeProvider>
