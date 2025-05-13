@@ -35,7 +35,7 @@ export async function registerUser(email: string, password: string, name: string
     createdAt: new Date()
   });
   
-  return { success: true, userId: result.insertedId };
+  return { success: true, userId: result.insertedId.toString() };
 }
 
 export async function authenticateUser(email: string, password: string) {
@@ -56,7 +56,7 @@ export async function authenticateUser(email: string, password: string) {
   return {
     success: true,
     user: {
-      id: user._id,
+      id: user._id.toString(), // Convert ObjectId to string
       email: user.email,
       name: user.name
     }

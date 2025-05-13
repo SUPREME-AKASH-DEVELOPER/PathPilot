@@ -39,11 +39,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       const response = await authenticateUser(email, password);
-      setUser(response.user);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      
+      // Make sure the user object matches our User interface by converting id to string if needed
+      const userData: User = {
+        id: response.user.id.toString(), // Convert ObjectId to string
+        email: response.user.email,
+        name: response.user.name
+      };
+      
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.user.name}!`,
+        description: `Welcome back, ${userData.name}!`,
       });
       navigate('/');
     } catch (error) {
