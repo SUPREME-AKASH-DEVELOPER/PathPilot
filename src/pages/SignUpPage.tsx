@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,8 +31,18 @@ const signupSchema = z.object({
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 const SignUpPage = () => {
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -148,12 +159,25 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel className="text-foreground">Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                          className="bg-background"
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                            className="bg-background pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -169,12 +193,25 @@ const SignUpPage = () => {
                     <FormItem>
                       <FormLabel className="text-foreground">Confirm Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                          className="bg-background"
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                            className="bg-background pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -185,10 +222,17 @@ const SignUpPage = () => {
               <motion.div variants={itemVariants}>
                 <Button 
                   type="submit" 
-                  className="w-full bg-pp-purple hover:bg-pp-purple/90 dark:neon-button"
+                  className="w-full bg-pp-purple hover:bg-pp-purple/90 dark:neon-button flex items-center justify-center gap-2"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating account..." : "Sign up"}
+                  {isLoading ? (
+                    <>Creating account...</>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      Sign up
+                    </>
+                  )}
                 </Button>
               </motion.div>
             </form>
