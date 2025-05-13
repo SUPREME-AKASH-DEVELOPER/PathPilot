@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "./ProgressBar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
-import { Help, CheckCircle2, Timer, Brain } from "lucide-react";
+import { CheckCircle2, Timer, Brain, CircleHelp } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface Question {
@@ -183,7 +183,7 @@ export default function QuizQuestion({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="sm" className="ml-2 p-0 h-auto">
-                  <Help className="h-5 w-5 text-gray-400" />
+                  <CircleHelp className="h-5 w-5 text-gray-400" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
