@@ -37,7 +37,7 @@ interface Mentor {
 
 export default function MentorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
   
@@ -337,7 +337,7 @@ export default function MentorsPage() {
       : true;
     
     const matchesCategory = selectedCategory 
-      ? mentor.category === selectedCategory 
+      ? selectedCategory === "all" || mentor.category === selectedCategory 
       : true;
     
     return matchesSearch && matchesCategory;
@@ -372,7 +372,7 @@ export default function MentorsPage() {
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map(category => (
                     <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
