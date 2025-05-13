@@ -1,3 +1,4 @@
+
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -307,7 +308,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
-  translations: typeof translations; // Add this line to include translations property
+  translations: typeof translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
