@@ -14,10 +14,12 @@ export type Toast = {
   description?: React.ReactNode
   action?: ToastActionElement
   variant?: ToastType
+  duration?: number
+  onOpenChange?: (open: boolean) => void
 }
 
 interface State {
-  toasts: Toast[]
+  toasts: Array<Toast & { open: boolean }>
 }
 
 const actionTypes = {
@@ -64,7 +66,10 @@ const toastReducer = (state: State, action: Action): State => {
     case "ADD_TOAST":
       return {
         ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+        toasts: [
+          { ...action.toast, open: true },
+          ...state.toasts,
+        ].slice(0, TOAST_LIMIT),
       }
 
     case "UPDATE_TOAST":
@@ -136,7 +141,6 @@ export const toast = (props: Partial<Toast> & { description?: React.ReactNode })
     toast: {
       ...props,
       id,
-      open: true,
       onOpenChange: (open: boolean) => {
         if (!open) dismiss()
       },
