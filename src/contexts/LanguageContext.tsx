@@ -1,6 +1,5 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 type Language = 'english' | 'hindi';
 
@@ -209,7 +208,7 @@ export const translations = {
     "thankYouQuiz": "प्रश्नोत्तरी पूरी करने के लिए धन्यवाद!",
     "basedOnResponses": "आपके जवाबों के आधार पर, यहां कुछ अनुशंसित मार्ग हैं:",
     "yourRecommendations": "आपकी अनुशंसाएँ",
-    "exploreCareersLibrary": "पुस्तकालय में करियर का अन्वेषण करें",
+    "exploreCareersLibrary": "पुस्तकालय ���ें करियर का अन्वेषण करें",
     "takeAnotherQuiz": "एक और प्रश्नोत्तरी लें",
     "yourStrengths": "आपकी ताकतें",
     "recommendedPaths": "अनुशंसित मार्ग",
@@ -238,7 +237,7 @@ export const translations = {
     "careerPaths": "करियर मार्ग",
     "satisfactionRate": "संतुष्टि दर",
     "expertMentors": "विशेषज्ञ सलाहकार",
-    "readyToDiscover": "अपना सही करियर पथ खोजने के लिए तैयार हैं?",
+    "readyToDiscover": "अपना स��ी करियर पथ खोजने के लिए तैयार हैं?",
     "takePersonalizedQuiz": "हमारी व्यक्तिगत प्रश्नोत्तरी लें और विशेष रूप से आपके लिए तैयार AI-संचालित सिफारिशें प्राप्त करें।",
     "startYourCareerQuiz": "अपनी करियर प्रश्नोत्तरी शुरू करें",
     "browseCareerLibrary": "करियर पुस्तकालय ब्राउज़ करें",
@@ -271,7 +270,7 @@ export const translations = {
     "tryAdjusting": "अपनी खोज या फ़िल्टर समायोजित करें",
     "avgSalary": "औसत वेतन",
     "reqQualification": "आवश्यक योग्यता",
-    "viewAllDetails": "सभी विवरण देखें",
+    "viewAllDetails": "���भी विवरण देखें",
     
     // Mentors
     "mentorsPageTitle": "सलाहकारों से जुड़ें",
@@ -331,6 +330,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   // Show a toast notification when language changes
   useEffect(() => {
+    // Use the toast function directly
     toast({
       title: t('languageChanged'),
       description: t('languageChangedDesc'),

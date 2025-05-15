@@ -1,26 +1,47 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-type ToastType = "default" | "success" | "error" | "warning" | "info"
+// Define variant types that match shadcn toast component
+export type ToastVariant = "default" | "destructive" | "success" | "warning" | "info";
 
-interface ToastProps {
+export interface ToastProps {
   id?: string
   title: string
   description?: string
-  type?: ToastType
+  variant?: ToastVariant
   duration?: number
+  action?: React.ReactNode
+  open?: boolean
 }
 
-type Toast = ToastProps
+export type Toast = ToastProps
 
 let toastCount = 0
 
-const useToast = () => {
+export const useToast = () => {
   const [toasts, setToasts] = useState<Toast[]>([])
+
+  // Handle global toast events
+  useEffect(() => {
+    const handleToast = (event: CustomEvent<ToastProps>) => {
+      toast(event.detail);
+    };
+
+    document.addEventListener("toast" as any, handleToast as EventListener);
+
+    return () => {
+      document.removeEventListener("toast" as any, handleToast as EventListener);
+    };
+  }, []);
 
   const toast = (props: ToastProps) => {
     const id = props.id || String(toastCount++)
-    const newToast = { ...props, id }
+    const newToast: Toast = { 
+      ...props, 
+      id,
+      open: true,
+      variant: props.variant || "default"
+    }
     
     setToasts((prevToasts) => [...prevToasts, newToast])
     
@@ -33,22 +54,6 @@ const useToast = () => {
     return id
   }
   
-  const success = (title: string, description?: string) => {
-    return toast({ title, description, type: "success" })
-  }
-  
-  const error = (title: string, description?: string) => {
-    return toast({ title, description, type: "error" })
-  }
-  
-  const warning = (title: string, description?: string) => {
-    return toast({ title, description, type: "warning" })
-  }
-  
-  const info = (title: string, description?: string) => {
-    return toast({ title, description, type: "info" })
-  }
-  
   const dismiss = (toastId?: string) => {
     setToasts((prevToasts) => 
       toastId ? prevToasts.filter((t) => t.id !== toastId) : []
@@ -57,45 +62,56 @@ const useToast = () => {
 
   return {
     toast,
-    success,
-    error,
-    warning,
-    info,
     dismiss,
     toasts
   }
 }
 
-// Export a singleton instance for global usage
-const toast = {
-  success: (title: string, description?: string) => {
-    document.dispatchEvent(
-      new CustomEvent("toast", { 
-        detail: { title, description, type: "success" } 
-      })
-    )
-  },
-  error: (title: string, description?: string) => {
-    document.dispatchEvent(
-      new CustomEvent("toast", { 
-        detail: { title, description, type: "error" } 
-      })
-    )
-  },
-  warning: (title: string, description?: string) => {
-    document.dispatchEvent(
-      new CustomEvent("toast", { 
-        detail: { title, description, type: "warning" } 
-      })
-    )
-  },
-  info: (title: string, description?: string) => {
-    document.dispatchEvent(
-      new CustomEvent("toast", { 
-        detail: { title, description, type: "info" } 
-      })
-    )
-  }
+interface ToastHelpers {
+  (props: ToastProps): void;
+  success: (title: string, description?: string) => void;
+  error: (title: string, description?: string) => void;
+  warning: (title: string, description?: string) => void;
+  info: (title: string, description?: string) => void;
 }
 
-export { useToast, toast, type Toast }
+// Create a singleton toast function
+export const toast: ToastHelpers = ((props: ToastProps) => {
+  document.dispatchEvent(
+    new CustomEvent("toast", { 
+      detail: props 
+    })
+  );
+}) as ToastHelpers;
+
+toast.success = (title: string, description?: string) => {
+  document.dispatchEvent(
+    new CustomEvent("toast", { 
+      detail: { title, description, variant: "success" } 
+    })
+  );
+};
+
+toast.error = (title: string, description?: string) => {
+  document.dispatchEvent(
+    new CustomEvent("toast", { 
+      detail: { title, description, variant: "destructive" } 
+    })
+  );
+};
+
+toast.warning = (title: string, description?: string) => {
+  document.dispatchEvent(
+    new CustomEvent("toast", { 
+      detail: { title, description, variant: "warning" } 
+    })
+  );
+};
+
+toast.info = (title: string, description?: string) => {
+  document.dispatchEvent(
+    new CustomEvent("toast", { 
+      detail: { title, description, variant: "info" } 
+    })
+  );
+};
