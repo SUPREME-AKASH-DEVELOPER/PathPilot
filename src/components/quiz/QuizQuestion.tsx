@@ -12,7 +12,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 export interface Question {
   id: number;
   question: string;
+  question_hi?: string; // Hindi version of the question
   options: string[];
+  options_hi?: string[]; // Hindi version of options
   category: string;
   difficulty?: "beginner" | "intermediate" | "advanced"; 
   weight?: number; // Question importance weight
@@ -38,7 +40,7 @@ export default function QuizQuestion({
   onPrevQuestion,
   onComplete
 }: QuizQuestionProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedOption, setSelectedOption] = useState<string | null>(
     answers[questions[currentQuestionIndex]?.id] || null
   );
@@ -48,6 +50,15 @@ export default function QuizQuestion({
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  
+  // Get the appropriate question text and options based on current language
+  const questionText = language === 'hindi' && currentQuestion?.question_hi 
+    ? currentQuestion.question_hi 
+    : currentQuestion?.question;
+  
+  const optionsList = language === 'hindi' && currentQuestion?.options_hi 
+    ? currentQuestion.options_hi 
+    : currentQuestion?.options;
   
   // Update selected option when changing questions
   useEffect(() => {
@@ -178,7 +189,7 @@ export default function QuizQuestion({
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-start mb-6">
-          <h2 className="text-xl md:text-2xl font-bold">{currentQuestion.question}</h2>
+          <h2 className="text-xl md:text-2xl font-bold">{questionText}</h2>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -199,7 +210,7 @@ export default function QuizQuestion({
           animate={animateOptions ? "visible" : "hidden"}
           className="space-y-3"
         >
-          {currentQuestion.options.map((option, index) => (
+          {optionsList?.map((option, index) => (
             <motion.div key={index} variants={itemVariants}>
               <Card
                 className={`cursor-pointer transition-all ${
