@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "react-router-dom";
 
 export default function TestimonialSection() {
   const { t } = useLanguage();
@@ -39,11 +40,11 @@ export default function TestimonialSection() {
             
             <div className="mt-4 flex flex-col sm:flex-row gap-4 justify-center">
               <Button className="bg-pp-purple hover:bg-pp-bright-purple" asChild>
-                <a href="/quiz">Take the Career Quiz</a>
+                <Link to="/quiz">Take the Career Quiz</Link>
               </Button>
               
               <Button variant="outline" asChild>
-                <a href="/mentors">Find a Mentor</a>
+                <Link to="/mentors">Find a Mentor</Link>
               </Button>
             </div>
             
