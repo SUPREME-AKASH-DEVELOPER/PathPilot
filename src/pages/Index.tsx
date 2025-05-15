@@ -7,8 +7,11 @@ import CTASection from "@/components/home/CTASection";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InteractiveFeature from "@/components/home/InteractiveFeature";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { t } = useLanguage(); // Add this to access translations
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
