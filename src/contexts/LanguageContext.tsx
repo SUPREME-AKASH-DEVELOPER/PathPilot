@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 
@@ -142,6 +141,12 @@ export const translations = {
     "sessions": "Sessions",
     "rating": "Rating",
     
+    // Chatbot
+    "chatWithAI": "Chat with PathPilot AI",
+    "typeYourMessage": "Type your message...",
+    "connectionError": "Connection Error",
+    "connectionErrorDesc": "Failed to connect to the AI service",
+    
     // Other common UI elements
     "quickLinks": "Quick Links",
     "resources": "Resources",
@@ -212,7 +217,7 @@ export const translations = {
     "personalizedRecommendations": "आपकी व्यक्तिगत करियर सिफारिशें तैयार हैं।",
     "thankYouQuiz": "प्रश्नोत्तरी पूरी करने के लिए धन्यवाद!",
     "basedOnResponses": "आपके जवाबों के आधार पर, यहां कुछ अनुशंसित मार्ग हैं:",
-    "yourRecommendations": "आपकी अनुशंसाएँ",
+    "yourRecommendations": "आपक�� अनुशंसाएँ",
     "exploreCareersLibrary": "पुस्तकालय में करियर का अन्वेषण करें",
     "takeAnotherQuiz": "एक और प्रश्नोत्तरी लें",
     "yourStrengths": "आपकी ताकतें",
@@ -293,6 +298,12 @@ export const translations = {
     "yearsExp": "वर्षों का अनुभव",
     "sessions": "सत्र",
     "rating": "रेटिंग",
+    
+    // Chatbot
+    "chatWithAI": "PathPilot AI से चैट करें",
+    "typeYourMessage": "अपना संदेश लिखें...",
+    "connectionError": "कनेक्शन त्रुटि",
+    "connectionErrorDesc": "AI सेवा से कनेक्ट करने में विफल",
     
     // Other common UI elements
     "quickLinks": "त्वरित लिंक",

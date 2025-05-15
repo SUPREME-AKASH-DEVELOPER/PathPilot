@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ChatBot } from "./components/ChatBot";
 import Index from "./pages/Index";
 import QuizPage from "./pages/QuizPage";
 import CareersPage from "./pages/CareersPage";
@@ -42,6 +43,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <ChatBot />
             </AuthProvider>
           </BrowserRouter>
         </LanguageProvider>
