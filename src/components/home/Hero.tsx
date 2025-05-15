@@ -124,8 +124,8 @@ export default function Hero() {
             >
               <div className="w-full h-full max-w-md">
                 <img 
-                  src="https://thumbs.dreamstime.com/b/confused-student-girl-thinking-future-career-plan-over-white-background-43759162.jpg" 
-                  alt="Confused student thinking about career choices" 
+                  src="/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png" 
+                  alt="Student with mind map of career possibilities" 
                   className="w-full h-full object-cover rounded-lg shadow-lg"
                 />
                 
