@@ -13,11 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MessageSquare, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { bookedSessions, cancelSession } = useBookedSessions();
+  const { bookedSessions, cancelSession, isLoading } = useBookedSessions();
   const [activeTab, setActiveTab] = useState("upcoming");
 
   // Redirect if not logged in
@@ -82,7 +83,33 @@ export default function ProfilePage() {
               </TabsList>
 
               <TabsContent value={activeTab}>
-                {filteredSessions.length > 0 ? (
+                {isLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="overflow-hidden">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-4">
+                              <Skeleton className="h-10 w-10 rounded-full" />
+                              <div>
+                                <Skeleton className="h-5 w-32" />
+                                <Skeleton className="h-4 w-16 mt-1" />
+                              </div>
+                            </div>
+                            <Skeleton className="h-6 w-20" />
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-2/3" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : filteredSessions.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredSessions.map((session) => (
                       <Card key={session.id} className="overflow-hidden">
