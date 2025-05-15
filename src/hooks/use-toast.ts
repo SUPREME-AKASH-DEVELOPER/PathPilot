@@ -1,212 +1,101 @@
 
-import * as React from "react"
+import { useState } from "react"
 
-import { ToastActionElement, ToastProps } from "@/components/ui/toast"
+type ToastType = "default" | "success" | "error" | "warning" | "info"
 
-const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000
-
-export type ToastType = "default" | "destructive" | "success" | "warning" | "info"
-
-export type Toast = {
-  id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: ToastActionElement
-  variant?: ToastType
+interface ToastProps {
+  id?: string
+  title: string
+  description?: string
+  type?: ToastType
   duration?: number
-  onOpenChange?: (open: boolean) => void
 }
 
-interface State {
-  toasts: Array<Toast & { open: boolean }>
-}
+type Toast = ToastProps
 
-const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
+let toastCount = 0
 
-let count = 0
+const useToast = () => {
+  const [toasts, setToasts] = useState<Toast[]>([])
 
-function genId() {
-  count = (count + 1) % Number.MAX_VALUE
-  return count.toString()
-}
-
-type ActionType = typeof actionTypes
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: Toast
+  const toast = (props: ToastProps) => {
+    const id = props.id || String(toastCount++)
+    const newToast = { ...props, id }
+    
+    setToasts((prevToasts) => [...prevToasts, newToast])
+    
+    if (props.duration !== Infinity) {
+      setTimeout(() => {
+        setToasts((prevToasts) => prevToasts.filter((t) => t.id !== id))
+      }, props.duration || 5000)
     }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<Toast> & Pick<Toast, "id">
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: string
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: string
-    }
-
-interface ToastContextType extends State {
-  toast: (props: Partial<Toast> & { description?: React.ReactNode }) => string
-  dismiss: (toastId?: string) => void
-}
-
-const toastReducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_TOAST":
-      return {
-        ...state,
-        toasts: [
-          { ...action.toast, open: true },
-          ...state.toasts,
-        ].slice(0, TOAST_LIMIT),
-      }
-
-    case "UPDATE_TOAST":
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case "DISMISS_TOAST": {
-      const { toastId } = action
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-                ...t,
-                open: false,
-              }
-            : t
-        ),
-      }
-    }
-
-    case "REMOVE_TOAST":
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
-        }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
-
-    default:
-      return state
+    
+    return id
   }
-}
-
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = toastReducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
-
-// Create a reusable toast object that can be called directly
-export const toast = (props: Partial<Toast> & { description?: React.ReactNode }) => {
-  const id = props.id || genId()
-
-  const update = (props: Partial<Toast>) =>
-    dispatch({
-      type: "UPDATE_TOAST",
-      toast: { ...props, id },
-    })
-
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      onOpenChange: (open: boolean) => {
-        if (!open) dismiss()
-      },
-    },
-  })
-
-  return id
-}
-
-// Helper methods for different toast types
-toast.error = (description: string, props?: Partial<Toast>) => {
-  return toast({
-    variant: "destructive",
-    title: "Error",
-    description,
-    ...props,
-  })
-}
-
-toast.success = (description: string, props?: Partial<Toast>) => {
-  return toast({
-    variant: "success",
-    title: "Success",
-    description,
-    ...props,
-  })
-}
-
-toast.warning = (description: string, props?: Partial<Toast>) => {
-  return toast({
-    variant: "warning", 
-    title: "Warning",
-    description,
-    ...props,
-  })
-}
-
-toast.info = (description: string, props?: Partial<Toast>) => {
-  return toast({
-    variant: "info",
-    title: "Information", 
-    description,
-    ...props,
-  })
-}
-
-toast.dismiss = (toastId?: string) => {
-  dispatch({ type: "DISMISS_TOAST", toastId })
-}
-
-export function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
-
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
-  }, [state])
+  
+  const success = (title: string, description?: string) => {
+    return toast({ title, description, type: "success" })
+  }
+  
+  const error = (title: string, description?: string) => {
+    return toast({ title, description, type: "error" })
+  }
+  
+  const warning = (title: string, description?: string) => {
+    return toast({ title, description, type: "warning" })
+  }
+  
+  const info = (title: string, description?: string) => {
+    return toast({ title, description, type: "info" })
+  }
+  
+  const dismiss = (toastId?: string) => {
+    setToasts((prevToasts) => 
+      toastId ? prevToasts.filter((t) => t.id !== toastId) : []
+    )
+  }
 
   return {
-    ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    success,
+    error,
+    warning,
+    info,
+    dismiss,
+    toasts
   }
 }
+
+// Export a singleton instance for global usage
+const toast = {
+  success: (title: string, description?: string) => {
+    document.dispatchEvent(
+      new CustomEvent("toast", { 
+        detail: { title, description, type: "success" } 
+      })
+    )
+  },
+  error: (title: string, description?: string) => {
+    document.dispatchEvent(
+      new CustomEvent("toast", { 
+        detail: { title, description, type: "error" } 
+      })
+    )
+  },
+  warning: (title: string, description?: string) => {
+    document.dispatchEvent(
+      new CustomEvent("toast", { 
+        detail: { title, description, type: "warning" } 
+      })
+    )
+  },
+  info: (title: string, description?: string) => {
+    document.dispatchEvent(
+      new CustomEvent("toast", { 
+        detail: { title, description, type: "info" } 
+      })
+    )
+  }
+}
+
+export { useToast, toast, type Toast }
