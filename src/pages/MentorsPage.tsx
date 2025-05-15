@@ -1,17 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Briefcase, MapPin, Clock, Calendar, ChevronLeft, Mail, Phone } from "lucide-react";
+import { Search, Briefcase, MapPin, Clock, Calendar, Mail, Phone } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBookedSessions } from "@/hooks/use-booked-sessions";
 
 interface Mentor {
   id: string;
@@ -40,6 +43,14 @@ export default function MentorsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
+  const [bookingDuration, setBookingDuration] = useState("60");
+  const [bookingTopic, setBookingTopic] = useState("");
+  
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { addBookedSession } = useBookedSessions();
   
   const mentors: Mentor[] = [
     // Technical & Engineering
@@ -315,16 +326,58 @@ export default function MentorsPage() {
   const categories = Array.from(new Set(mentors.map(mentor => mentor.category)));
 
   const handleBookSession = (mentor: Mentor) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to book a session with a mentor.",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
+    
     setSelectedMentor(mentor);
     setShowBookingForm(true);
+    setBookingDate("");
+    setBookingTime("");
+    setBookingDuration("60");
+    setBookingTopic("");
   };
 
   const handleSubmitBooking = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedMentor || !bookingDate || !bookingTime || !bookingTopic) {
+      toast({
+        title: "Incomplete Form",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Create a unique ID
+    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    
+    // Add the booked session to the user's profile
+    addBookedSession({
+      id: sessionId,
+      mentorId: selectedMentor.id,
+      mentorName: selectedMentor.name,
+      mentorImage: selectedMentor.image,
+      date: bookingDate,
+      time: bookingTime,
+      duration: bookingDuration,
+      topic: bookingTopic,
+      price: selectedMentor.price,
+      status: 'upcoming'
+    });
+    
     toast({
       title: "Session Booked!",
-      description: `Your session with ${selectedMentor?.name} has been booked successfully. You will receive confirmation details shortly.`,
+      description: `Your session with ${selectedMentor.name} has been booked successfully. You will receive confirmation details shortly.`,
     });
+    
     setShowBookingForm(false);
   };
 
@@ -564,7 +617,7 @@ export default function MentorsPage() {
                         </SheetContent>
                       </Sheet>
                       
-                      <Dialog open={showBookingForm && selectedMentor?.id === mentor.id} onOpenChange={setShowBookingForm}>
+                      <Dialog open={showBookingForm && selectedMentor?.id !== undefined} onOpenChange={setShowBookingForm}>
                         <DialogTrigger asChild>
                           <Button className="flex-1 bg-pp-purple hover:bg-pp-bright-purple" onClick={() => handleBookSession(mentor)}>
                             Book Session
@@ -587,20 +640,31 @@ export default function MentorsPage() {
                                   id="date" 
                                   type="date" 
                                   required 
-                                  min={new Date().toISOString().split('T')[0]} 
+                                  min={new Date().toISOString().split('T')[0]}
+                                  value={bookingDate}
+                                  onChange={(e) => setBookingDate(e.target.value)}
                                 />
                               </div>
                               <div className="grid gap-2">
                                 <label htmlFor="time" className="text-sm font-medium">
                                   Preferred Time
                                 </label>
-                                <Input id="time" type="time" required />
+                                <Input 
+                                  id="time" 
+                                  type="time" 
+                                  required 
+                                  value={bookingTime}
+                                  onChange={(e) => setBookingTime(e.target.value)}
+                                />
                               </div>
                               <div className="grid gap-2">
                                 <label htmlFor="duration" className="text-sm font-medium">
                                   Duration
                                 </label>
-                                <Select defaultValue="60">
+                                <Select 
+                                  value={bookingDuration}
+                                  onValueChange={setBookingDuration}
+                                >
                                   <SelectTrigger id="duration">
                                     <SelectValue placeholder="Select duration" />
                                   </SelectTrigger>
@@ -615,7 +679,13 @@ export default function MentorsPage() {
                                 <label htmlFor="topic" className="text-sm font-medium">
                                   Session Topic
                                 </label>
-                                <Input id="topic" placeholder="What would you like to discuss?" required />
+                                <Input 
+                                  id="topic" 
+                                  placeholder="What would you like to discuss?" 
+                                  required 
+                                  value={bookingTopic}
+                                  onChange={(e) => setBookingTopic(e.target.value)}
+                                />
                               </div>
                             </div>
                             <div className="bg-gray-50 p-3 rounded-md mb-4">
