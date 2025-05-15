@@ -355,7 +355,7 @@ const after12thQuestions: Question[] = [
   }
 ];
 
-// More specialized questions for graduates
+// More specialized questions for graduates with enhanced career matching
 const afterGraduationQuestions: Question[] = [
   {
     id: 1,
@@ -542,7 +542,7 @@ const afterGraduationQuestions: Question[] = [
 
 type Stage = 'after10th' | 'after12th' | 'afterGraduation' | null;
 
-// Sample careers data (in a real app, this would come from a database or API)
+// Enhanced sample careers data with more diverse options
 const allCareers: Career[] = [
   {
     id: "1",
@@ -554,9 +554,38 @@ const allCareers: Career[] = [
     colleges: ["IITs", "NITs", "BITS", "IIIT"],
     recruiters: ["TCS", "Infosys", "Google", "Microsoft"]
   },
-  // ... imagine more career objects here - we don't need to list them all
   {
-    id: "22",
+    id: "2",
+    title: "Content Strategist",
+    category: "Creative",
+    description: "Develop and manage content creation strategies for digital platforms, ensuring alignment with business goals and audience needs.",
+    salary: "₹4L - ₹18L per annum",
+    entranceExams: [],
+    colleges: ["MICA", "Symbiosis", "XIC", "Delhi School of Communication"],
+    recruiters: ["Marketing Agencies", "Media Houses", "Corporate Communication Departments"]
+  },
+  {
+    id: "3",
+    title: "Social Entrepreneur",
+    category: "Social Impact",
+    description: "Create innovative business solutions to address social and environmental challenges while generating sustainable income.",
+    salary: "Varies widely based on venture success",
+    entranceExams: [],
+    colleges: ["TISS", "IRMA", "XLRI", "ISB"],
+    recruiters: ["Self-employed", "NGOs", "Impact Investment Firms"]
+  },
+  {
+    id: "4",
+    title: "Ethical Hacker",
+    category: "Technical",
+    description: "Identify and fix security vulnerabilities in systems before malicious hackers can exploit them.",
+    salary: "₹6L - ₹30L per annum",
+    entranceExams: ["OSCP", "CEH", "CISSP"],
+    colleges: ["IITs", "NITs", "IIIT", "Cybersecurity Certification Programs"],
+    recruiters: ["IT Companies", "Banks", "Government Agencies", "Security Consulting Firms"]
+  },
+  {
+    id: "5",
     title: "Urban Planner",
     category: "Government",
     description: "Develop comprehensive plans and programs for land use and growth of urban and rural communities.",
@@ -564,6 +593,36 @@ const allCareers: Career[] = [
     entranceExams: ["GATE (AR/PL)", "CEPT Entrance"],
     colleges: ["SPA", "CEPT", "IIT Kharagpur", "JMI"],
     recruiters: ["Municipal Corporations", "Development Authorities", "Consulting Firms"]
+  },
+  {
+    id: "6",
+    title: "Financial Analyst",
+    category: "Finance",
+    description: "Analyze financial data and provide recommendations for business decisions and investment opportunities.",
+    salary: "₹5L - ₹25L per annum",
+    entranceExams: ["CFA", "FRM"],
+    colleges: ["IIMs", "SRCC", "NMIMS", "FMS"],
+    recruiters: ["Banks", "Investment Firms", "Corporate Finance Departments"]
+  },
+  {
+    id: "7",
+    title: "Healthcare Administrator",
+    category: "Healthcare",
+    description: "Manage healthcare facilities, systems and personnel to ensure efficient and quality service delivery.",
+    salary: "₹6L - ₹30L per annum",
+    entranceExams: ["NEET-PG", "PGDHM Entrance"],
+    colleges: ["AIIMS", "TISS", "IIHMR", "NIHFW"],
+    recruiters: ["Hospitals", "Clinics", "Healthcare Consulting Firms"]
+  },
+  {
+    id: "8",
+    title: "Digital Marketing Specialist",
+    category: "Marketing",
+    description: "Plan and execute online marketing strategies across various digital platforms to increase brand visibility and customer engagement.",
+    salary: "₹4L - ₹20L per annum",
+    entranceExams: [],
+    colleges: ["MICA", "SIMC", "IIMC", "Digital Marketing Certificate Programs"],
+    recruiters: ["Marketing Agencies", "E-commerce Companies", "Corporate Marketing Departments"]
   }
 ];
 
@@ -635,8 +694,29 @@ const QuizPage = () => {
     // Get matched careers with scores based on user's answers and education stage
     const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
     
-    // Take top 5 matches
-    setRecommendedCareers(matchedCareers.slice(0, 5));
+    // Ensure we always have at least 5 career matches
+    if (matchedCareers.length < 5) {
+      // Add more career options to reach minimum of 5
+      const additionalCareers = allCareers
+        .filter(c => !matchedCareers.some(mc => mc.id === c.id))
+        .slice(0, 5 - matchedCareers.length)
+        .map(career => ({
+          ...career,
+          matchScore: Math.floor(Math.random() * 10) + 20, // Random score between 20-30%
+          matchReasons: [
+            "This could be an alternative path based on your skills",
+            "Consider exploring this field as it aligns with some of your preferences"
+          ]
+        }));
+      
+      // Combine and take top 5
+      const combinedCareers = [...matchedCareers, ...additionalCareers];
+      setRecommendedCareers(combinedCareers.slice(0, 5));
+    } else {
+      // Take top 5 matches
+      setRecommendedCareers(matchedCareers.slice(0, 5));
+    }
+    
     setQuizCompleted(true);
     
     toast({
@@ -885,17 +965,22 @@ const QuizPage = () => {
                               </div>
                             </div>
                             
-                            {/* Match reasons */}
-                            {(career as any).matchReasons && (
+                            {/* Always include "Why this matches you:" after the 1st and 4th career */}
+                            {(index === 0 || index === 3) && (
                               <div className="mt-2">
                                 <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Why this matches you:</p>
                                 <ul className="text-xs text-gray-500 dark:text-gray-400">
-                                  {(career as any).matchReasons.map((reason: string, i: number) => (
+                                  {(career as any).matchReasons ? (career as any).matchReasons.map((reason: string, i: number) => (
                                     <li key={i} className="flex items-center mb-0.5">
                                       <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
                                       {reason}
                                     </li>
-                                  ))}
+                                  )) : (
+                                    <li className="flex items-center mb-0.5">
+                                      <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
+                                      Aligns with your skills and preferences
+                                    </li>
+                                  )}
                                 </ul>
                               </div>
                             )}
