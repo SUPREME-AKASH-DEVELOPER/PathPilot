@@ -13,6 +13,10 @@ export const ENV = {
   // App secrets
   JWT_SECRET: "your_jwt_secret_key_here",
   
+  // Google Gemini API
+  GEMINI_API_KEY: "AIzaSyCwBEPts8OarwTet1h-khpoCcpDkzXNM7Y",
+  GEMINI_MODEL: "gemini-2.0-flash",
+  
   // Add other environment variables as needed
 };
 
