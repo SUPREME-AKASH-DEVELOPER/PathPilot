@@ -29,11 +29,11 @@ const Navbar = () => {
 
   const navLinks = [
     { name: t("home"), href: "/" },
-    { name: t("quiz"), href: "/quiz" },
+    { name: t("pathCreator"), href: "/quiz" }, // Changed from "quiz" to "pathCreator"
     { name: t("careers"), href: "/careers" },
     { name: t("library"), href: "/library" },
     { name: t("mentors"), href: "/mentors" },
-    { name: t("chat"), href: "/chat" }, // Added chat link
+    { name: t("chat"), href: "/chat" },
   ];
 
   return (

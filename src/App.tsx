@@ -8,7 +8,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
-import PathCreatorPage from "./pages/QuizPage";
+import PathCreatorPage from "./pages/QuizPage"; // Changed name but keeping the same file
 import CareersPage from "./pages/CareersPage";
 import LibraryPage from "./pages/LibraryPage";
 import MentorsPage from "./pages/MentorsPage";
