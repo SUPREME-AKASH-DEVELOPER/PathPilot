@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -8,9 +8,14 @@ import { Loader2, MessageCircle, Send } from "lucide-react";
 
 const GeminiChat: React.FC = () => {
   const [userInput, setUserInput] = useState("");
-  const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'bot', text: string}>>([]);
+
+  // Add welcome message when component mounts
+  useEffect(() => {
+    const welcomeMessage = "Welcome to PathPilot AI Assistant! How can I help you today? Feel free to ask any questions about careers, education, or personal development.";
+    setChatHistory([{type: 'bot', text: welcomeMessage}]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
