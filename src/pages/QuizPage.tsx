@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext"; // Added missing import
 import { 
   QuizAnswers, 
   getMatchedCareers, 
@@ -731,12 +732,40 @@ const PathCreatorPage = () => {
       
       // Generate enhanced skills and strengths summary with education stage
       const summary = generateQuizSummary(answers, selectedStage);
+      
+      // Ensure the personalityProfile.type matches the expected union type from PersonalityProfile
+      let personalityType = analysis.personalityProfile?.type || "";
+      
+      // Map the string to one of the allowed values in PersonalityProfile
+      let mappedType: "Creative" | "Analytical" | "Practical" | "Social" | "Enterprising" | "Conventional" | "Mixed" = "Mixed";
+      
+      if (personalityType.includes("Analytical") || personalityType.includes("logical") || 
+          personalityType.includes("Problem-Solver")) {
+        mappedType = "Analytical";
+      } else if (personalityType.includes("Creative") || personalityType.includes("artistic")) {
+        mappedType = "Creative";
+      } else if (personalityType.includes("Practical") || personalityType.includes("Realistic")) {
+        mappedType = "Practical";
+      } else if (personalityType.includes("Social") || personalityType.includes("Helper")) {
+        mappedType = "Social";
+      } else if (personalityType.includes("Enterprising") || personalityType.includes("Leader")) {
+        mappedType = "Enterprising";
+      } else if (personalityType.includes("Conventional") || personalityType.includes("Organizer")) {
+        mappedType = "Conventional";
+      }
+      
+      // Create the enhanced summary with the properly typed personality profile
       const enhancedSummary = {
         ...summary,
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
         recommendedPaths: analysis.recommendedPaths,
-        personalityProfile: analysis.personalityProfile
+        personalityProfile: {
+          type: mappedType,
+          traits: analysis.personalityProfile?.traits || [],
+          learningStyle: analysis.personalityProfile?.learningStyle || "",
+          workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
+        }
       };
       
       setQuizSummary(enhancedSummary);

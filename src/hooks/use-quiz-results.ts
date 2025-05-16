@@ -12,7 +12,7 @@ export interface QuizResult {
   skillsAssessment: Record<string, number>;
   careerMatchScores: Record<string, number>;
   personalityProfile?: {
-    type: string;
+    type: string;  // Note: This is already a string type which accepts any string value
     traits: string[];
     learningStyle: string;
     workEnvironmentPreference: string;
