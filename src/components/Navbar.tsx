@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, LogIn, UserPlus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import LanguageToggle from "./LanguageToggle";
@@ -33,6 +33,7 @@ const Navbar = () => {
     { name: t("careers"), href: "/careers" },
     { name: t("library"), href: "/library" },
     { name: t("mentors"), href: "/mentors" },
+    { name: t("chat"), href: "/chat" }, // Added chat link
   ];
 
   return (
