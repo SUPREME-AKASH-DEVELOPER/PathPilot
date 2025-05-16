@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
 import PathCreator, { Question } from "@/components/quiz/QuizQuestion";
@@ -654,7 +655,10 @@ const PathCreatorPage = () => {
   // Set initial questions based on selected stage
   useEffect(() => {
     if (selectedStage) {
-      setQuestions(getQuestionsForStage());
+      const questionsForStage = getQuestionsForStage();
+      console.log(`Loaded ${questionsForStage.length} questions for stage: ${selectedStage}`);
+      setQuestions(questionsForStage);
+      setCurrentQuestionIndex(0); // Reset index when loading new questions
     }
   }, [selectedStage]);
   

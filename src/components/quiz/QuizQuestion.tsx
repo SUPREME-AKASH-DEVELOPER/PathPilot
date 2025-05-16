@@ -43,25 +43,33 @@ export default function PathCreator({
   onDynamicQuestionAdd
 }: PathCreatorProps) {
   const { t } = useLanguage();
-  const [selectedOption, setSelectedOption] = useState<string | null>(
-    answers[questions[currentQuestionIndex]?.id] || null
-  );
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [animateOptions, setAnimateOptions] = useState(true);
   const [timeSpent, setTimeSpent] = useState(0);
   const [isGeneratingNext, setIsGeneratingNext] = useState(false);
   
-  const currentQuestion = questions[currentQuestionIndex];
+  // Guard against empty questions array or invalid index
+  const currentQuestion = questions && questions.length > 0 && 
+    currentQuestionIndex >= 0 && currentQuestionIndex < questions.length
+      ? questions[currentQuestionIndex]
+      : null;
+  
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
   
   // Update selected option when changing questions
   useEffect(() => {
-    setSelectedOption(answers[currentQuestion?.id] || null);
+    if (currentQuestion) {
+      setSelectedOption(answers[currentQuestion.id] || null);
+    } else {
+      setSelectedOption(null);
+    }
+    
     // Reset animation state when changing questions
     setAnimateOptions(false);
     const timer = setTimeout(() => setAnimateOptions(true), 50);
     return () => clearTimeout(timer);
-  }, [currentQuestionIndex, answers, currentQuestion?.id]);
+  }, [currentQuestionIndex, answers, currentQuestion]);
   
   // Track time spent on each question
   useEffect(() => {
@@ -78,6 +86,8 @@ export default function PathCreator({
   }, [currentQuestionIndex]);
   
   const handleOptionClick = (option: string) => {
+    if (!currentQuestion) return;
+    
     setSelectedOption(option);
     onAnswerSelected(currentQuestion.id, option);
   };
@@ -87,18 +97,19 @@ export default function PathCreator({
       onComplete();
     } else {
       // Generate dynamic follow-up question based on current answer if not the last question
-      if (selectedOption && onDynamicQuestionAdd && currentQuestionIndex + 1 === questions.length - 1) {
+      if (selectedOption && currentQuestion && onDynamicQuestionAdd && currentQuestionIndex + 1 === questions.length - 1) {
         try {
           setIsGeneratingNext(true);
           
           // Build question history
           const questionHistory = Object.keys(answers).map(id => {
             const questionIndex = questions.findIndex(q => q.id === Number(id));
+            if (questionIndex < 0) return { question: "", answer: "" };
             return {
               question: questions[questionIndex].question,
               answer: answers[Number(id)]
             };
-          });
+          }).filter(item => item.question !== "");
           
           // Get next dynamic question
           const nextQuestion = await generateNextQuestion(
@@ -152,6 +163,8 @@ export default function PathCreator({
 
   // Get difficulty badge color with enhanced visual distinction
   const getDifficultyColor = () => {
+    if (!currentQuestion || !currentQuestion.difficulty) return "";
+    
     switch (currentQuestion.difficulty) {
       case "beginner":
         return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-200 dark:border-green-800";
@@ -165,6 +178,8 @@ export default function PathCreator({
   };
   
   const getCategoryIcon = () => {
+    if (!currentQuestion || !currentQuestion.category) return null;
+    
     switch(currentQuestion.category) {
       case "academic":
       case "learning":
@@ -227,6 +242,24 @@ export default function PathCreator({
     return option;
   };
 
+  // If no questions are available or currentQuestion is null, show a loading or empty state
+  if (!currentQuestion) {
+    return (
+      <div className="py-10 max-w-3xl mx-auto text-center">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-6"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-8"></div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            ))}
+          </div>
+        </div>
+        <p className="mt-8 text-gray-500 dark:text-gray-400">Loading questions or no questions available...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="py-10 max-w-3xl mx-auto">
       <ProgressBar progress={progress} />
@@ -245,10 +278,12 @@ export default function PathCreator({
               {currentQuestion.difficulty}
             </Badge>
           )}
-          <Badge variant="secondary" className="text-xs font-normal flex items-center">
-            {getCategoryIcon()}
-            {getCategoryDisplayText(currentQuestion.category)}
-          </Badge>
+          {currentQuestion.category && (
+            <Badge variant="secondary" className="text-xs font-normal flex items-center">
+              {getCategoryIcon()}
+              {getCategoryDisplayText(currentQuestion.category)}
+            </Badge>
+          )}
           {currentQuestion.weight && currentQuestion.weight > 1 && (
             <TooltipProvider>
               <Tooltip>
@@ -366,3 +401,4 @@ export default function PathCreator({
     onPrevQuestion();
   }
 }
+
