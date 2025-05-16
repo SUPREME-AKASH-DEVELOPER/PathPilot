@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -46,6 +47,22 @@ export default function PathCreator({
   const [animateOptions, setAnimateOptions] = useState(true);
   const [timeSpent, setTimeSpent] = useState(0);
   const [isGeneratingNext, setIsGeneratingNext] = useState(false);
+  
+  // Define animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
   
   // Guard against empty questions array or invalid index
   const currentQuestion = questions && questions.length > 0 && 
