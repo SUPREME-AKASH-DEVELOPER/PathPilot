@@ -13,7 +13,7 @@ const GeminiChatPage: React.FC = () => {
           <span className="text-pp-purple dark:text-pp-bright-purple">AI Assistant</span>
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-          Ask any question and get instant answers from our Gemini-powered AI assistant
+          Ask any question and get instant answers from our PathPilot AI assistant
         </p>
         <GeminiChat />
       </main>

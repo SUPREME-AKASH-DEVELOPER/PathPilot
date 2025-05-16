@@ -38,7 +38,7 @@ const GeminiChat: React.FC = () => {
       <CardHeader className="bg-pp-purple/5 dark:bg-pp-bright-purple/10">
         <CardTitle className="flex items-center text-pp-purple dark:text-pp-bright-purple">
           <MessageCircle className="mr-2 h-5 w-5" />
-          Gemini AI Assistant
+          PathPilot AI Assistant
         </CardTitle>
       </CardHeader>
       
