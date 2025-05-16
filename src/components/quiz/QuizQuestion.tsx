@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -56,6 +55,10 @@ export default function PathCreator({
   
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+  
+  // Calculate the total number of answered questions
+  const answeredQuestionsCount = Object.keys(answers).length;
+  const canForceSubmit = answeredQuestionsCount >= 15;
   
   // Update selected option when changing questions
   useEffect(() => {
@@ -146,21 +149,15 @@ export default function PathCreator({
     }
   };
   
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+  // Handle force submit
+  const handleForceSubmit = () => {
+    toast({
+      title: "Generating Your Report",
+      description: `Creating your personalized path based on ${answeredQuestionsCount} answered questions.`,
+    });
+    onComplete();
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
+  
   // Get difficulty badge color with enhanced visual distinction
   const getDifficultyColor = () => {
     if (!currentQuestion || !currentQuestion.difficulty) return "";
@@ -364,7 +361,7 @@ export default function PathCreator({
           ))}
         </motion.div>
         
-        <div className="mt-8 flex justify-between">
+        <div className="mt-8 flex justify-between items-center">
           <Button 
             onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
@@ -375,23 +372,45 @@ export default function PathCreator({
             {t("previous")}
           </Button>
           
-          <Button 
-            onClick={handleNext}
-            disabled={!selectedOption || isGeneratingNext}
-            className="bg-pp-purple hover:bg-pp-bright-purple transition-all flex items-center gap-1"
-          >
-            {isGeneratingNext ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                {t("generating")}...
-              </span>
-            ) : (
-              <>
-                {isLastQuestion ? t("submit") : t("next")}
-                <ArrowRight className="w-4 h-4" />
-              </>
+          <div className="flex items-center gap-2">
+            {/* Force Submit button - only shown after 15+ questions answered */}
+            {canForceSubmit && !isLastQuestion && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={handleForceSubmit}
+                      variant="outline"
+                      className="border-amber-500 text-amber-600 hover:bg-amber-50"
+                    >
+                      {t("forceSubmit") || "Force Submit"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs max-w-xs">Submit your answers now to get your results based on the {answeredQuestionsCount} questions you've answered</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-          </Button>
+            
+            <Button 
+              onClick={handleNext}
+              disabled={!selectedOption || isGeneratingNext}
+              className="bg-pp-purple hover:bg-pp-bright-purple transition-all flex items-center gap-1"
+            >
+              {isGeneratingNext ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                  {t("generating")}...
+                </span>
+              ) : (
+                <>
+                  {isLastQuestion ? t("submit") : t("next")}
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </motion.div>
     </div>
@@ -401,4 +420,3 @@ export default function PathCreator({
     onPrevQuestion();
   }
 }
-
