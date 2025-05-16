@@ -137,14 +137,6 @@ export const translations = {
     "sessions": "Sessions",
     "rating": "Rating",
     
-    // AI Assistant Translations
-    "aiAssistant": "AI Assistant",
-    "askQuestion": "Ask any question and get instant answers from our PathPilot AI assistant",
-    "startConversation": "Start a conversation with the AI assistant",
-    "askAnything": "Ask me anything...",
-    "welcomeMessage": "Welcome to PathPilot AI Assistant! How can I help you today? Feel free to ask any questions about careers, education, or personal development.",
-    "errorMessage": "Sorry, I couldn't process your request. Please try again.",
-    
     // Other common UI elements
     "quickLinks": "Quick Links",
     "resources": "Resources",
@@ -245,7 +237,7 @@ export const translations = {
     "careerPaths": "करियर मार्ग",
     "satisfactionRate": "संतुष्टि दर",
     "expertMentors": "विशेषज्ञ सलाहकार",
-    "readyToDiscover": "अपना स��ी ���रियर पथ खोजने के लिए तैयार हैं?",
+    "readyToDiscover": "अपना स��ी करियर पथ खोजने के लिए तैयार हैं?",
     "takePersonalizedQuiz": "हमारी व्यक्तिगत प्रश्नोत्तरी लें और विशेष रूप से आपके लिए तैयार AI-संचालित सिफारिशें प्राप्त करें।",
     "startYourCareerQuiz": "अपनी करियर प्रश्नोत्तरी शुरू करें",
     "browseCareerLibrary": "करियर पुस्तकालय ब्राउज़ करें",
@@ -278,7 +270,7 @@ export const translations = {
     "tryAdjusting": "अपनी खोज या फ़िल्टर समायोजित करें",
     "avgSalary": "औसत वेतन",
     "reqQualification": "आवश्यक योग्यता",
-    "viewAllDetails": "�����भी विवरण देखें",
+    "viewAllDetails": "���भी विवरण देखें",
     
     // Mentors
     "mentorsPageTitle": "सलाहकारों से जुड़ें",
@@ -292,14 +284,6 @@ export const translations = {
     "yearsExp": "वर्षों का अनुभव",
     "sessions": "सत्र",
     "rating": "रेटिंग",
-    
-    // AI Assistant Translations
-    "aiAssistant": "AI सहायक",
-    "askQuestion": "कोई भी प्रश्न पूछें और हमारे PathPilot AI सहायक से तुरंत उत्तर प्राप्त करें",
-    "startConversation": "AI सहायक के साथ एक वार्तालाप शुरू करें",
-    "askAnything": "मुझसे कुछ भी पूछें...",
-    "welcomeMessage": "PathPilot AI सहायक में आपका स्वागत है! आज मैं आपकी कैसे मदद कर सकता हूँ? करियर, शिक्षा, या व्यक्तिगत विकास के बारे में कोई भी प्रश्न पूछने के लिए स्वतंत्र महसूस करें।",
-    "errorMessage": "क्षमा करें, मैं आपके अनुरोध को संसाधित नहीं कर सका। कृपया पुनः प्रयास करें।",
     
     // Other common UI elements
     "quickLinks": "त्वरित लिंक",
