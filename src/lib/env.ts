@@ -17,6 +17,9 @@ export const ENV = {
   GEMINI_API_KEY: "AIzaSyCwBEPts8OarwTet1h-khpoCcpDkzXNM7Y",
   GEMINI_MODEL: "gemini-2.0-flash",
   
+  // Perplexity AI API
+  PERPLEXITY_API_KEY: "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",
+  
   // Add other environment variables as needed
 };
 

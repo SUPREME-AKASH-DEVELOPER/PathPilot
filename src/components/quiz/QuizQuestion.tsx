@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "./ProgressBar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Timer, Brain, CircleHelp } from "lucide-react";
+import { CheckCircle2, Timer, Brain, CircleHelp, ArrowRight, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { generateNextQuestion } from "@/lib/perplexity";
+import { toast } from "@/components/ui/use-toast";
 
 export interface Question {
   id: number;
@@ -19,7 +21,7 @@ export interface Question {
   skillMapping?: Record<string, number>; // Maps answers to skill scores
 }
 
-interface QuizQuestionProps {
+interface PathCreatorProps {
   questions: Question[];
   currentQuestionIndex: number;
   answers: Record<number, string>;
@@ -27,23 +29,26 @@ interface QuizQuestionProps {
   onNextQuestion: () => void;
   onPrevQuestion: () => void;
   onComplete: () => void;
+  onDynamicQuestionAdd?: (newQuestion: Question) => void; // For adding dynamic questions
 }
 
-export default function QuizQuestion({
+export default function PathCreator({
   questions,
   currentQuestionIndex,
   answers,
   onAnswerSelected,
   onNextQuestion,
   onPrevQuestion,
-  onComplete
-}: QuizQuestionProps) {
+  onComplete,
+  onDynamicQuestionAdd
+}: PathCreatorProps) {
   const { t } = useLanguage();
   const [selectedOption, setSelectedOption] = useState<string | null>(
     answers[questions[currentQuestionIndex]?.id] || null
   );
   const [animateOptions, setAnimateOptions] = useState(true);
   const [timeSpent, setTimeSpent] = useState(0);
+  const [isGeneratingNext, setIsGeneratingNext] = useState(false);
   
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -77,10 +82,55 @@ export default function QuizQuestion({
     onAnswerSelected(currentQuestion.id, option);
   };
   
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isLastQuestion) {
       onComplete();
     } else {
+      // Generate dynamic follow-up question based on current answer if not the last question
+      if (selectedOption && onDynamicQuestionAdd && currentQuestionIndex + 1 === questions.length - 1) {
+        try {
+          setIsGeneratingNext(true);
+          
+          // Build question history
+          const questionHistory = Object.keys(answers).map(id => {
+            const questionIndex = questions.findIndex(q => q.id === Number(id));
+            return {
+              question: questions[questionIndex].question,
+              answer: answers[Number(id)]
+            };
+          });
+          
+          // Get next dynamic question
+          const nextQuestion = await generateNextQuestion(
+            currentQuestion.question,
+            selectedOption,
+            questionHistory
+          );
+          
+          // Create new question object
+          const newQuestion: Question = {
+            id: questions.length + 1,
+            question: nextQuestion.question,
+            options: nextQuestion.options,
+            category: "dynamic",
+            difficulty: "intermediate",
+            weight: 1.2
+          };
+          
+          // Add to questions array
+          onDynamicQuestionAdd(newQuestion);
+          setIsGeneratingNext(false);
+          
+          toast({
+            title: "Path Updated",
+            description: "A personalized follow-up question has been added based on your answer.",
+          });
+        } catch (error) {
+          console.error("Failed to generate dynamic question:", error);
+          setIsGeneratingNext(false);
+        }
+      }
+      
       onNextQuestion();
     }
   };
@@ -284,17 +334,28 @@ export default function QuizQuestion({
             onClick={handlePrevious}
             disabled={currentQuestionIndex === 0}
             variant="outline"
-            className="transition-all"
+            className="transition-all flex items-center gap-1"
           >
+            <ArrowLeft className="w-4 h-4" />
             {t("previous")}
           </Button>
           
           <Button 
             onClick={handleNext}
-            disabled={!selectedOption}
-            className="bg-pp-purple hover:bg-pp-bright-purple transition-all"
+            disabled={!selectedOption || isGeneratingNext}
+            className="bg-pp-purple hover:bg-pp-bright-purple transition-all flex items-center gap-1"
           >
-            {isLastQuestion ? t("submit") : t("next")}
+            {isGeneratingNext ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                {t("generating")}...
+              </span>
+            ) : (
+              <>
+                {isLastQuestion ? t("submit") : t("next")}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </Button>
         </div>
       </motion.div>

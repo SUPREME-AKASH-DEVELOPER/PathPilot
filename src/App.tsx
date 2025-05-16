@@ -8,7 +8,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
-import QuizPage from "./pages/QuizPage";
+import PathCreatorPage from "./pages/QuizPage";
 import CareersPage from "./pages/CareersPage";
 import LibraryPage from "./pages/LibraryPage";
 import MentorsPage from "./pages/MentorsPage";
@@ -32,7 +32,7 @@ const App = () => (
             <AuthProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/quiz" element={<QuizPage />} />
+                <Route path="/quiz" element={<PathCreatorPage />} />
                 <Route path="/careers" element={<CareersPage />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/mentors" element={<MentorsPage />} />

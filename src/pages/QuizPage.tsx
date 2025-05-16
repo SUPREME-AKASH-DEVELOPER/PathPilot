@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
-import QuizQuestion, { Question } from "@/components/quiz/QuizQuestion";
+import PathCreator, { Question } from "@/components/quiz/QuizQuestion";
+import ResultCharts from "@/components/quiz/ResultCharts";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -29,8 +30,9 @@ import {
   Compass
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { analyzeQuizResponses } from "@/lib/perplexity";
 
-// Enhanced quiz questions with more detailed options and difficulty levels for 10th grade
+// Import existing question sets from your current codebase
 const after10thQuestions: Question[] = [
   {
     id: 1,
@@ -626,7 +628,7 @@ const allCareers: Career[] = [
   }
 ];
 
-const QuizPage = () => {
+const PathCreatorPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedStage, setSelectedStage] = useState<Stage>(null);
@@ -634,6 +636,8 @@ const QuizPage = () => {
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [recommendedCareers, setRecommendedCareers] = useState<Career[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [quizSummary, setQuizSummary] = useState<{
     strengths: string[];
     weaknesses: string[];
@@ -643,6 +647,16 @@ const QuizPage = () => {
     nextSteps?: string[];
     emotionalGuidance?: string;
   } | null>(null);
+  
+  const [skillsData, setSkillsData] = useState<Record<string, number>>({});
+  const [careerMatchData, setCareerMatchData] = useState<Record<string, number>>({});
+  
+  // Set initial questions based on selected stage
+  useEffect(() => {
+    if (selectedStage) {
+      setQuestions(getQuestionsForStage());
+    }
+  }, [selectedStage]);
   
   const handleStageSelection = (stage: Stage) => {
     setSelectedStage(stage);
@@ -656,11 +670,11 @@ const QuizPage = () => {
   const getQuestionsForStage = (): Question[] => {
     switch (selectedStage) {
       case 'after10th':
-        return after10thQuestions;
+        return [...after10thQuestions];
       case 'after12th':
-        return after12thQuestions;
+        return [...after12thQuestions];
       case 'afterGraduation':
-        return afterGraduationQuestions;
+        return [...afterGraduationQuestions];
       default:
         return [];
     }
@@ -674,7 +688,6 @@ const QuizPage = () => {
   };
   
   const handleNextQuestion = () => {
-    const questions = getQuestionsForStage();
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
@@ -686,43 +699,106 @@ const QuizPage = () => {
     }
   };
   
-  const handleQuizComplete = () => {
-    // Generate enhanced skills and strengths summary with education stage
-    const summary = generateQuizSummary(answers, selectedStage);
-    setQuizSummary(summary);
+  const handleDynamicQuestionAdd = (newQuestion: Question) => {
+    setQuestions(prev => [...prev, newQuestion]);
+  };
+  
+  const handleQuizComplete = async () => {
+    setIsAnalyzing(true);
     
-    // Get matched careers with scores based on user's answers and education stage
-    const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
-    
-    // Ensure we always have at least 5 career matches
-    if (matchedCareers.length < 5) {
-      // Add more career options to reach minimum of 5
-      const additionalCareers = allCareers
-        .filter(c => !matchedCareers.some(mc => mc.id === c.id))
-        .slice(0, 5 - matchedCareers.length)
-        .map(career => ({
-          ...career,
-          matchScore: Math.floor(Math.random() * 10) + 20, // Random score between 20-30%
-          matchReasons: [
-            "This could be an alternative path based on your skills",
-            "Consider exploring this field as it aligns with some of your preferences"
-          ]
-        }));
+    try {
+      // Format questions and answers for analysis
+      const questionAnswerPairs = Object.entries(answers).map(([qId, answer]) => {
+        const question = questions.find(q => q.id === Number(qId));
+        return {
+          question: question?.question || "",
+          answer
+        };
+      });
       
-      // Combine and take top 5
-      const combinedCareers = [...matchedCareers, ...additionalCareers];
-      setRecommendedCareers(combinedCareers.slice(0, 5));
-    } else {
-      // Take top 5 matches
+      // Use Perplexity AI to analyze responses
+      const analysis = await analyzeQuizResponses(questionAnswerPairs, selectedStage || "unknown");
+      
+      // Update state with analysis results
+      setSkillsData(analysis.skillsAssessment);
+      setCareerMatchData(analysis.careerMatchScores);
+      
+      // Generate enhanced skills and strengths summary with education stage
+      const summary = generateQuizSummary(answers, selectedStage);
+      setQuizSummary({
+        ...summary,
+        strengths: analysis.strengths,
+        weaknesses: analysis.weaknesses,
+        recommendedPaths: analysis.recommendedPaths
+      });
+      
+      // Get matched careers with scores based on user's answers and education stage
+      const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
+      
+      // Ensure we always have at least 5 career matches
+      if (matchedCareers.length < 5) {
+        // Add more career options to reach minimum of 5
+        const additionalCareers = allCareers
+          .filter(c => !matchedCareers.some(mc => mc.id === c.id))
+          .slice(0, 5 - matchedCareers.length)
+          .map(career => ({
+            ...career,
+            matchScore: Math.floor(Math.random() * 10) + 20, // Random score between 20-30%
+            matchReasons: [
+              "This could be an alternative path based on your skills",
+              "Consider exploring this field as it aligns with some of your preferences"
+            ]
+          }));
+        
+        // Combine and take top 5
+        const combinedCareers = [...matchedCareers, ...additionalCareers];
+        setRecommendedCareers(combinedCareers.slice(0, 5));
+      } else {
+        // Take top 5 matches
+        setRecommendedCareers(matchedCareers.slice(0, 5));
+      }
+      
+      setQuizCompleted(true);
+      
+      toast({
+        title: "Path Created! 🎉",
+        description: "PathPilot AI has analyzed your responses and prepared personalized career recommendations.",
+      });
+    } catch (error) {
+      console.error("Error analyzing quiz results:", error);
+      
+      // Fallback to the original logic if AI analysis fails
+      const summary = generateQuizSummary(answers, selectedStage);
+      setQuizSummary(summary);
+      
+      const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
       setRecommendedCareers(matchedCareers.slice(0, 5));
+      
+      // Set default data for charts
+      setSkillsData({
+        analytical: 7, 
+        creative: 5, 
+        communication: 6, 
+        technical: 8
+      });
+      
+      setCareerMatchData({
+        "Software Engineering": 75,
+        "Data Science": 70,
+        "UX Design": 60,
+        "Business Analysis": 55,
+        "Marketing": 40
+      });
+      
+      setQuizCompleted(true);
+      
+      toast({
+        title: "Path Created!",
+        description: "Your results have been prepared based on your responses.",
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
-    
-    setQuizCompleted(true);
-    
-    toast({
-      title: "Quiz completed! 🎉",
-      description: "PathPilot AI has analyzed your responses and prepared personalized career recommendations.",
-    });
   };
   
   const handleViewCareers = () => {
@@ -765,16 +841,32 @@ const QuizPage = () => {
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {!selectedStage ? (
-            <StageSelector onSelectStage={handleStageSelection} />
+            <div className="py-10">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-8"
+              >
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                  Create Your Education &amp; Career Path
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                  Answer a series of personalized questions to discover your ideal education and career path. 
+                  Our AI will adapt questions based on your responses to create a truly personalized experience.
+                </p>
+              </motion.div>
+              <StageSelector onSelectStage={handleStageSelection} />
+            </div>
           ) : !quizCompleted ? (
-            <QuizQuestion 
-              questions={getQuestionsForStage()}
+            <PathCreator 
+              questions={questions}
               currentQuestionIndex={currentQuestionIndex}
               answers={answers}
               onAnswerSelected={handleAnswerSelected}
               onNextQuestion={handleNextQuestion}
               onPrevQuestion={handlePrevQuestion}
               onComplete={handleQuizComplete}
+              onDynamicQuestionAdd={handleDynamicQuestionAdd}
             />
           ) : (
             <div className="py-12">
@@ -784,7 +876,7 @@ const QuizPage = () => {
                 className="text-center mb-8"
               >
                 <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Your PathPilot AI Career Report
+                  Your Personalized Path Report
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                   Based on your unique responses, we've analyzed your strengths, interests, and 
@@ -792,214 +884,231 @@ const QuizPage = () => {
                 </p>
               </motion.div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1, transition: { delay: 0.3 } }}
+              <div className="grid grid-cols-1 gap-6 mb-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1, transition: { delay: 0.2 } }}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
                 >
-                  {quizSummary && quizSummary.personalityProfile && (
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-3 flex items-center">
-                        <User className="h-5 w-5 mr-2 text-pp-purple" />
-                        Your Personality Profile
-                      </h3>
-                      <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                        <p className="font-medium text-purple-800 dark:text-purple-200">
-                          {quizSummary.personalityProfile.type} Personality
-                        </p>
-                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                          <p className="mb-2"><span className="font-medium">Key Traits:</span> {quizSummary.personalityProfile.traits.join(", ")}</p>
-                          <p className="mb-2"><span className="font-medium">Learning Style:</span> {quizSummary.personalityProfile.learningStyle}</p>
-                          <p><span className="font-medium">Work Environment:</span> {quizSummary.personalityProfile.workEnvironmentPreference}</p>
+                  {/* Results Charts */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-4">Your Results Visualization</h3>
+                    <ResultCharts 
+                      skillsData={skillsData} 
+                      careerMatchData={careerMatchData} 
+                    />
+                  </div>
+                </motion.div>
+              
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1, transition: { delay: 0.3 } }}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                  >
+                    {quizSummary && quizSummary.personalityProfile && (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-3 flex items-center">
+                          <User className="h-5 w-5 mr-2 text-pp-purple" />
+                          Your Personality Profile
+                        </h3>
+                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                          <p className="font-medium text-purple-800 dark:text-purple-200">
+                            {quizSummary.personalityProfile.type} Personality
+                          </p>
+                          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                            <p className="mb-2"><span className="font-medium">Key Traits:</span> {quizSummary.personalityProfile.traits.join(", ")}</p>
+                            <p className="mb-2"><span className="font-medium">Learning Style:</span> {quizSummary.personalityProfile.learningStyle}</p>
+                            <p><span className="font-medium">Work Environment:</span> {quizSummary.personalityProfile.workEnvironmentPreference}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <StarHalf className="h-5 w-5 mr-2 text-pp-purple" />
-                    Your Strengths
-                  </h3>
-                  {quizSummary && (
-                    <ul className="space-y-2 mb-6">
-                      {quizSummary.strengths.map((strength, index) => (
-                        <motion.li 
-                          key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0, transition: { delay: 0.4 + index * 0.1 } }}
-                          className="flex items-center text-sm"
-                        >
-                          <div className="h-2 w-2 bg-pp-purple rounded-full mr-2"></div>
-                          {strength}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  )}
+                    )}
                   
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
-                    Growth Areas
-                  </h3>
-                  {quizSummary && quizSummary.weaknesses && (
-                    <ul className="space-y-2 mb-6">
-                      {quizSummary.weaknesses.map((weakness, index) => (
-                        <motion.li 
-                          key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0, transition: { delay: 0.5 + index * 0.1 } }}
-                          className="flex items-center text-sm"
-                        >
-                          <div className="h-2 w-2 bg-amber-400 rounded-full mr-2"></div>
-                          {weakness}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  )}
-                  
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <Book className="h-5 w-5 mr-2 text-pp-purple" />
-                    Recommended Career Paths
-                  </h3>
-                  {quizSummary && (
-                    <ul className="space-y-2 mb-6">
-                      {quizSummary.recommendedPaths.map((path, index) => (
-                        <motion.li 
-                          key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
-                          className="flex items-center text-sm"
-                        >
-                          <div className="h-2 w-2 bg-pp-saffron rounded-full mr-2"></div>
-                          {path}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  )}
-                  
-                  {/* Emotional guidance section */}
-                  {quizSummary && quizSummary.emotionalGuidance && (
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <h4 className="font-medium text-blue-800 dark:text-blue-200 flex items-center mb-2">
-                        <Heart className="h-4 w-4 mr-2" />
-                        Personalized Guidance
-                      </h4>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {quizSummary.emotionalGuidance}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Next steps based on education stage */}
-                  {quizSummary && quizSummary.nextSteps && (
-                    <>
-                      <h3 className="text-lg font-semibold mt-6 mb-4 flex items-center">
-                        <GraduationCap className="h-5 w-5 mr-2 text-pp-purple" />
-                        Practical Next Steps
-                      </h3>
-                      <ul className="space-y-2">
-                        {quizSummary.nextSteps.map((step, index) => (
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <StarHalf className="h-5 w-5 mr-2 text-pp-purple" />
+                      Your Strengths
+                    </h3>
+                    {quizSummary && (
+                      <ul className="space-y-2 mb-6">
+                        {quizSummary.strengths.map((strength, index) => (
                           <motion.li 
                             key={index}
                             initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0, transition: { delay: 0.8 + index * 0.1 } }}
+                            animate={{ opacity: 1, x: 0, transition: { delay: 0.4 + index * 0.1 } }}
                             className="flex items-center text-sm"
                           >
-                            <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
-                            {step}
+                            <div className="h-2 w-2 bg-pp-purple rounded-full mr-2"></div>
+                            {strength}
                           </motion.li>
                         ))}
                       </ul>
-                    </>
-                  )}
+                    )}
+                    
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
+                      Growth Areas
+                    </h3>
+                    {quizSummary && quizSummary.weaknesses && (
+                      <ul className="space-y-2 mb-6">
+                        {quizSummary.weaknesses.map((weakness, index) => (
+                          <motion.li 
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0, transition: { delay: 0.5 + index * 0.1 } }}
+                            className="flex items-center text-sm"
+                          >
+                            <div className="h-2 w-2 bg-amber-400 rounded-full mr-2"></div>
+                            {weakness}
+                          </motion.li>
+                        ))}
+                      </ul>
+                    )}
+                    
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <Book className="h-5 w-5 mr-2 text-pp-purple" />
+                      Recommended Career Paths
+                    </h3>
+                    {quizSummary && (
+                      <ul className="space-y-2 mb-6">
+                        {quizSummary.recommendedPaths.map((path, index) => (
+                          <motion.li 
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
+                            className="flex items-center text-sm"
+                          >
+                            <div className="h-2 w-2 bg-pp-saffron rounded-full mr-2"></div>
+                            {path}
+                          </motion.li>
+                        ))}
+                      </ul>
+                    )}
+                    
+                    {/* Emotional guidance section */}
+                    {quizSummary && quizSummary.emotionalGuidance && (
+                      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <h4 className="font-medium text-blue-800 dark:text-blue-200 flex items-center mb-2">
+                          <Heart className="h-4 w-4 mr-2" />
+                          Personalized Guidance
+                        </h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {quizSummary.emotionalGuidance}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Next steps based on education stage */}
+                    {quizSummary && quizSummary.nextSteps && (
+                      <>
+                        <h3 className="text-lg font-semibold mt-6 mb-4 flex items-center">
+                          <GraduationCap className="h-5 w-5 mr-2 text-pp-purple" />
+                          Practical Next Steps
+                        </h3>
+                        <ul className="space-y-2">
+                          {quizSummary.nextSteps.map((step, index) => (
+                            <motion.li 
+                              key={index}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0, transition: { delay: 0.8 + index * 0.1 } }}
+                              className="flex items-center text-sm"
+                            >
+                              <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
+                              {step}
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    
+                    {renderSkillsGraph()}
+                  </motion.div>
                   
-                  {renderSkillsGraph()}
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
-                >
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2 text-pp-purple" />
-                    Top Career Matches
-                  </h3>
-                  
-                  {selectedStage === 'after10th' && (
-                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-700 rounded-md">
-                      <p className="text-sm text-amber-800 dark:text-amber-200">
-                        These are career options you can aim for after completing the necessary education path. 
-                        First focus on choosing the right stream in 11th-12th that aligns with these careers.
-                      </p>
-                    </div>
-                  )}
-                  
-                  <ul className="space-y-4">
-                    {recommendedCareers.map((career, index) => (
-                      <motion.li 
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
-                        className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                  >
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <Briefcase className="h-5 w-5 mr-2 text-pp-purple" />
+                      Top Career Matches
+                    </h3>
+                    
+                    {selectedStage === 'after10th' && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-700 rounded-md">
+                        <p className="text-sm text-amber-800 dark:text-amber-200">
+                          These are career options you can aim for after completing the necessary education path. 
+                          First focus on choosing the right stream in 11th-12th that aligns with these careers.
+                        </p>
+                      </div>
+                    )}
+                    
+                    <ul className="space-y-4">
+                      {recommendedCareers.map((career, index) => (
+                        <motion.li 
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + index * 0.1 } }}
+                          className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-pp-purple dark:bg-pp-bright-purple text-white font-semibold text-sm mt-1">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
+                                <p className="font-medium text-sm md:text-base">{career.title}</p>
+                                <span className="bg-pp-purple/10 text-pp-purple dark:bg-pp-purple/20 px-2 py-0.5 rounded text-xs font-medium">
+                                  {career.matchScore}% Match
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{career.category}</p>
+                              
+                              <div className="flex items-center mt-1 mb-2">
+                                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                  <div 
+                                    className="bg-pp-bright-purple dark:bg-pp-saffron h-2 rounded-full"
+                                    style={{ width: `${career.matchScore || 0}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                              
+                              {/* Always include "Why this matches you:" after the 1st and 4th career */}
+                              {(index === 0 || index === 3) && (
+                                <div className="mt-2">
+                                  <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Why this matches you:</p>
+                                  <ul className="text-xs text-gray-500 dark:text-gray-400">
+                                    {(career as any).matchReasons ? (career as any).matchReasons.map((reason: string, i: number) => (
+                                      <li key={i} className="flex items-center mb-0.5">
+                                        <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
+                                        {reason}
+                                      </li>
+                                    )) : (
+                                      <li className="flex items-center mb-0.5">
+                                        <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
+                                        Aligns with your skills and preferences
+                                      </li>
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </motion.li>
+                      ))}
+                    </ul>
+                    
+                    <div className="mt-6">
+                      <Button 
+                        className="bg-pp-purple hover:bg-pp-bright-purple dark:bg-pp-saffron dark:hover:bg-amber-500 w-full flex items-center justify-center gap-2"
+                        onClick={handleViewCareers}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-pp-purple dark:bg-pp-bright-purple text-white font-semibold text-sm mt-1">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <p className="font-medium text-sm md:text-base">{career.title}</p>
-                              <span className="bg-pp-purple/10 text-pp-purple dark:bg-pp-purple/20 px-2 py-0.5 rounded text-xs font-medium">
-                                {career.matchScore}% Match
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{career.category}</p>
-                            
-                            <div className="flex items-center mt-1 mb-2">
-                              <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                                <div 
-                                  className="bg-pp-bright-purple dark:bg-pp-saffron h-2 rounded-full"
-                                  style={{ width: `${career.matchScore || 0}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            
-                            {/* Always include "Why this matches you:" after the 1st and 4th career */}
-                            {(index === 0 || index === 3) && (
-                              <div className="mt-2">
-                                <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Why this matches you:</p>
-                                <ul className="text-xs text-gray-500 dark:text-gray-400">
-                                  {(career as any).matchReasons ? (career as any).matchReasons.map((reason: string, i: number) => (
-                                    <li key={i} className="flex items-center mb-0.5">
-                                      <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
-                                      {reason}
-                                    </li>
-                                  )) : (
-                                    <li className="flex items-center mb-0.5">
-                                      <Lightbulb className="h-3 w-3 mr-1 text-amber-500" />
-                                      Aligns with your skills and preferences
-                                    </li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.li>
-                    ))}
-                  </ul>
-                  
-                  <div className="mt-6">
-                    <Button 
-                      className="bg-pp-purple hover:bg-pp-bright-purple dark:bg-pp-saffron dark:hover:bg-amber-500 w-full flex items-center justify-center gap-2"
-                      onClick={handleViewCareers}
-                    >
-                      <Compass className="h-4 w-4" />
-                      Explore These Careers In Library
-                    </Button>
-                  </div>
-                </motion.div>
+                        <Compass className="h-4 w-4" />
+                        Explore These Careers In Library
+                      </Button>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
               
               <div className="flex justify-center">
@@ -1007,7 +1116,7 @@ const QuizPage = () => {
                   variant="outline" 
                   onClick={() => setSelectedStage(null)}
                 >
-                  {t("takeAnotherQuiz")}
+                  {t("createAnotherPath")}
                 </Button>
               </div>
             </div>
@@ -1019,4 +1128,4 @@ const QuizPage = () => {
   );
 };
 
-export default QuizPage;
+export default PathCreatorPage;
