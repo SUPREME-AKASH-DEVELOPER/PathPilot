@@ -41,7 +41,7 @@ export async function queryPerplexityAI(
         messages: messages,
         temperature: 0.2,
         top_p: 0.9,
-        max_tokens: 1000,
+        max_tokens: 1500,
         return_images: false,
         return_related_questions: false,
         search_domain_filter: ['perplexity.ai'],
@@ -130,18 +130,30 @@ export async function analyzeQuizResponses(
   recommendedPaths: string[];
   skillsAssessment: Record<string, number>;
   careerMatchScores: Record<string, number>;
+  personalityProfile?: {
+    type: string;
+    traits: string[];
+    learningStyle: string;
+    workEnvironmentPreference: string;
+  };
 }> {
   try {
     const systemPrompt = `You are an AI education and career analyst. 
     Based on the provided quiz responses, generate a comprehensive analysis of the student's strengths, weaknesses, 
-    recommended career paths, a skills assessment with numerical scores (1-10), and career match scores (percentage).
+    recommended career paths, a skills assessment with numerical scores (1-10), career match scores (percentage), and a personality profile.
     Return only JSON in this exact format: 
     {
       "strengths": ["strength1", "strength2", "strength3"],
       "weaknesses": ["weakness1", "weakness2"],
       "recommendedPaths": ["career path1", "career path2", "career path3"],
       "skillsAssessment": {"analytical": 8, "creative": 6, "communication": 7, "technical": 9},
-      "careerMatchScores": {"Software Engineering": 85, "Data Science": 78, "UX Design": 65}
+      "careerMatchScores": {"Software Engineering": 85, "Data Science": 78, "UX Design": 65},
+      "personalityProfile": {
+        "type": "Analytical Problem-Solver",
+        "traits": ["detail-oriented", "logical", "innovative"],
+        "learningStyle": "Visual and hands-on learning",
+        "workEnvironmentPreference": "Structured environment with clear goals"
+      }
     }`;
     
     const userPrompt = `Education stage: ${educationStage}. Quiz Q&A: ${questions.map(q => `Q: ${q.question} A: ${q.answer}`).join('; ')}. Provide a detailed career analysis.`;
@@ -149,10 +161,23 @@ export async function analyzeQuizResponses(
     const result = await queryPerplexityAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
-    ]);
+    ], 'llama-3.1-sonar-large-128k-online'); // Using the large model for better analysis
     
     try {
-      return JSON.parse(result);
+      const analysis = JSON.parse(result);
+      return {
+        strengths: analysis.strengths || [],
+        weaknesses: analysis.weaknesses || [],
+        recommendedPaths: analysis.recommendedPaths || [],
+        skillsAssessment: analysis.skillsAssessment || {},
+        careerMatchScores: analysis.careerMatchScores || {},
+        personalityProfile: analysis.personalityProfile || {
+          type: "Balanced Learner",
+          traits: ["adaptable", "curious", "thoughtful"],
+          learningStyle: "Mixed learning style",
+          workEnvironmentPreference: "Flexible environment"
+        }
+      };
     } catch (e) {
       console.error("Failed to parse Perplexity analysis response:", e);
       return {
@@ -169,6 +194,12 @@ export async function analyzeQuizResponses(
           "Software Engineering": 75,
           "Data Science": 70,
           "UX Design": 60
+        },
+        personalityProfile: {
+          type: "Analytical Thinker",
+          traits: ["logical", "detail-oriented", "methodical"],
+          learningStyle: "Conceptual learning",
+          workEnvironmentPreference: "Structured environment with clear goals"
         }
       };
     }
@@ -188,7 +219,47 @@ export async function analyzeQuizResponses(
         "Software Engineering": 75,
         "Data Science": 70,
         "UX Design": 60
+      },
+      personalityProfile: {
+        type: "Analytical Thinker",
+        traits: ["logical", "detail-oriented", "methodical"],
+        learningStyle: "Conceptual learning",
+        workEnvironmentPreference: "Structured environment with clear goals"
       }
     };
+  }
+}
+
+// Function to discuss quiz results with AI
+export async function discussQuizResults(
+  quizResults: any,
+  userQuery: string
+): Promise<string> {
+  try {
+    const systemPrompt = `You are an AI career counselor who helps students understand their career assessment results.
+    You have access to their quiz results including strengths, weaknesses, recommended paths, skills assessment, and career matches.
+    Provide personalized, helpful advice based on their results and questions. Be encouraging, specific, and actionable in your guidance.`;
+    
+    const contextPrompt = `
+    User's Quiz Results:
+    - Education Stage: ${quizResults.educationStage || "Not specified"}
+    - Strengths: ${quizResults.strengths?.join(", ") || "Not available"}
+    - Areas for Growth: ${quizResults.weaknesses?.join(", ") || "Not available"}
+    - Recommended Paths: ${quizResults.recommendedPaths?.join(", ") || "Not available"}
+    - Top Career Matches: ${Object.entries(quizResults.careerMatchScores || {}).map(([career, score]) => `${career} (${score}%)`).join(", ") || "Not available"}
+    - Personality Profile: ${quizResults.personalityProfile?.type || "Not available"}
+    
+    User's Question: ${userQuery}
+    `;
+    
+    const result = await queryPerplexityAI([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: contextPrompt }
+    ]);
+    
+    return result;
+  } catch (error) {
+    console.error("Error discussing quiz results:", error);
+    return "I'm sorry, I'm having trouble analyzing your results right now. Please try again later.";
   }
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
 import PathCreator, { Question } from "@/components/quiz/QuizQuestion";
@@ -32,6 +31,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { analyzeQuizResponses } from "@/lib/perplexity";
+import { useQuizResults } from "@/hooks/use-quiz-results";
 
 // Import existing question sets from your current codebase
 const after10thQuestions: Question[] = [
@@ -631,7 +631,9 @@ const allCareers: Career[] = [
 
 const PathCreatorPage = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { saveQuizResult } = useQuizResults();
   const [selectedStage, setSelectedStage] = useState<Stage>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
@@ -729,12 +731,15 @@ const PathCreatorPage = () => {
       
       // Generate enhanced skills and strengths summary with education stage
       const summary = generateQuizSummary(answers, selectedStage);
-      setQuizSummary({
+      const enhancedSummary = {
         ...summary,
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
-        recommendedPaths: analysis.recommendedPaths
-      });
+        recommendedPaths: analysis.recommendedPaths,
+        personalityProfile: analysis.personalityProfile
+      };
+      
+      setQuizSummary(enhancedSummary);
       
       // Get matched careers with scores based on user's answers and education stage
       const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
@@ -760,6 +765,19 @@ const PathCreatorPage = () => {
       } else {
         // Take top 5 matches
         setRecommendedCareers(matchedCareers.slice(0, 5));
+      }
+      
+      // Save quiz results if user is logged in
+      if (user) {
+        saveQuizResult({
+          educationStage: selectedStage || "unknown",
+          strengths: analysis.strengths,
+          weaknesses: analysis.weaknesses,
+          recommendedPaths: analysis.recommendedPaths,
+          skillsAssessment: analysis.skillsAssessment,
+          careerMatchScores: analysis.careerMatchScores,
+          personalityProfile: analysis.personalityProfile
+        });
       }
       
       setQuizCompleted(true);
@@ -793,6 +811,29 @@ const PathCreatorPage = () => {
         "Business Analysis": 55,
         "Marketing": 40
       });
+      
+      // Save basic quiz results if user is logged in (even in error case)
+      if (user) {
+        saveQuizResult({
+          educationStage: selectedStage || "unknown",
+          strengths: summary.strengths,
+          weaknesses: summary.weaknesses || ["Could benefit from more practical experience"],
+          recommendedPaths: summary.recommendedPaths || ["Technology", "STEM fields"],
+          skillsAssessment: {
+            analytical: 7, 
+            creative: 5, 
+            communication: 6, 
+            technical: 8
+          },
+          careerMatchScores: {
+            "Software Engineering": 75,
+            "Data Science": 70,
+            "UX Design": 60,
+            "Business Analysis": 55,
+            "Marketing": 40
+          }
+        });
+      }
       
       setQuizCompleted(true);
       
@@ -969,7 +1010,7 @@ const PathCreatorPage = () => {
                       </ul>
                     )}
                     
-                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <h3 className="text-lg font-semibold mt-6 mb-4 flex items-center">
                       <Book className="h-5 w-5 mr-2 text-pp-purple" />
                       Recommended Career Paths
                     </h3>
