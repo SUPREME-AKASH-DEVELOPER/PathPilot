@@ -1,6 +1,6 @@
-
 // This is a browser-compatible implementation that mimics MongoDB functionality
 // In a real app, you would use an API endpoint or a backend service like Supabase
+import { ENV, isDev } from './env';
 
 // In-memory storage for users
 const users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -11,7 +11,13 @@ const saveUsers = () => {
 };
 
 export async function connectToMongoDB() {
-  console.log("Mock MongoDB connection established");
+  // Log a different message based on environment
+  if (isDev()) {
+    console.log("Mock MongoDB connection established (development mode)");
+  } else {
+    console.log(`Connecting to MongoDB at ${ENV.MONGODB_URI}/${ENV.MONGODB_DB_NAME}`);
+  }
+  
   return {
     collection: (name: string) => ({
       findOne: async (query: any) => {
