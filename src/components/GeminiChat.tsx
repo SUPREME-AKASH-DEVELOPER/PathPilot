@@ -5,17 +5,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { generateWithGemini } from "@/lib/gemini";
 import { Loader2, MessageCircle, Send } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const GeminiChat: React.FC = () => {
+  const { t, language } = useLanguage();
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'bot', text: string}>>([]);
 
-  // Add welcome message when component mounts
+  // Add welcome message when component mounts, and when language changes
   useEffect(() => {
-    const welcomeMessage = "Welcome to PathPilot AI Assistant! How can I help you today? Feel free to ask any questions about careers, education, or personal development.";
+    const welcomeMessage = language === 'english' 
+      ? "Welcome to PathPilot AI Assistant! How can I help you today? Feel free to ask any questions about careers, education, or personal development."
+      : "पाथपायलट AI सहायक में आपका स्वागत है! आज मैं आपकी कैसे मदद कर सकता हूँ? करियर, शिक्षा, या व्यक्तिगत विकास के बारे में कोई भी प्रश्न पूछने के लिए स्वतंत्र महसूस करें।";
+    
     setChatHistory([{type: 'bot', text: welcomeMessage}]);
-  }, []);
+  }, [language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,18 +37,26 @@ const GeminiChat: React.FC = () => {
       setChatHistory(prev => [...prev, {type: 'bot', text: result}]);
     } catch (error) {
       console.error("Error generating response:", error);
-      setChatHistory(prev => [...prev, {type: 'bot', text: "Sorry, I couldn't process your request. Please try again."}]);
+      const errorMessage = language === 'english'
+        ? "Sorry, I couldn't process your request. Please try again."
+        : "क्षमा करें, मैं आपके अनुरोध को प्रोसेस नहीं कर सका। कृपया पुनः प्रयास करें।";
+      setChatHistory(prev => [...prev, {type: 'bot', text: errorMessage}]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const placeholderText = language === 'english' ? "Ask me anything..." : "कुछ भी पूछें...";
+  const startConversationText = language === 'english' 
+    ? "Start a conversation with the AI assistant"
+    : "AI सहायक के साथ बातचीत शुरू करें";
 
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-lg border-pp-purple/20">
       <CardHeader className="bg-pp-purple/5 dark:bg-pp-bright-purple/10">
         <CardTitle className="flex items-center text-pp-purple dark:text-pp-bright-purple">
           <MessageCircle className="mr-2 h-5 w-5" />
-          PathPilot AI Assistant
+          {language === 'english' ? "PathPilot AI Assistant" : "पाथपायलट AI सहायक"}
         </CardTitle>
       </CardHeader>
       
@@ -51,7 +64,7 @@ const GeminiChat: React.FC = () => {
         {chatHistory.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <MessageCircle className="mx-auto h-12 w-12 mb-3 opacity-50" />
-            <p>Start a conversation with the AI assistant</p>
+            <p>{startConversationText}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -74,7 +87,7 @@ const GeminiChat: React.FC = () => {
       <CardFooter className="border-t p-4">
         <form onSubmit={handleSubmit} className="w-full flex gap-2">
           <Textarea
-            placeholder="Ask me anything..."
+            placeholder={placeholderText}
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             className="min-h-[50px] resize-none"

@@ -1,3 +1,4 @@
+
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 
@@ -67,6 +68,7 @@ export const translations = {
     
     // Home page
     "navigateWithClarity": "Navigate Your Path With Clarity & Confidence",
+    "yourFuture": "your Future",
     "helpingEveryIndian": "Helping every Indian student make informed career choices through personalized guidance, expert mentorship, and data-driven insights.",
     "takeCareerQuiz": "Take Career Quiz",
     "exploreCareers": "Explore Careers",
@@ -105,6 +107,27 @@ export const translations = {
     "hindiCareerInfo": "In today's digital age, many new career options are available for children. We provide information about these options in simple language.",
     "whatIsUiUx": "What is UI/UX Design?",
     "uiUxDescription": "UI/UX Design is a field where creativity and technology come together. Designers make websites and apps user-friendly and attractive.",
+    
+    // New HomePage Hero translations
+    "newWayToExplore": "A new way to explore careers",
+    "findYourPath": "Find your perfect path",
+    
+    // Quiz Questions - 10th
+    "whichSubjectAreas": "Which subject areas do you enjoy the most?",
+    "mathAndPhysics": "Mathematics and Physics",
+    "bioAndChem": "Biology and Chemistry",
+    "litAndLang": "Literature and Languages",
+    "compAndIT": "Computers and Information Technology",
+    "whatAreStrongestSkills": "What are your strongest skills?",
+    "problemSolving": "Problem-solving and logical thinking",
+    "memoryObs": "Memory and observation",
+    "commExpr": "Communication and expression",
+    "designCreativity": "Design and creativity",
+    "howSolveProblems": "How do you prefer to solve problems?",
+    "analyzingData": "By analyzing data and finding patterns",
+    "discussingOthers": "By discussing with others to find solutions",
+    "readingResearching": "By reading and researching for answers",
+    "tryingApproaches": "By trying different approaches until something works",
     
     // Career Library
     "careerLibraryTitle": "Career Library",
@@ -208,13 +231,14 @@ export const translations = {
     "thankYouQuiz": "प्रश्नोत्तरी पूरी करने के लिए धन्यवाद!",
     "basedOnResponses": "आपके जवाबों के आधार पर, यहां कुछ अनुशंसित मार्ग हैं:",
     "yourRecommendations": "आपकी अनुशंसाएँ",
-    "exploreCareersLibrary": "पुस्तकालय ���ें करियर का अन्वेषण करें",
+    "exploreCareersLibrary": "पुस्तकालय में करियर का अन्वेषण करें",
     "takeAnotherQuiz": "एक और प्रश्नोत्तरी लें",
     "yourStrengths": "आपकी ताकतें",
     "recommendedPaths": "अनुशंसित मार्ग",
     
     // Home page
-    "navigateWithClarity": "स्पष्टता और आत्मविश्वास के साथ अपना रास्ता नेविगेट करें",
+    "navigateWithClarity": "स्पष्टता और आत्मविश्वास के साथ अपना रास्ता चुनें",
+    "yourFuture": "अपना भविष्य",
     "helpingEveryIndian": "हर भारतीय छात्र को व्यक्तिगत मार्गदर्शन, विशेषज्ञ सलाह और डेटा-संचालित अंतर्दृष्टि के माध्यम से सूचित करियर विकल्प बनाने में मदद करना।",
     "takeCareerQuiz": "करियर प्रश्नोत्तरी लें",
     "exploreCareers": "करियर एक्सप्लोर करें",
@@ -237,7 +261,7 @@ export const translations = {
     "careerPaths": "करियर मार्ग",
     "satisfactionRate": "संतुष्टि दर",
     "expertMentors": "विशेषज्ञ सलाहकार",
-    "readyToDiscover": "अपना स��ी करियर पथ खोजने के लिए तैयार हैं?",
+    "readyToDiscover": "अपना सही करियर पथ खोजने के लिए तैयार हैं?",
     "takePersonalizedQuiz": "हमारी व्यक्तिगत प्रश्नोत्तरी लें और विशेष रूप से आपके लिए तैयार AI-संचालित सिफारिशें प्राप्त करें।",
     "startYourCareerQuiz": "अपनी करियर प्रश्नोत्तरी शुरू करें",
     "browseCareerLibrary": "करियर पुस्तकालय ब्राउज़ करें",
@@ -252,10 +276,31 @@ export const translations = {
     "learnMore": "और जानें",
     "hindiCareerInfo": "आज के डिजिटल युग में, बच्चों के लिए कई नए करियर विकल्प उपलब्ध हैं। हम आपको इन विकल्पों के बारे में सरल भाषा में जानकारी प्रदान करते हैं।",
     "whatIsUiUx": "UI/UX डिज़ाइन क्या है?",
-    "uiUxDescription": "UI/UX डिज़ाइन एक ऐसा क्षेत्र है जहां कलात्मकता और तकनीक एक साथ आते हैं। डिज़ाइनर वेबसा���ट और ऐप्स को उपयोगकर्ता के लिए सुविधाजनक और आकर्षक बनाते हैं।",
+    "uiUxDescription": "UI/UX डिज़ाइन एक ऐसा क्षेत्र है जहां कलात्मकता और तकनीक एक साथ आते हैं। डिज़ाइनर वेबसाइट और ऐप्स को उपयोगकर्ता के लिए सुविधाजनक और आकर्षक बनाते हैं।",
+    
+    // New HomePage Hero translations
+    "newWayToExplore": "करियर का पता लगाने का एक नया तरीका",
+    "findYourPath": "अपना परफेक्ट पथ खोजें",
+    
+    // Quiz Questions - 10th
+    "whichSubjectAreas": "आपको किन विषय क्षेत्रों में सबसे अधिक आनंद मिलता है?",
+    "mathAndPhysics": "गणित और भौतिकी",
+    "bioAndChem": "जीव विज्ञान और रसायन विज्ञान",
+    "litAndLang": "साहित्य और भाषाएँ",
+    "compAndIT": "कंप्यूटर और सूचना प्रौद्योगिकी",
+    "whatAreStrongestSkills": "आपके सबसे मजबूत कौशल क्या हैं?",
+    "problemSolving": "समस्या समाधान और तार्किक सोच",
+    "memoryObs": "याददाश्त और अवलोकन",
+    "commExpr": "संचार और अभिव्यक्ति",
+    "designCreativity": "डिज़ाइन और रचनात्मकता",
+    "howSolveProblems": "आप समस्याओं को हल करने के लिए किस तरह से पसंद करते हैं?",
+    "analyzingData": "डेटा का विश्लेषण करके और पैटर्न खोजकर",
+    "discussingOthers": "दूसरों के साथ चर्चा करके समाधान खोजना",
+    "readingResearching": "पढ़कर और शोध करके उत्तर खोजना",
+    "tryingApproaches": "अलग-अलग तरीकों को आजमाकर जब तक कुछ काम न करे",
     
     // Career Library
-    "careerLibraryTitle": "करियर ���ुस्तकालय",
+    "careerLibraryTitle": "करियर पुस्तकालय",
     "exploreCareerPaths": "करियर पथ का अन्वेषण करें",
     "discoverOpportunities": "विभिन्न डोमेन में अवसरों की खोज करें",
     "filterBy": "फ़िल्टर करें",
@@ -270,7 +315,7 @@ export const translations = {
     "tryAdjusting": "अपनी खोज या फ़िल्टर समायोजित करें",
     "avgSalary": "औसत वेतन",
     "reqQualification": "आवश्यक योग्यता",
-    "viewAllDetails": "���भी विवरण देखें",
+    "viewAllDetails": "सभी विवरण देखें",
     
     // Mentors
     "mentorsPageTitle": "सलाहकारों से जुड़ें",

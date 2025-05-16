@@ -130,6 +130,53 @@ export default function QuizQuestion({
     return category.charAt(0).toUpperCase() + category.slice(1);
   };
 
+  // Translate question text
+  const getTranslatedQuestion = (question: string) => {
+    // Try to get the translation for this specific question
+    // We'll use some key matching for common questions
+    if (question.includes("subject areas")) {
+      return t("whichSubjectAreas");
+    } else if (question.includes("strongest skills")) {
+      return t("whatAreStrongestSkills");
+    } else if (question.includes("solve problems")) {
+      return t("howSolveProblems");
+    }
+    // If no specific translation, return the original question
+    return question;
+  };
+
+  // Translate option text
+  const getTranslatedOption = (option: string) => {
+    // Match options to their translation keys
+    if (option.includes("Mathematics and Physics")) {
+      return t("mathAndPhysics");
+    } else if (option.includes("Biology and Chemistry")) {
+      return t("bioAndChem");
+    } else if (option.includes("Literature and Languages")) {
+      return t("litAndLang");
+    } else if (option.includes("Computers and Information Technology")) {
+      return t("compAndIT");
+    } else if (option.includes("Problem-solving and logical thinking")) {
+      return t("problemSolving");
+    } else if (option.includes("Memory and observation")) {
+      return t("memoryObs");
+    } else if (option.includes("Communication and expression")) {
+      return t("commExpr");
+    } else if (option.includes("Design and creativity")) {
+      return t("designCreativity");
+    } else if (option.includes("By analyzing data")) {
+      return t("analyzingData");
+    } else if (option.includes("By discussing with others")) {
+      return t("discussingOthers");
+    } else if (option.includes("By reading and researching")) {
+      return t("readingResearching");
+    } else if (option.includes("By trying different approaches")) {
+      return t("tryingApproaches");
+    }
+    // If no specific translation, return the original option
+    return option;
+  };
+
   return (
     <div className="py-10 max-w-3xl mx-auto">
       <ProgressBar progress={progress} />
@@ -178,7 +225,9 @@ export default function QuizQuestion({
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-start mb-6">
-          <h2 className="text-xl md:text-2xl font-bold">{currentQuestion.question}</h2>
+          <h2 className="text-xl md:text-2xl font-bold">
+            {getTranslatedQuestion(currentQuestion.question)}
+          </h2>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -220,7 +269,9 @@ export default function QuizQuestion({
                     >
                       {selectedOption === option && "✓"}
                     </div>
-                    <div className="text-sm md:text-base">{option}</div>
+                    <div className="text-sm md:text-base">
+                      {getTranslatedOption(option)}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
