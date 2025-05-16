@@ -13,6 +13,7 @@ export const translations = {
     "careers": "Careers",
     "library": "Library",
     "mentors": "Mentors",
+    "chat": "Chat",
     "getStarted": "Get Started",
     
     // Actions
@@ -183,6 +184,7 @@ export const translations = {
     "careers": "करियर",
     "library": "पुस्तकालय",
     "mentors": "सलाहकार",
+    "chat": "चैट",
     "getStarted": "शुरू करें",
     
     // Actions
