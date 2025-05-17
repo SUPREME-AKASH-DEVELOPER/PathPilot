@@ -235,9 +235,8 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     technical: 0,
     communication: 0,
     leadership: 0,
-    // Using the correct property name based on the SkillAssessment type
-    // (removed problemSolving as it doesn't exist in SkillAssessment)
-    teamwork: 0,
+    // Using the correct property names based on the SkillAssessment type
+    // Removed 'teamwork' as it's not part of SkillAssessment type
     adaptability: 0,
     timeManagement: 0
   };
@@ -272,9 +271,9 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "technical": "technical",
     "communication": "communication",
     "leadership": "leadership",
-    "problem-solving": "teamwork", // Changed from problemSolving to teamwork or another valid property
-    "problemsolving": "teamwork",  // Changed from problemSolving to teamwork or another valid property
-    "teamwork": "teamwork",
+    "problem-solving": "adaptability", // Changed from teamwork to adaptability
+    "problemsolving": "adaptability",  // Changed from teamwork to adaptability
+    "teamwork": "leadership",  // Map teamwork to leadership since teamwork isn't in SkillAssessment
     "adaptability": "adaptability",
     "time-management": "timeManagement",
     "timemanagement": "timeManagement",
@@ -291,10 +290,10 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "writing": "communication",
     "management": "leadership",
     "leading": "leadership",
-    "problem": "adaptability", // Changed to a valid property
-    "solutions": "adaptability", // Changed to a valid property
-    "collaboration": "teamwork",
-    "cooperative": "teamwork",
+    "problem": "analytical", // Changed to analytical
+    "solutions": "analytical", // Changed to analytical
+    "collaboration": "leadership", // Map collaboration to leadership
+    "cooperative": "leadership", // Map cooperative to leadership
     "flexibility": "adaptability",
     "versatile": "adaptability",
     "planning": "timeManagement",

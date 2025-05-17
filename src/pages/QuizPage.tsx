@@ -784,7 +784,7 @@ const PathCreatorPage = () => {
           strengths: analysis.strengths,
           weaknesses: analysis.weaknesses,
           recommendedPaths: analysis.recommendedPaths,
-          skills: enhancedSkills, // Use the properly typed skills assessment result
+          skills: enhancedSkills, // Use the properly typed skills assessment
           personalityProfile: {
             type: mappedType,
             traits: analysis.personalityProfile?.traits || [],
@@ -888,8 +888,7 @@ const PathCreatorPage = () => {
         communication: 6, 
         technical: 8,
         leadership: 4,
-        teamwork: 7,  // Changed from problemSolving to teamwork (valid property)
-        adaptability: 6,
+        adaptability: 6,  // Changed from teamwork to adaptability (valid property)
         timeManagement: 5
       };
       
