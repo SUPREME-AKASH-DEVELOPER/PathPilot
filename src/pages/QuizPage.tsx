@@ -738,13 +738,13 @@ const PathCreatorPage = () => {
           analysis.skillsAssessment
         );
         
-        const enhancedSkillsAssessment = await enhanceSkillsAssessment(
+        const skillsAssessmentResult = await enhanceSkillsAssessment(
           analysis.skillsAssessment,
           selectedStage || "unknown"
         );
         
         // Update state with enhanced analysis results
-        setSkillsData(enhancedSkillsAssessment);
+        setSkillsData(skillsAssessmentResult);
         setCareerMatchData(enhancedCareerMatchScores);
         setIsUsingML(true);
         
@@ -798,7 +798,7 @@ const PathCreatorPage = () => {
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
         recommendedPaths: analysis.recommendedPaths,
-        skills: isUsingML ? enhancedSkillsAssessment : analysis.skillsAssessment,
+        skills: skillsAssessmentResult, // Use the properly typed skills assessment result
         personalityProfile: {
           type: mappedType,
           traits: analysis.personalityProfile?.traits || [],
@@ -853,7 +853,7 @@ const PathCreatorPage = () => {
           strengths: analysis.strengths,
           weaknesses: analysis.weaknesses,
           recommendedPaths: analysis.recommendedPaths,
-          skillsAssessment: isUsingML ? enhancedSkillsAssessment : analysis.skillsAssessment,
+          skillsAssessment: skillsAssessmentResult, // Use the properly typed skills assessment
           careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
           personalityProfile: {
             type: mappedType,

@@ -180,7 +180,7 @@ export async function enhanceCareerMatchScores(
 
 /**
  * Enhance skills assessment using machine learning data
- * Converted to ensure it returns a proper SkillAssessment type
+ * This function ensures it returns a proper SkillAssessment type
  */
 export async function enhanceSkillsAssessment(
   aiSkills: Record<string, number>,
@@ -235,7 +235,7 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     technical: 0,
     communication: 0,
     leadership: 0,
-    problemSolving: 0,
+    problemSolving: 0,  // Match the exact property name in SkillAssessment
     teamwork: 0,
     adaptability: 0,
     timeManagement: 0
