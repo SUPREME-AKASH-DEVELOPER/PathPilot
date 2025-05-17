@@ -1,5 +1,6 @@
 
 import { toast } from "@/components/ui/use-toast";
+import { SkillAssessment } from "@/utils/quizMatchUtils";
 
 // Define types for the path planning data
 interface PathData {
@@ -179,14 +180,15 @@ export async function enhanceCareerMatchScores(
 
 /**
  * Enhance skills assessment using machine learning data
+ * Converted to ensure it returns a proper SkillAssessment type
  */
 export async function enhanceSkillsAssessment(
   aiSkills: Record<string, number>,
   educationStage: string
-): Promise<Record<string, number>> {
+): Promise<SkillAssessment> {
   const mlData = await fetchPathPlanningData();
   if (!mlData) {
-    return aiSkills; // Return original data if ML data is unavailable
+    return convertToSkillAssessment(aiSkills); // Return original data if ML data is unavailable
   }
   
   // Use ML data to identify any potential skill gaps
@@ -218,5 +220,89 @@ export async function enhanceSkillsAssessment(
     });
   }
   
-  return enhancedSkills;
+  // Convert the enhanced skills to the proper SkillAssessment type
+  return convertToSkillAssessment(enhancedSkills);
+}
+
+/**
+ * Helper function to convert a Record<string, number> to a SkillAssessment type
+ */
+function convertToSkillAssessment(skills: Record<string, number>): SkillAssessment {
+  // Create a default SkillAssessment with all fields set to 0
+  const defaultSkills: SkillAssessment = {
+    analytical: 0,
+    creative: 0,
+    technical: 0,
+    communication: 0,
+    leadership: 0,
+    problemSolving: 0,
+    teamwork: 0,
+    adaptability: 0,
+    timeManagement: 0
+  };
+  
+  // Update the default assessment with values from the input skills
+  Object.entries(skills).forEach(([key, value]) => {
+    // Check if the key is a valid skill in SkillAssessment
+    if (key in defaultSkills) {
+      // Use type assertion to safely set the property
+      (defaultSkills as any)[key] = value;
+    } else {
+      // For skills that don't match the exact names in SkillAssessment,
+      // try to map them to the closest match
+      const mappedKey = mapSkillToAssessmentKey(key);
+      if (mappedKey && mappedKey in defaultSkills) {
+        (defaultSkills as any)[mappedKey] = value;
+      }
+    }
+  });
+  
+  return defaultSkills;
+}
+
+/**
+ * Map various skill names to standardized SkillAssessment keys
+ */
+function mapSkillToAssessmentKey(skill: string): string | null {
+  const skillMap: Record<string, string> = {
+    // Direct mappings
+    "analytical": "analytical",
+    "creative": "creative",
+    "technical": "technical",
+    "communication": "communication",
+    "leadership": "leadership",
+    "problem-solving": "problemSolving",
+    "problemsolving": "problemSolving",
+    "teamwork": "teamwork",
+    "adaptability": "adaptability",
+    "time-management": "timeManagement",
+    "timemanagement": "timeManagement",
+    
+    // Synonyms and related terms
+    "analysis": "analytical",
+    "logical": "analytical",
+    "creativity": "creative",
+    "innovation": "creative",
+    "tech": "technical",
+    "programming": "technical",
+    "coding": "technical",
+    "speaking": "communication",
+    "writing": "communication",
+    "management": "leadership",
+    "leading": "leadership",
+    "problem": "problemSolving",
+    "solutions": "problemSolving",
+    "collaboration": "teamwork",
+    "cooperative": "teamwork",
+    "flexibility": "adaptability",
+    "versatile": "adaptability",
+    "planning": "timeManagement",
+    "organization": "timeManagement"
+  };
+  
+  // Convert to lowercase for case-insensitive matching
+  const normalizedSkill = skill.toLowerCase();
+  
+  // Return the mapped key or null if no mapping exists
+  return skillMap[normalizedSkill] || null;
 }

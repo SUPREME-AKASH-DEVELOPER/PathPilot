@@ -798,7 +798,7 @@ const PathCreatorPage = () => {
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
         recommendedPaths: analysis.recommendedPaths,
-        skills: isUsingML ? skillsData : analysis.skillsAssessment,
+        skills: isUsingML ? enhancedSkillsAssessment : analysis.skillsAssessment,
         personalityProfile: {
           type: mappedType,
           traits: analysis.personalityProfile?.traits || [],
@@ -853,7 +853,7 @@ const PathCreatorPage = () => {
           strengths: analysis.strengths,
           weaknesses: analysis.weaknesses,
           recommendedPaths: analysis.recommendedPaths,
-          skillsAssessment: isUsingML ? skillsData : analysis.skillsAssessment,
+          skillsAssessment: isUsingML ? enhancedSkillsAssessment : analysis.skillsAssessment,
           careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
           personalityProfile: {
             type: mappedType,
@@ -882,12 +882,19 @@ const PathCreatorPage = () => {
       setRecommendedCareers(matchedCareers.slice(0, 5));
       
       // Set default data for charts
-      setSkillsData({
+      const defaultSkills: SkillAssessment = {
         analytical: 7, 
         creative: 5, 
         communication: 6, 
-        technical: 8
-      });
+        technical: 8,
+        leadership: 4,
+        problemSolving: 7,
+        teamwork: 5,
+        adaptability: 6,
+        timeManagement: 5
+      };
+      
+      setSkillsData(defaultSkills);
       
       setCareerMatchData({
         "Software Engineering": 75,
@@ -904,12 +911,7 @@ const PathCreatorPage = () => {
           strengths: summary.strengths,
           weaknesses: summary.weaknesses || ["Could benefit from more practical experience"],
           recommendedPaths: summary.recommendedPaths || ["Technology", "STEM fields"],
-          skillsAssessment: {
-            analytical: 7, 
-            creative: 5, 
-            communication: 6, 
-            technical: 8
-          },
+          skillsAssessment: defaultSkills,
           careerMatchScores: {
             "Software Engineering": 75,
             "Data Science": 70,
