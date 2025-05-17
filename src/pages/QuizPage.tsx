@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext"; // Added missing import
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   QuizAnswers, 
   getMatchedCareers, 
@@ -34,6 +34,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { analyzeQuizResponses } from "@/lib/perplexity";
 import { useQuizResults } from "@/hooks/use-quiz-results";
+import { enhanceCareerMatchScores, enhanceSkillsAssessment } from "@/utils/mlPathAnalysis";
 
 // Import existing question sets from your current codebase
 const after10thQuestions: Question[] = [
@@ -656,6 +657,7 @@ const PathCreatorPage = () => {
   const [skillsData, setSkillsData] = useState<Record<string, number>>({});
   const [careerMatchData, setCareerMatchData] = useState<Record<string, number>>({});
   const [topCareerMatch, setTopCareerMatch] = useState<string>("");
+  const [isUsingML, setIsUsingML] = useState(false);
   
   // Set initial questions based on selected stage
   useEffect(() => {
@@ -728,21 +730,49 @@ const PathCreatorPage = () => {
       // Use Perplexity AI to analyze responses
       const analysis = await analyzeQuizResponses(questionAnswerPairs, selectedStage || "unknown");
       
-      // Update state with analysis results
-      setSkillsData(analysis.skillsAssessment);
-      setCareerMatchData(analysis.careerMatchScores);
-      
-      // Find top career match
-      const topMatch = Object.entries(analysis.careerMatchScores)
-        .sort(([, a], [, b]) => b - a)[0];
-      if (topMatch) {
-        setTopCareerMatch(topMatch[0]);
+      // Apply ML enhancement to the AI analysis
+      try {
+        const enhancedCareerMatchScores = await enhanceCareerMatchScores(
+          analysis.careerMatchScores, 
+          selectedStage || "unknown",
+          analysis.skillsAssessment
+        );
+        
+        const enhancedSkillsAssessment = await enhanceSkillsAssessment(
+          analysis.skillsAssessment,
+          selectedStage || "unknown"
+        );
+        
+        // Update state with enhanced analysis results
+        setSkillsData(enhancedSkillsAssessment);
+        setCareerMatchData(enhancedCareerMatchScores);
+        setIsUsingML(true);
+        
+        // Find top career match from enhanced data
+        const topMatch = Object.entries(enhancedCareerMatchScores)
+          .sort(([, a], [, b]) => b - a)[0];
+        if (topMatch) {
+          setTopCareerMatch(topMatch[0]);
+        }
+      } catch (mlError) {
+        console.error("Error enhancing with ML:", mlError);
+        
+        // Fallback to AI-only analysis
+        setSkillsData(analysis.skillsAssessment);
+        setCareerMatchData(analysis.careerMatchScores);
+        
+        // Find top career match from AI data
+        const topMatch = Object.entries(analysis.careerMatchScores)
+          .sort(([, a], [, b]) => b - a)[0];
+        if (topMatch) {
+          setTopCareerMatch(topMatch[0]);
+        }
       }
       
       // Generate enhanced skills and strengths summary with education stage
       const summary = generateQuizSummary(answers, selectedStage);
       
-      // Ensure the personalityProfile.type matches the expected union type from PersonalityProfile
+      // Ensure the personalityProfile.type matches the expected union type
       let personalityType = analysis.personalityProfile?.type || "";
       
       // Map the string to one of the allowed values in PersonalityProfile
@@ -765,22 +795,33 @@ const PathCreatorPage = () => {
       
       // Create the enhanced summary with the properly typed personality profile
       const enhancedSummary = {
-        ...summary,
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
         recommendedPaths: analysis.recommendedPaths,
+        skills: isUsingML ? skillsData : analysis.skillsAssessment,
         personalityProfile: {
           type: mappedType,
           traits: analysis.personalityProfile?.traits || [],
           learningStyle: analysis.personalityProfile?.learningStyle || "",
           workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
-        }
+        },
+        nextSteps: summary.nextSteps,
+        emotionalGuidance: summary.emotionalGuidance
       };
       
       setQuizSummary(enhancedSummary);
       
       // Get matched careers with scores based on user's answers and education stage
-      const matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
+      let matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
+      
+      // If we have ML-enhanced career matches, update the matched careers with ML insights
+      if (isUsingML) {
+        // Adjust match scores based on ML-enhanced career match data
+        matchedCareers = matchedCareers.map(career => ({
+          ...career,
+          matchScore: careerMatchData[career.title] || career.matchScore
+        })).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+      }
       
       // Ensure we always have at least 5 career matches
       if (matchedCareers.length < 5) {
@@ -812,17 +853,23 @@ const PathCreatorPage = () => {
           strengths: analysis.strengths,
           weaknesses: analysis.weaknesses,
           recommendedPaths: analysis.recommendedPaths,
-          skillsAssessment: analysis.skillsAssessment,
-          careerMatchScores: analysis.careerMatchScores,
-          personalityProfile: analysis.personalityProfile
+          skillsAssessment: isUsingML ? skillsData : analysis.skillsAssessment,
+          careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
+          personalityProfile: {
+            type: mappedType,
+            traits: analysis.personalityProfile?.traits || [],
+            learningStyle: analysis.personalityProfile?.learningStyle || "",
+            workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
+          }
         });
       }
       
       setQuizCompleted(true);
       
+      let aiType = isUsingML ? "AI+ML-powered" : "AI-powered";
       toast({
         title: "Path Created! 🎉",
-        description: "PathPilot AI has analyzed your responses and prepared personalized career recommendations.",
+        description: `PathPilot ${aiType} analysis has prepared personalized career recommendations for you.`,
       });
     } catch (error) {
       console.error("Error analyzing quiz results:", error);

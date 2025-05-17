@@ -1,10 +1,13 @@
 
 import { useState } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, Legend } from 'recharts';
+import { 
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, 
+  Tooltip, Cell, Legend 
+} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChartPie, BarChart3, LineChart, ChartBar } from "lucide-react";
+import { BarChart3, ChartBar, LineChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ResultChartsProps {
