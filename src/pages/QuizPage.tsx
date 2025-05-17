@@ -654,7 +654,7 @@ const PathCreatorPage = () => {
     emotionalGuidance?: string;
   } | null>(null);
   
-  const [skillsData, setSkillsData] = useState<Record<string, number>>({});
+  const [skillsData, setSkillsData] = useState<SkillAssessment>({} as SkillAssessment);
   const [careerMatchData, setCareerMatchData] = useState<Record<string, number>>({});
   const [topCareerMatch, setTopCareerMatch] = useState<string>("");
   const [isUsingML, setIsUsingML] = useState(false);
@@ -738,13 +738,13 @@ const PathCreatorPage = () => {
           analysis.skillsAssessment
         );
         
-        const skillsAssessmentResult = await enhanceSkillsAssessment(
+        const enhancedSkills = await enhanceSkillsAssessment(
           analysis.skillsAssessment,
           selectedStage || "unknown"
         );
         
         // Update state with enhanced analysis results
-        setSkillsData(skillsAssessmentResult);
+        setSkillsData(enhancedSkills);
         setCareerMatchData(enhancedCareerMatchScores);
         setIsUsingML(true);
         
@@ -798,7 +798,7 @@ const PathCreatorPage = () => {
         strengths: analysis.strengths,
         weaknesses: analysis.weaknesses,
         recommendedPaths: analysis.recommendedPaths,
-        skills: skillsAssessmentResult, // Use the properly typed skills assessment result
+        skills: enhancedSkills, // Use the properly typed skills assessment result
         personalityProfile: {
           type: mappedType,
           traits: analysis.personalityProfile?.traits || [],
@@ -853,7 +853,7 @@ const PathCreatorPage = () => {
           strengths: analysis.strengths,
           weaknesses: analysis.weaknesses,
           recommendedPaths: analysis.recommendedPaths,
-          skillsAssessment: skillsAssessmentResult, // Use the properly typed skills assessment
+          skillsAssessment: enhancedSkills, // Use the properly typed skills assessment
           careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
           personalityProfile: {
             type: mappedType,

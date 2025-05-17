@@ -235,7 +235,7 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     technical: 0,
     communication: 0,
     leadership: 0,
-    problemSolving: 0,  // Match the exact property name in SkillAssessment
+    problemSolving: 0,  // Assuming this is the correct property name in SkillAssessment
     teamwork: 0,
     adaptability: 0,
     timeManagement: 0
