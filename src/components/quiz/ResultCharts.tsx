@@ -73,16 +73,16 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
                 <CardTitle>Skills Assessment</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={350}>
                   <BarChart 
                     data={skillsChartData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
                   >
                     <XAxis type="number" domain={[0, 10]} />
-                    <YAxis dataKey="name" type="category" width={100} />
+                    <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
                     <Tooltip formatter={(value) => [`Score: ${value}`, '']} />
-                    <Bar dataKey="value" fill="#8884d8">
+                    <Bar dataKey="value" fill="#8884d8" barSize={20}>
                       {skillsChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -97,16 +97,16 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
                 <CardTitle>Career Match Scores</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={350}>
                   <BarChart 
                     data={careerMatchChartData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+                    margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
                   >
                     <XAxis type="number" domain={[0, 100]} />
-                    <YAxis dataKey="name" type="category" width={120} />
+                    <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
                     <Tooltip formatter={(value) => [`${value}%`, '']} />
-                    <Bar dataKey="value" fill="#82ca9d">
+                    <Bar dataKey="value" fill="#82ca9d" barSize={20}>
                       {careerMatchChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}

@@ -127,6 +127,7 @@ export default function MentorsPage() {
       price: "₹1200/session",
       availability: "Flexible",
       image: "/placeholder.svg",
+      location: "Pune, India",
       category: "Creative"
     },
     {
@@ -179,6 +180,7 @@ export default function MentorsPage() {
       availability: "Saturday",
       image: "/placeholder.svg",
       email: "rohan.shah@example.com",
+      location: "Bangalore, India",
       category: "Technical"
     },
     {
@@ -194,6 +196,7 @@ export default function MentorsPage() {
       price: "₹1700/session",
       availability: "Evenings & Weekends",
       image: "/placeholder.svg",
+      location: "Pune, India",
       category: "Technical"
     },
     // Sports & Outdoors
@@ -210,6 +213,7 @@ export default function MentorsPage() {
       price: "₹1600/session",
       availability: "Weekends",
       image: "/placeholder.svg",
+      location: "Delhi, India",
       category: "Sports"
     },
     {
@@ -225,6 +229,7 @@ export default function MentorsPage() {
       price: "₹1900/session",
       availability: "Seasonal",
       image: "/placeholder.svg",
+      location: "Shimla, India",
       category: "Sports"
     },
     // Government & Public Service
@@ -241,6 +246,7 @@ export default function MentorsPage() {
       price: "₹1500/session",
       availability: "Sat-Sun",
       image: "/placeholder.svg",
+      location: "Delhi, India",
       category: "Government"
     },
     // Medical & Healthcare
@@ -257,6 +263,7 @@ export default function MentorsPage() {
       price: "₹1800/session",
       availability: "Weekends",
       image: "/placeholder.svg",
+      location: "Delhi, India",
       category: "Medical"
     },
     // Social Impact & Community
@@ -273,6 +280,7 @@ export default function MentorsPage() {
       price: "₹1100/session",
       availability: "Flexible",
       image: "/placeholder.svg",
+      location: "Chennai, India",
       category: "Social Impact"
     },
     {
@@ -288,12 +296,13 @@ export default function MentorsPage() {
       price: "₹2000/session",
       availability: "Evenings",
       image: "/placeholder.svg",
+      location: "Gurgaon, India",
       category: "Business"
     },
     // Other Interesting Options
     {
       id: "15",
-      name: "Nina Reddy",
+      name: "Naina Reddy",
       title: "Wedding & Event Planner",
       organization: "Elegant Affairs",
       expertise: ["Event Planning", "Wedding Management", "Client Relations"],
@@ -304,6 +313,7 @@ export default function MentorsPage() {
       price: "₹1600/session",
       availability: "Weekdays",
       image: "/placeholder.svg",
+      location: "Mumbai, India",
       category: "Other"
     },
     {
@@ -319,6 +329,7 @@ export default function MentorsPage() {
       price: "₹1400/session",
       availability: "By Appointment",
       image: "/placeholder.svg",
+      location: "Kolkata, India",
       category: "Other"
     }
   ];
