@@ -72,15 +72,21 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Skills Assessment</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={350}>
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart 
                     data={skillsChartData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                    margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
                   >
                     <XAxis type="number" domain={[0, 10]} />
-                    <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={80} 
+                      tick={{ fontSize: 12 }} 
+                      tickFormatter={(value) => value.replace('_', ' ')}
+                    />
                     <Tooltip formatter={(value) => [`Score: ${value}`, '']} />
                     <Bar dataKey="value" fill="#8884d8" barSize={20}>
                       {skillsChartData.map((entry, index) => (
@@ -96,15 +102,20 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Career Match Scores</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={350}>
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart 
                     data={careerMatchChartData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                    margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
                   >
                     <XAxis type="number" domain={[0, 100]} />
-                    <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={80} 
+                      tick={{ fontSize: 12 }}
+                    />
                     <Tooltip formatter={(value) => [`${value}%`, '']} />
                     <Bar dataKey="value" fill="#82ca9d" barSize={20}>
                       {careerMatchChartData.map((entry, index) => (
@@ -125,10 +136,20 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Skills Assessment</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={skillsChartData}>
-                    <XAxis dataKey="name" />
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={skillsChartData}
+                    margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
+                  >
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => value.replace('_', ' ')}
+                    />
                     <YAxis domain={[0, 10]} />
                     <Tooltip />
                     <Bar dataKey="value" fill="#8884d8">
@@ -145,10 +166,19 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Career Match Scores</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={careerMatchChartData}>
-                    <XAxis dataKey="name" />
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={careerMatchChartData}
+                    margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
+                  >
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      tick={{ fontSize: 12 }}
+                    />
                     <YAxis domain={[0, 100]} />
                     <Tooltip formatter={(value) => [`${value}%`, '']} />
                     <Bar dataKey="value" fill="#82ca9d">
@@ -170,10 +200,20 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Skills Distribution</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={skillsChartData}>
-                    <XAxis dataKey="name" />
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={skillsChartData}
+                    margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
+                  >
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => value.replace('_', ' ')}
+                    />
                     <YAxis domain={[0, 10]} />
                     <Tooltip />
                     <Legend />
@@ -187,10 +227,20 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               <CardHeader>
                 <CardTitle>Career Match Distribution</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={careerMatchChartData} barSize={30}>
-                    <XAxis dataKey="name" />
+              <CardContent className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={careerMatchChartData}
+                    barSize={30}
+                    margin={{ top: 20, right: 30, left: 30, bottom: 60 }}
+                  >
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      tick={{ fontSize: 12 }}
+                    />
                     <YAxis domain={[0, 100]} />
                     <Tooltip formatter={(value) => [`${value}%`, '']} />
                     <Legend />

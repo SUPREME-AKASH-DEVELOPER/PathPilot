@@ -30,10 +30,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m1",
       name: "Dr. Rajesh Kumar",
       title: "Lead Software Engineer",
-      organization: "Google",
+      organization: "Google India",
       specialties: ["AI", "Machine Learning", "Software Engineering"],
       rating: 4.9,
-      imageUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Tomorrow",
       experience: 12
     },
@@ -41,10 +41,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m2",
       name: "Priya Sharma",
       title: "Senior Data Scientist",
-      organization: "Microsoft",
+      organization: "Microsoft India",
       specialties: ["Data Science", "Python", "Big Data"],
       rating: 4.8,
-      imageUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: This week",
       experience: 8
     },
@@ -52,10 +52,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m3",
       name: "Vikram Malhotra",
       title: "CTO",
-      organization: "Tech Startup",
+      organization: "TechNext Innovations",
       specialties: ["System Architecture", "Cloud Computing", "Leadership"],
       rating: 4.7,
-      imageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Next week",
       experience: 15
     }
@@ -65,10 +65,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m4",
       name: "Aisha Kapoor",
       title: "Creative Director",
-      organization: "Design Studio",
+      organization: "Design Mantra Studio",
       specialties: ["UX/UI Design", "Brand Identity", "Visual Design"],
       rating: 4.9,
-      imageUrl: "https://randomuser.me/api/portraits/women/68.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Tomorrow",
       experience: 10
     },
@@ -76,10 +76,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m5",
       name: "Karan Mehra",
       title: "Senior Content Strategist",
-      organization: "Media House",
+      organization: "Pixel Media House",
       specialties: ["Content Creation", "Digital Marketing", "SEO"],
       rating: 4.7,
-      imageUrl: "https://randomuser.me/api/portraits/men/75.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: This week",
       experience: 7
     }
@@ -92,7 +92,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Finance",
       specialties: ["Finance", "Economics", "Investment Strategy"],
       rating: 4.8,
-      imageUrl: "https://randomuser.me/api/portraits/men/54.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Next week",
       experience: 14
     },
@@ -100,10 +100,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m7",
       name: "Neha Reddy",
       title: "Marketing Head",
-      organization: "FMCG Company",
+      organization: "Unilever India",
       specialties: ["Marketing", "Brand Management", "Consumer Behavior"],
       rating: 4.6,
-      imageUrl: "https://randomuser.me/api/portraits/women/28.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Tomorrow",
       experience: 9
     }
@@ -113,10 +113,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m8",
       name: "Dr. Anand Patel",
       title: "Medical Director",
-      organization: "City Hospital",
+      organization: "Apollo Hospitals",
       specialties: ["Medicine", "Healthcare Management", "Research"],
       rating: 4.9,
-      imageUrl: "https://randomuser.me/api/portraits/men/22.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: This week",
       experience: 18
     },
@@ -124,10 +124,10 @@ const mentors: Record<string, Mentor[]> = {
       id: "m9",
       name: "Dr. Meera Joshi",
       title: "Biotechnology Researcher",
-      organization: "Pharma Research",
+      organization: "Indian Institute of Science",
       specialties: ["Biotechnology", "Research", "Pharmaceuticals"],
       rating: 4.8,
-      imageUrl: "https://randomuser.me/api/portraits/women/76.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Next week", 
       experience: 11
     }
@@ -140,7 +140,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Career Guidance Institute",
       specialties: ["Career Planning", "Student Counseling", "Skill Development"],
       rating: 4.9,
-      imageUrl: "https://randomuser.me/api/portraits/men/42.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: Tomorrow",
       experience: 15
     },
@@ -151,7 +151,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Education Services",
       specialties: ["Higher Education", "Study Abroad", "Admissions"],
       rating: 4.7,
-      imageUrl: "https://randomuser.me/api/portraits/women/52.jpg",
+      imageUrl: "/placeholder.svg",
       availability: "Next available: This week",
       experience: 12
     }
