@@ -24,10 +24,10 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider>
         <LanguageProvider>
-          <AuthProvider>
-            <Router>
+          <Router>
+            <AuthProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -42,9 +42,9 @@ function App() {
                 <Route path="/mentors/:mentorId" element={<MentorDetailPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Router>
-            <Toaster />
-          </AuthProvider>
+              <Toaster />
+            </AuthProvider>
+          </Router>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
