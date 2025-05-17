@@ -234,7 +234,11 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     creative: 0,
     technical: 0,
     communication: 0,
-    leadership: 0
+    leadership: 0,
+    scientific: 0,
+    entrepreneurial: 0,
+    social: 0,
+    critical_thinking: 0
   };
   
   // Update the default assessment with values from the input skills
@@ -267,6 +271,10 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "technical": "technical",
     "communication": "communication",
     "leadership": "leadership",
+    "scientific": "scientific",
+    "entrepreneurial": "entrepreneurial",
+    "social": "social",
+    "critical_thinking": "critical_thinking",
     "problem-solving": "analytical", // Map to analytical
     "problemsolving": "analytical",  // Map to analytical
     "teamwork": "leadership",  // Map teamwork to leadership since teamwork isn't in SkillAssessment
@@ -293,7 +301,14 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "flexibility": "leadership", // Map flexibility to leadership
     "versatile": "leadership", // Map versatile to leadership
     "planning": "leadership", // Mapped planning to leadership
-    "organization": "leadership" // Mapped organization to leadership
+    "organization": "leadership", // Mapped organization to leadership
+    "research": "scientific",
+    "experimental": "scientific",
+    "business": "entrepreneurial",
+    "initiative": "entrepreneurial",
+    "interpersonal": "social",
+    "thinking": "critical_thinking",
+    "evaluation": "critical_thinking"
   };
   
   // Convert to lowercase for case-insensitive matching

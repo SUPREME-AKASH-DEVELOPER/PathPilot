@@ -887,7 +887,11 @@ const PathCreatorPage = () => {
         creative: 5, 
         communication: 6, 
         technical: 8,
-        leadership: 4
+        leadership: 4,
+        scientific: 6,
+        entrepreneurial: 5,
+        social: 7,
+        critical_thinking: 8
       };
       
       setSkillsData(defaultSkills);
