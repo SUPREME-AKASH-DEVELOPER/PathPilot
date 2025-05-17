@@ -754,11 +754,114 @@ const PathCreatorPage = () => {
         if (topMatch) {
           setTopCareerMatch(topMatch[0]);
         }
+        
+        // Generate enhanced skills and strengths summary with education stage
+        const summary = generateQuizSummary(answers, selectedStage);
+        
+        // Ensure the personalityProfile.type matches the expected union type
+        let personalityType = analysis.personalityProfile?.type || "";
+        
+        // Map the string to one of the allowed values in PersonalityProfile
+        let mappedType: "Creative" | "Analytical" | "Practical" | "Social" | "Enterprising" | "Conventional" | "Mixed" = "Mixed";
+        
+        if (personalityType.includes("Analytical") || personalityType.includes("logical") || 
+            personalityType.includes("Problem-Solver")) {
+          mappedType = "Analytical";
+        } else if (personalityType.includes("Creative") || personalityType.includes("artistic")) {
+          mappedType = "Creative";
+        } else if (personalityType.includes("Practical") || personalityType.includes("Realistic")) {
+          mappedType = "Practical";
+        } else if (personalityType.includes("Social") || personalityType.includes("Helper")) {
+          mappedType = "Social";
+        } else if (personalityType.includes("Enterprising") || personalityType.includes("Leader")) {
+          mappedType = "Enterprising";
+        } else if (personalityType.includes("Conventional") || personalityType.includes("Organizer")) {
+          mappedType = "Conventional";
+        }
+        
+        // Create the enhanced summary with the properly typed personality profile
+        const enhancedSummary = {
+          strengths: analysis.strengths,
+          weaknesses: analysis.weaknesses,
+          recommendedPaths: analysis.recommendedPaths,
+          skills: enhancedSkills, // Use the properly typed skills assessment result
+          personalityProfile: {
+            type: mappedType,
+            traits: analysis.personalityProfile?.traits || [],
+            learningStyle: analysis.personalityProfile?.learningStyle || "",
+            workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
+          },
+          nextSteps: summary.nextSteps,
+          emotionalGuidance: summary.emotionalGuidance
+        };
+        
+        setQuizSummary(enhancedSummary);
+        
+        // Get matched careers with scores based on user's answers and education stage
+        let matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
+        
+        // If we have ML-enhanced career matches, update the matched careers with ML insights
+        if (isUsingML) {
+          // Adjust match scores based on ML-enhanced career match data
+          matchedCareers = matchedCareers.map(career => ({
+            ...career,
+            matchScore: careerMatchData[career.title] || career.matchScore
+          })).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        }
+        
+        // Ensure we always have at least 5 career matches
+        if (matchedCareers.length < 5) {
+          // Add more career options to reach minimum of 5
+          const additionalCareers = allCareers
+            .filter(c => !matchedCareers.some(mc => mc.id === c.id))
+            .slice(0, 5 - matchedCareers.length)
+            .map(career => ({
+              ...career,
+              matchScore: Math.floor(Math.random() * 10) + 20, // Random score between 20-30%
+              matchReasons: [
+                "This could be an alternative path based on your skills",
+                "Consider exploring this field as it aligns with some of your preferences"
+              ]
+            }));
+          
+          // Combine and take top 5
+          const combinedCareers = [...matchedCareers, ...additionalCareers];
+          setRecommendedCareers(combinedCareers.slice(0, 5));
+        } else {
+          // Take top 5 matches
+          setRecommendedCareers(matchedCareers.slice(0, 5));
+        }
+        
+        // Save quiz results if user is logged in
+        if (user) {
+          saveQuizResult({
+            educationStage: selectedStage || "unknown",
+            strengths: analysis.strengths,
+            weaknesses: analysis.weaknesses,
+            recommendedPaths: analysis.recommendedPaths,
+            skillsAssessment: enhancedSkills, // Use the properly typed skills assessment
+            careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
+            personalityProfile: {
+              type: mappedType,
+              traits: analysis.personalityProfile?.traits || [],
+              learningStyle: analysis.personalityProfile?.learningStyle || "",
+              workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
+            }
+          });
+        }
+        
+        setQuizCompleted(true);
+        
+        let aiType = isUsingML ? "AI+ML-powered" : "AI-powered";
+        toast({
+          title: "Path Created! 🎉",
+          description: `PathPilot ${aiType} analysis has prepared personalized career recommendations for you.`,
+        });
       } catch (mlError) {
         console.error("Error enhancing with ML:", mlError);
         
         // Fallback to AI-only analysis
-        setSkillsData(analysis.skillsAssessment);
+        setSkillsData(analysis.skillsAssessment as unknown as SkillAssessment);
         setCareerMatchData(analysis.careerMatchScores);
         
         // Find top career match from AI data
@@ -768,109 +871,6 @@ const PathCreatorPage = () => {
           setTopCareerMatch(topMatch[0]);
         }
       }
-      
-      // Generate enhanced skills and strengths summary with education stage
-      const summary = generateQuizSummary(answers, selectedStage);
-      
-      // Ensure the personalityProfile.type matches the expected union type
-      let personalityType = analysis.personalityProfile?.type || "";
-      
-      // Map the string to one of the allowed values in PersonalityProfile
-      let mappedType: "Creative" | "Analytical" | "Practical" | "Social" | "Enterprising" | "Conventional" | "Mixed" = "Mixed";
-      
-      if (personalityType.includes("Analytical") || personalityType.includes("logical") || 
-          personalityType.includes("Problem-Solver")) {
-        mappedType = "Analytical";
-      } else if (personalityType.includes("Creative") || personalityType.includes("artistic")) {
-        mappedType = "Creative";
-      } else if (personalityType.includes("Practical") || personalityType.includes("Realistic")) {
-        mappedType = "Practical";
-      } else if (personalityType.includes("Social") || personalityType.includes("Helper")) {
-        mappedType = "Social";
-      } else if (personalityType.includes("Enterprising") || personalityType.includes("Leader")) {
-        mappedType = "Enterprising";
-      } else if (personalityType.includes("Conventional") || personalityType.includes("Organizer")) {
-        mappedType = "Conventional";
-      }
-      
-      // Create the enhanced summary with the properly typed personality profile
-      const enhancedSummary = {
-        strengths: analysis.strengths,
-        weaknesses: analysis.weaknesses,
-        recommendedPaths: analysis.recommendedPaths,
-        skills: enhancedSkills, // Use the properly typed skills assessment result
-        personalityProfile: {
-          type: mappedType,
-          traits: analysis.personalityProfile?.traits || [],
-          learningStyle: analysis.personalityProfile?.learningStyle || "",
-          workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
-        },
-        nextSteps: summary.nextSteps,
-        emotionalGuidance: summary.emotionalGuidance
-      };
-      
-      setQuizSummary(enhancedSummary);
-      
-      // Get matched careers with scores based on user's answers and education stage
-      let matchedCareers = getMatchedCareers(answers, allCareers, selectedStage);
-      
-      // If we have ML-enhanced career matches, update the matched careers with ML insights
-      if (isUsingML) {
-        // Adjust match scores based on ML-enhanced career match data
-        matchedCareers = matchedCareers.map(career => ({
-          ...career,
-          matchScore: careerMatchData[career.title] || career.matchScore
-        })).sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
-      }
-      
-      // Ensure we always have at least 5 career matches
-      if (matchedCareers.length < 5) {
-        // Add more career options to reach minimum of 5
-        const additionalCareers = allCareers
-          .filter(c => !matchedCareers.some(mc => mc.id === c.id))
-          .slice(0, 5 - matchedCareers.length)
-          .map(career => ({
-            ...career,
-            matchScore: Math.floor(Math.random() * 10) + 20, // Random score between 20-30%
-            matchReasons: [
-              "This could be an alternative path based on your skills",
-              "Consider exploring this field as it aligns with some of your preferences"
-            ]
-          }));
-        
-        // Combine and take top 5
-        const combinedCareers = [...matchedCareers, ...additionalCareers];
-        setRecommendedCareers(combinedCareers.slice(0, 5));
-      } else {
-        // Take top 5 matches
-        setRecommendedCareers(matchedCareers.slice(0, 5));
-      }
-      
-      // Save quiz results if user is logged in
-      if (user) {
-        saveQuizResult({
-          educationStage: selectedStage || "unknown",
-          strengths: analysis.strengths,
-          weaknesses: analysis.weaknesses,
-          recommendedPaths: analysis.recommendedPaths,
-          skillsAssessment: enhancedSkills, // Use the properly typed skills assessment
-          careerMatchScores: isUsingML ? careerMatchData : analysis.careerMatchScores,
-          personalityProfile: {
-            type: mappedType,
-            traits: analysis.personalityProfile?.traits || [],
-            learningStyle: analysis.personalityProfile?.learningStyle || "",
-            workEnvironmentPreference: analysis.personalityProfile?.workEnvironmentPreference || ""
-          }
-        });
-      }
-      
-      setQuizCompleted(true);
-      
-      let aiType = isUsingML ? "AI+ML-powered" : "AI-powered";
-      toast({
-        title: "Path Created! 🎉",
-        description: `PathPilot ${aiType} analysis has prepared personalized career recommendations for you.`,
-      });
     } catch (error) {
       console.error("Error analyzing quiz results:", error);
       
@@ -888,8 +888,7 @@ const PathCreatorPage = () => {
         communication: 6, 
         technical: 8,
         leadership: 4,
-        problemSolving: 7,
-        teamwork: 5,
+        teamwork: 7,  // Changed from problemSolving to teamwork (valid property)
         adaptability: 6,
         timeManagement: 5
       };

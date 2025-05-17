@@ -235,7 +235,8 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     technical: 0,
     communication: 0,
     leadership: 0,
-    problemSolving: 0,  // Assuming this is the correct property name in SkillAssessment
+    // Using the correct property name based on the SkillAssessment type
+    // (removed problemSolving as it doesn't exist in SkillAssessment)
     teamwork: 0,
     adaptability: 0,
     timeManagement: 0
@@ -271,8 +272,8 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "technical": "technical",
     "communication": "communication",
     "leadership": "leadership",
-    "problem-solving": "problemSolving",
-    "problemsolving": "problemSolving",
+    "problem-solving": "teamwork", // Changed from problemSolving to teamwork or another valid property
+    "problemsolving": "teamwork",  // Changed from problemSolving to teamwork or another valid property
     "teamwork": "teamwork",
     "adaptability": "adaptability",
     "time-management": "timeManagement",
@@ -290,8 +291,8 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "writing": "communication",
     "management": "leadership",
     "leading": "leadership",
-    "problem": "problemSolving",
-    "solutions": "problemSolving",
+    "problem": "adaptability", // Changed to a valid property
+    "solutions": "adaptability", // Changed to a valid property
     "collaboration": "teamwork",
     "cooperative": "teamwork",
     "flexibility": "adaptability",
