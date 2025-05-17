@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import StageSelector from "@/components/quiz/StageSelector";
 import PathCreator, { Question } from "@/components/quiz/QuizQuestion";
 import ResultCharts from "@/components/quiz/ResultCharts";
+import RecommendedMentors from "@/components/quiz/RecommendedMentors";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -654,6 +655,7 @@ const PathCreatorPage = () => {
   
   const [skillsData, setSkillsData] = useState<Record<string, number>>({});
   const [careerMatchData, setCareerMatchData] = useState<Record<string, number>>({});
+  const [topCareerMatch, setTopCareerMatch] = useState<string>("");
   
   // Set initial questions based on selected stage
   useEffect(() => {
@@ -729,6 +731,13 @@ const PathCreatorPage = () => {
       // Update state with analysis results
       setSkillsData(analysis.skillsAssessment);
       setCareerMatchData(analysis.careerMatchScores);
+      
+      // Find top career match
+      const topMatch = Object.entries(analysis.careerMatchScores)
+        .sort(([, a], [, b]) => b - a)[0];
+      if (topMatch) {
+        setTopCareerMatch(topMatch[0]);
+      }
       
       // Generate enhanced skills and strengths summary with education stage
       const summary = generateQuizSummary(answers, selectedStage);
@@ -973,7 +982,18 @@ const PathCreatorPage = () => {
                     />
                   </div>
                 </motion.div>
-              
+                
+                {/* Career-specific mentor recommendations */}
+                {topCareerMatch && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1, transition: { delay: 0.3 } }}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                  >
+                    <RecommendedMentors careerCategory={topCareerMatch} />
+                  </motion.div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}

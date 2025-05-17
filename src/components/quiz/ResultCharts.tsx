@@ -4,7 +4,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChartPie, BarChart3, LineChart } from "lucide-react";
+import { ChartPie, BarChart3, LineChart, ChartBar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ResultChartsProps {
   skillsData: Record<string, number>;
@@ -12,7 +13,8 @@ interface ResultChartsProps {
 }
 
 export default function ResultCharts({ skillsData, careerMatchData }: ResultChartsProps) {
-  const [activeChart, setActiveChart] = useState<"pie" | "bar" | "histogram">("pie");
+  const [activeChart, setActiveChart] = useState<"bar" | "column" | "histogram">("bar");
+  const navigate = useNavigate();
   
   // Transform skills data for charts
   const skillsChartData = Object.entries(skillsData).map(([name, value]) => ({
@@ -30,19 +32,28 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
   
   // Colors for charts
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57'];
+
+  // Get top career match
+  const topCareerMatch = careerMatchChartData.length > 0 ? careerMatchChartData[0].name : '';
+  
+  const handleViewMentors = () => {
+    // Store top career match for mentor page to use
+    localStorage.setItem('careerInterest', topCareerMatch);
+    navigate('/mentors');
+  };
   
   return (
     <div className="space-y-6 w-full">
-      <Tabs defaultValue="pie" className="w-full" onValueChange={(value) => setActiveChart(value as any)}>
+      <Tabs defaultValue="bar" className="w-full" onValueChange={(value) => setActiveChart(value as any)}>
         <div className="flex justify-center mb-4">
           <TabsList>
-            <TabsTrigger value="pie" className="flex items-center gap-2">
-              <ChartPie className="h-4 w-4" />
-              Pie Chart
-            </TabsTrigger>
             <TabsTrigger value="bar" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+              <ChartBar className="h-4 w-4" />
               Bar Chart
+            </TabsTrigger>
+            <TabsTrigger value="column" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Column Chart
             </TabsTrigger>
             <TabsTrigger value="histogram" className="flex items-center gap-2">
               <LineChart className="h-4 w-4" />
@@ -51,8 +62,8 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
           </TabsList>
         </div>
         
-        {/* Pie Chart View */}
-        <TabsContent value="pie" className="w-full">
+        {/* Bar Chart View (Horizontal) */}
+        <TabsContent value="bar" className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -60,23 +71,20 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={skillsChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
+                  <BarChart 
+                    data={skillsChartData}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+                  >
+                    <XAxis type="number" domain={[0, 10]} />
+                    <YAxis dataKey="name" type="category" width={100} />
+                    <Tooltip formatter={(value) => [`Score: ${value}`, '']} />
+                    <Bar dataKey="value" fill="#8884d8">
                       {skillsChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`Score: ${value}`, '']} />
-                  </PieChart>
+                    </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
@@ -87,31 +95,28 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={careerMatchChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
+                  <BarChart 
+                    data={careerMatchChartData}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+                  >
+                    <XAxis type="number" domain={[0, 100]} />
+                    <YAxis dataKey="name" type="category" width={120} />
+                    <Tooltip formatter={(value) => [`${value}%`, '']} />
+                    <Bar dataKey="value" fill="#82ca9d">
                       {careerMatchChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${value}%`, '']} />
-                  </PieChart>
+                    </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
         
-        {/* Bar Chart View */}
-        <TabsContent value="bar" className="w-full">
+        {/* Column Chart View (Vertical) */}
+        <TabsContent value="column" className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -195,9 +200,15 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
         </TabsContent>
       </Tabs>
       
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-4">
         <Button variant="outline" onClick={() => window.print()} className="px-6">
           Download Results
+        </Button>
+        <Button 
+          onClick={handleViewMentors} 
+          className="px-6 bg-pp-purple hover:bg-pp-bright-purple"
+        >
+          Connect with Mentors
         </Button>
       </div>
     </div>
