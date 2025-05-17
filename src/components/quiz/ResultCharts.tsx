@@ -19,10 +19,24 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
   const [activeChart, setActiveChart] = useState<"bar" | "column" | "histogram">("bar");
   const navigate = useNavigate();
   
-  // Transform skills data for charts, ensuring all skills are included
-  const skillsChartData = Object.entries(skillsData).map(([name, value]) => ({
-    name,
-    value: value || 0 // Ensure null/undefined values are converted to 0
+  // Transform skills data for charts, ensuring ALL skills are included
+  // Explicitly define all expected skills to ensure they're all displayed
+  const expectedSkills = [
+    'analytical', 
+    'creative', 
+    'technical', 
+    'communication', 
+    'leadership', 
+    'scientific', 
+    'entrepreneurial', 
+    'social', 
+    'critical thinking'
+  ];
+  
+  // Create chart data with all skills, using 0 for any missing skills
+  const skillsChartData = expectedSkills.map(skill => ({
+    name: skill,
+    value: skillsData[skill] || 0
   }));
   
   // Transform career match data for charts
@@ -34,7 +48,10 @@ export default function ResultCharts({ skillsData, careerMatchData }: ResultChar
     .sort((a, b) => b.value - a.value); // Sort by highest match score
   
   // Colors for charts with improved visibility
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57', '#f28cb1', '#af69ee', '#6897bb'];
+  const COLORS = [
+    '#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', 
+    '#d0ed57', '#f28cb1', '#af69ee', '#6897bb'
+  ];
 
   // Get top career match
   const topCareerMatch = careerMatchChartData.length > 0 ? careerMatchChartData[0].name : '';

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { QuizResult } from "@/hooks/use-quiz-results";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +22,18 @@ export default function ProfileResultsView({ result }: ProfileResultsViewProps) 
       </div>
     );
   }
+
+  // Expected skills list to ensure all skills are displayed
+  const expectedSkills = [
+    'analytical', 'creative', 'technical', 'communication',
+    'leadership', 'scientific', 'entrepreneurial', 'social', 'critical thinking'
+  ];
+  
+  // Create a complete skills object with all expected skills
+  const completeSkillsAssessment: Record<string, number> = {};
+  expectedSkills.forEach(skill => {
+    completeSkillsAssessment[skill] = result.skillsAssessment[skill] || 0;
+  });
 
   const formattedDate = new Date(result.date).toLocaleDateString();
   const timeAgo = formatDistance(new Date(result.date), new Date(), { addSuffix: true });
@@ -104,13 +115,13 @@ export default function ProfileResultsView({ result }: ProfileResultsViewProps) 
                   Skills Assessment
                 </h3>
                 <div className="space-y-2">
-                  {Object.entries(result.skillsAssessment).map(([skill, value]) => (
+                  {expectedSkills.map(skill => (
                     <div key={skill} className="space-y-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm capitalize">{skill}</span>
-                        <span className="text-xs font-medium">{value}/10</span>
+                        <span className="text-sm capitalize">{skill.replace(/[_-]/g, ' ')}</span>
+                        <span className="text-xs font-medium">{completeSkillsAssessment[skill]}/10</span>
                       </div>
-                      <Progress value={value * 10} className="h-2" />
+                      <Progress value={completeSkillsAssessment[skill] * 10} className="h-2" />
                     </div>
                   ))}
                 </div>
@@ -194,7 +205,7 @@ export default function ProfileResultsView({ result }: ProfileResultsViewProps) 
           
           <TabsContent value="charts">
             <ResultCharts 
-              skillsData={result.skillsAssessment} 
+              skillsData={completeSkillsAssessment} 
               careerMatchData={result.careerMatchScores} 
             />
           </TabsContent>
