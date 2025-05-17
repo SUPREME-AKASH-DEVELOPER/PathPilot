@@ -1,55 +1,54 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import Index from "./pages/Index";
-import PathCreatorPage from "./pages/QuizPage"; // Changed name but keeping the same file
-import CareersPage from "./pages/CareersPage";
-import LibraryPage from "./pages/LibraryPage";
-import MentorsPage from "./pages/MentorsPage";
-import ParentZonePage from "./pages/ParentZonePage";
-import NotFound from "./pages/NotFound";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import ProfilePage from "./pages/ProfilePage";
-import GeminiChatPage from "./pages/GeminiChatPage";
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Index from '@/pages/Index';
+import LoginPage from '@/pages/LoginPage';
+import SignUpPage from '@/pages/SignUpPage';
+import ProfilePage from '@/pages/ProfilePage';
+import QuizPage from '@/pages/QuizPage';
+import GeminiChatPage from '@/pages/GeminiChatPage';
+import LibraryPage from '@/pages/LibraryPage';
+import CareersPage from '@/pages/CareersPage';
+import ParentZonePage from '@/pages/ParentZonePage';
+import MentorsPage from '@/pages/MentorsPage';
+import MentorDetailPage from '@/pages/MentorDetailPage';
+import NotFound from '@/pages/NotFound';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
 
-const queryClient = new QueryClient();
+function App() {
+  const [queryClient] = useState(() => new QueryClient());
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light">
         <LanguageProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
+          <AuthProvider>
+            <Router>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/quiz" element={<PathCreatorPage />} />
-                <Route path="/careers" element={<CareersPage />} />
-                <Route path="/library" element={<LibraryPage />} />
-                <Route path="/mentors" element={<MentorsPage />} />
-                <Route path="/parent-zone" element={<ParentZonePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/quiz" element={<QuizPage />} />
                 <Route path="/chat" element={<GeminiChatPage />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/parent" element={<ParentZonePage />} />
+                <Route path="/mentors" element={<MentorsPage />} />
+                <Route path="/mentors/:mentorId" element={<MentorDetailPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </AuthProvider>
-          </BrowserRouter>
+            </Router>
+            <Toaster />
+          </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

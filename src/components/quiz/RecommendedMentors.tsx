@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Briefcase, GraduationCap, Clock, Star } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface Mentor {
   id: string;
@@ -14,7 +15,7 @@ interface Mentor {
   organization: string;
   specialties: string[];
   rating: number;
-  imageUrl?: string;
+  imageUrl: string;
   availability?: string;
   experience: number;
 }
@@ -33,7 +34,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Google India",
       specialties: ["AI", "Machine Learning", "Software Engineering"],
       rating: 4.9,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
       availability: "Next available: Tomorrow",
       experience: 12
     },
@@ -89,7 +90,7 @@ const mentors: Record<string, Mentor[]> = {
       id: "m6",
       name: "Sunil Chopra",
       title: "Investment Banker",
-      organization: "Global Finance",
+      organization: "Global Finance India",
       specialties: ["Finance", "Economics", "Investment Strategy"],
       rating: 4.8,
       imageUrl: "/placeholder.svg",
@@ -148,7 +149,7 @@ const mentors: Record<string, Mentor[]> = {
       id: "m11",
       name: "Ritu Desai",
       title: "Education Consultant",
-      organization: "Global Education Services",
+      organization: "Global Education Services India",
       specialties: ["Higher Education", "Study Abroad", "Admissions"],
       rating: 4.7,
       imageUrl: "/placeholder.svg",
@@ -207,6 +208,14 @@ export default function RecommendedMentors({ careerCategory }: RecommendedMentor
     localStorage.setItem('careerInterest', careerCategory);
     navigate('/mentors');
   };
+  
+  const handleBookSession = (mentorId: string) => {
+    // Store selected mentor ID in localStorage
+    localStorage.setItem('selectedMentorId', mentorId);
+    
+    // Navigate to the mentor detail page
+    navigate(`/mentors/${mentorId}`);
+  };
 
   if (recommendedMentors.length === 0) {
     return null;
@@ -259,7 +268,10 @@ export default function RecommendedMentors({ careerCategory }: RecommendedMentor
               </div>
             </CardContent>
             <CardFooter className="pt-0">
-              <Button className="w-full bg-pp-purple hover:bg-pp-bright-purple text-sm h-9" onClick={() => navigate(`/mentors/${mentor.id}`)}>
+              <Button 
+                className="w-full bg-pp-purple hover:bg-pp-bright-purple text-sm h-9" 
+                onClick={() => handleBookSession(mentor.id)}
+              >
                 Book a Session
               </Button>
             </CardFooter>
