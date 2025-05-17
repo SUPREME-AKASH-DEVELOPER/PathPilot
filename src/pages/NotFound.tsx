@@ -26,7 +26,7 @@ const NotFound = () => {
         </p>
         <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
           {isMentorPath 
-            ? "The mentor you're looking for doesn't exist or has been moved."
+            ? "The mentor you're looking for doesn't exist or has been moved. Please choose from our available mentors."
             : "The page you're looking for doesn't exist or has been moved."
           }
         </p>

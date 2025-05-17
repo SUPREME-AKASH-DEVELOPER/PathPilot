@@ -24,7 +24,7 @@ interface RecommendedMentorsProps {
   careerCategory: string;
 }
 
-// Sample mentor data - in a real app, this would come from an API
+// Expanded mentor data with consistent images
 const mentors: Record<string, Mentor[]> = {
   technical: [
     {
@@ -45,7 +45,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Microsoft India",
       specialties: ["Data Science", "Python", "Big Data"],
       rating: 4.8,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
       availability: "Next available: This week",
       experience: 8
     },
@@ -56,7 +56,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "TechNext Innovations",
       specialties: ["System Architecture", "Cloud Computing", "Leadership"],
       rating: 4.7,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
       availability: "Next available: Next week",
       experience: 15
     }
@@ -69,7 +69,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Design Mantra Studio",
       specialties: ["UX/UI Design", "Brand Identity", "Visual Design"],
       rating: 4.9,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
       availability: "Next available: Tomorrow",
       experience: 10
     },
@@ -80,7 +80,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Pixel Media House",
       specialties: ["Content Creation", "Digital Marketing", "SEO"],
       rating: 4.7,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
       availability: "Next available: This week",
       experience: 7
     }
@@ -93,7 +93,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Finance India",
       specialties: ["Finance", "Economics", "Investment Strategy"],
       rating: 4.8,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
       availability: "Next available: Next week",
       experience: 14
     },
@@ -104,7 +104,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Unilever India",
       specialties: ["Marketing", "Brand Management", "Consumer Behavior"],
       rating: 4.6,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
       availability: "Next available: Tomorrow",
       experience: 9
     }
@@ -117,7 +117,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Apollo Hospitals",
       specialties: ["Medicine", "Healthcare Management", "Research"],
       rating: 4.9,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
       availability: "Next available: This week",
       experience: 18
     },
@@ -128,7 +128,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Indian Institute of Science",
       specialties: ["Biotechnology", "Research", "Pharmaceuticals"],
       rating: 4.8,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
       availability: "Next available: Next week", 
       experience: 11
     }
@@ -141,7 +141,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Career Guidance Institute",
       specialties: ["Career Planning", "Student Counseling", "Skill Development"],
       rating: 4.9,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
       availability: "Next available: Tomorrow",
       experience: 15
     },
@@ -152,7 +152,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Education Services India",
       specialties: ["Higher Education", "Study Abroad", "Admissions"],
       rating: 4.7,
-      imageUrl: "/placeholder.svg",
+      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
       availability: "Next available: This week",
       experience: 12
     }
@@ -198,8 +198,23 @@ export default function RecommendedMentors({ careerCategory }: RecommendedMentor
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Determine mentor category based on career interest
     const mentorCategory = getMentorCategory(careerCategory);
-    const relevantMentors = mentors[mentorCategory] || mentors.general;
+    console.log(`Career category: ${careerCategory}, Mentor category: ${mentorCategory}`);
+    
+    // Get mentors for this category, or fall back to general if none found
+    const categoryMentors = mentors[mentorCategory] || [];
+    const generalMentors = mentors.general || [];
+    
+    // Combine mentors if needed to ensure we have enough recommendations
+    let relevantMentors = [...categoryMentors];
+    if (relevantMentors.length < 3) {
+      // Add mentors from general category to ensure we have at least 3
+      const neededFromGeneral = 3 - relevantMentors.length;
+      relevantMentors = [...relevantMentors, ...generalMentors.slice(0, neededFromGeneral)];
+    }
+    
+    console.log(`Found ${relevantMentors.length} mentors for category ${mentorCategory}`);
     setRecommendedMentors(relevantMentors.slice(0, 3)); // Show top 3 mentors
   }, [careerCategory]);
 
@@ -212,6 +227,9 @@ export default function RecommendedMentors({ careerCategory }: RecommendedMentor
   const handleBookSession = (mentorId: string) => {
     // Store selected mentor ID in localStorage
     localStorage.setItem('selectedMentorId', mentorId);
+    
+    // Show success toast
+    toast.success(`Navigating to ${mentorId} mentor profile`);
     
     // Navigate to the mentor detail page
     navigate(`/mentors/${mentorId}`);

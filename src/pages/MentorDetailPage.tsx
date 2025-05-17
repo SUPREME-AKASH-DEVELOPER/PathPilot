@@ -28,47 +28,199 @@ interface Mentor {
   about?: string;
 }
 
+// Expanded mentors dataset with images for all entries
+const allMentors: Mentor[] = [
+  {
+    id: "m1",
+    name: "Dr. Rajesh Kumar",
+    title: "Lead Software Engineer",
+    organization: "Google India",
+    specialties: ["AI", "Machine Learning", "Software Engineering"],
+    rating: 4.9,
+    imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+    availability: "Next available: Tomorrow",
+    experience: 12,
+    location: "Bangalore, India",
+    education: [
+      "Ph.D. in Computer Science, IIT Delhi",
+      "B.Tech in Computer Science, IIT Bombay"
+    ],
+    about: "Dr. Rajesh Kumar is a seasoned software engineer with expertise in AI and machine learning. With over 12 years of experience at Google India, he has led multiple teams developing cutting-edge technologies. He is passionate about mentoring young tech enthusiasts and helping them navigate their career paths in the rapidly evolving tech landscape."
+  },
+  {
+    id: "m2",
+    name: "Priya Sharma",
+    title: "Senior Data Scientist",
+    organization: "Microsoft India",
+    specialties: ["Data Science", "Python", "Big Data"],
+    rating: 4.8,
+    imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+    availability: "Next available: This week",
+    experience: 8,
+    location: "Hyderabad, India",
+    education: [
+      "M.Tech in Data Science, IISc Bangalore",
+      "B.E. in Computer Engineering, Delhi University"
+    ],
+    about: "Priya Sharma is a dedicated data scientist with extensive experience in big data analytics and machine learning models. At Microsoft India, she works on developing predictive algorithms and data visualization tools. She enjoys helping students understand the practical applications of data science and guiding them toward successful careers in the field."
+  },
+  {
+    id: "m3",
+    name: "Vikram Malhotra",
+    title: "CTO",
+    organization: "TechNext Innovations",
+    specialties: ["System Architecture", "Cloud Computing", "Leadership"],
+    rating: 4.7,
+    imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+    availability: "Next available: Next week",
+    experience: 15,
+    location: "Mumbai, India",
+    education: [
+      "MBA in Technology Management, IIM Ahmedabad",
+      "B.Tech in Computer Engineering, BITS Pilani"
+    ],
+    about: "Vikram Malhotra is a technology leader with extensive experience in building scalable systems and managing tech teams. At TechNext Innovations, he oversees all technical aspects and strategic direction. He is passionate about helping young professionals develop technical leadership skills."
+  },
+  {
+    id: "m4",
+    name: "Aisha Kapoor",
+    title: "Creative Director",
+    organization: "Design Mantra Studio",
+    specialties: ["UX/UI Design", "Brand Identity", "Visual Design"],
+    rating: 4.9,
+    imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+    availability: "Next available: Tomorrow",
+    experience: 10,
+    location: "Delhi, India",
+    education: [
+      "Master's in Design, National Institute of Design",
+      "Bachelor's in Fine Arts, Delhi University"
+    ],
+    about: "Aisha Kapoor is a renowned creative director specializing in user experience design and brand identity. With 10 years in the design industry, she has helped numerous startups and established companies create compelling visual narratives and intuitive interfaces."
+  },
+  {
+    id: "m5",
+    name: "Karan Mehra",
+    title: "Senior Content Strategist",
+    organization: "Pixel Media House",
+    specialties: ["Content Creation", "Digital Marketing", "SEO"],
+    rating: 4.7,
+    imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+    availability: "Next available: This week",
+    experience: 7,
+    location: "Pune, India",
+    education: [
+      "MBA in Marketing, Symbiosis Institute",
+      "Bachelor's in Mass Communication, Pune University"
+    ],
+    about: "Karan Mehra is an experienced content strategist with a background in digital marketing and SEO. At Pixel Media House, he develops comprehensive content strategies that drive engagement and conversions for clients across various industries."
+  },
+  {
+    id: "m6",
+    name: "Sunil Chopra",
+    title: "Investment Banker",
+    organization: "Global Finance India",
+    specialties: ["Finance", "Economics", "Investment Strategy"],
+    rating: 4.8,
+    imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+    availability: "Next available: Next week",
+    experience: 14,
+    location: "Mumbai, India",
+    education: [
+      "MBA in Finance, IIM Calcutta",
+      "Bachelor's in Economics, St. Xavier's College"
+    ],
+    about: "Sunil Chopra is a senior investment banker with expertise in financial markets and investment strategies. With 14 years at Global Finance India, he has advised numerous corporations and high-net-worth individuals on wealth management and investment opportunities."
+  },
+  {
+    id: "m7",
+    name: "Neha Reddy",
+    title: "Marketing Head",
+    organization: "Unilever India",
+    specialties: ["Marketing", "Brand Management", "Consumer Behavior"],
+    rating: 4.6,
+    imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+    availability: "Next available: Tomorrow",
+    experience: 9,
+    location: "Bangalore, India",
+    education: [
+      "MBA in Marketing, XLRI Jamshedpur",
+      "Bachelor's in Business Administration, Christ University"
+    ],
+    about: "Neha Reddy is a strategic marketing professional with experience in brand management and consumer insights. At Unilever India, she leads marketing campaigns for several major brands and mentors junior marketing professionals."
+  },
+  {
+    id: "m8",
+    name: "Dr. Anand Patel",
+    title: "Medical Director",
+    organization: "Apollo Hospitals",
+    specialties: ["Medicine", "Healthcare Management", "Research"],
+    rating: 4.9,
+    imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+    availability: "Next available: This week",
+    experience: 18,
+    location: "Chennai, India",
+    education: [
+      "MD in Internal Medicine, AIIMS Delhi",
+      "MBBS, Madras Medical College"
+    ],
+    about: "Dr. Anand Patel is a distinguished physician and healthcare administrator with extensive experience in medical research and healthcare management. As Medical Director at Apollo Hospitals, he oversees clinical operations while continuing to mentor medical students and residents."
+  },
+  {
+    id: "m9",
+    name: "Dr. Meera Joshi",
+    title: "Biotechnology Researcher",
+    organization: "Indian Institute of Science",
+    specialties: ["Biotechnology", "Research", "Pharmaceuticals"],
+    rating: 4.8,
+    imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+    availability: "Next available: Next week",
+    experience: 11,
+    location: "Bangalore, India",
+    education: [
+      "Ph.D. in Biotechnology, IISc Bangalore",
+      "M.Sc in Biochemistry, Delhi University"
+    ],
+    about: "Dr. Meera Joshi is a leading researcher in biotechnology with a focus on pharmaceutical applications. Her work at the Indian Institute of Science has been published in several international journals, and she actively mentors graduate students in research methodologies."
+  },
+  {
+    id: "m10",
+    name: "Arjun Singh",
+    title: "Career Counselor",
+    organization: "Career Guidance Institute",
+    specialties: ["Career Planning", "Student Counseling", "Skill Development"],
+    rating: 4.9,
+    imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+    availability: "Next available: Tomorrow",
+    experience: 15,
+    location: "Delhi, India",
+    education: [
+      "Master's in Psychology, Delhi University",
+      "Bachelor's in Education, Jamia Millia Islamia"
+    ],
+    about: "Arjun Singh is an experienced career counselor specializing in helping students identify and pursue their ideal career paths. With 15 years at the Career Guidance Institute, he has helped thousands of students make informed decisions about their educational and professional journeys."
+  },
+  {
+    id: "m11",
+    name: "Ritu Desai",
+    title: "Education Consultant",
+    organization: "Global Education Services India",
+    specialties: ["Higher Education", "Study Abroad", "Admissions"],
+    rating: 4.7,
+    imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+    availability: "Next available: This week",
+    experience: 12,
+    location: "Mumbai, India",
+    education: [
+      "Master's in Education, Harvard University",
+      "Bachelor's in International Relations, Mumbai University"
+    ],
+    about: "Ritu Desai is an education consultant specializing in international higher education opportunities. Having studied abroad herself, she provides comprehensive guidance to students seeking admissions to universities worldwide, with a focus on application strategies and scholarship opportunities."
+  }
+];
+
 // This would come from an API in a real app
 const getMentorData = (id: string): Mentor | undefined => {
-  // Create a comprehensive list of mentors
-  const allMentors: Mentor[] = [
-    {
-      id: "m1",
-      name: "Dr. Rajesh Kumar",
-      title: "Lead Software Engineer",
-      organization: "Google India",
-      specialties: ["AI", "Machine Learning", "Software Engineering"],
-      rating: 4.9,
-      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
-      availability: "Next available: Tomorrow",
-      experience: 12,
-      location: "Bangalore, India",
-      education: [
-        "Ph.D. in Computer Science, IIT Delhi",
-        "B.Tech in Computer Science, IIT Bombay"
-      ],
-      about: "Dr. Rajesh Kumar is a seasoned software engineer with expertise in AI and machine learning. With over 12 years of experience at Google India, he has led multiple teams developing cutting-edge technologies. He is passionate about mentoring young tech enthusiasts and helping them navigate their career paths in the rapidly evolving tech landscape."
-    },
-    {
-      id: "m2",
-      name: "Priya Sharma",
-      title: "Senior Data Scientist",
-      organization: "Microsoft India",
-      specialties: ["Data Science", "Python", "Big Data"],
-      rating: 4.8,
-      imageUrl: "/placeholder.svg",
-      availability: "Next available: This week",
-      experience: 8,
-      location: "Hyderabad, India",
-      education: [
-        "M.Tech in Data Science, IISc Bangalore",
-        "B.E. in Computer Engineering, Delhi University"
-      ],
-      about: "Priya Sharma is a dedicated data scientist with extensive experience in big data analytics and machine learning models. At Microsoft India, she works on developing predictive algorithms and data visualization tools. She enjoys helping students understand the practical applications of data science and guiding them toward successful careers in the field."
-    },
-    // Add more mentors as needed
-  ];
-
   return allMentors.find(mentor => mentor.id === id);
 };
 
@@ -92,7 +244,9 @@ export default function MentorDetailPage() {
     
     if (mentorData) {
       setMentor(mentorData);
+      console.log("Mentor data loaded:", mentorData);
     } else {
+      console.error("Mentor not found with ID:", mentorId);
       toast({
         title: "Mentor not found",
         description: "The mentor you're looking for doesn't exist.",
