@@ -888,7 +888,7 @@ const PathCreatorPage = () => {
         communication: 6, 
         technical: 8,
         leadership: 4,
-        adaptability: 6,  // Changed from teamwork to adaptability (valid property)
+        // Removed adaptability as it's not part of SkillAssessment type
         timeManagement: 5
       };
       

@@ -235,9 +235,7 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     technical: 0,
     communication: 0,
     leadership: 0,
-    // Using the correct property names based on the SkillAssessment type
-    // Removed 'teamwork' as it's not part of SkillAssessment type
-    adaptability: 0,
+    // Removed adaptability as it's not part of SkillAssessment type
     timeManagement: 0
   };
   
@@ -271,10 +269,10 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "technical": "technical",
     "communication": "communication",
     "leadership": "leadership",
-    "problem-solving": "adaptability", // Changed from teamwork to adaptability
-    "problemsolving": "adaptability",  // Changed from teamwork to adaptability
+    "problem-solving": "analytical", // Map to analytical
+    "problemsolving": "analytical",  // Map to analytical
     "teamwork": "leadership",  // Map teamwork to leadership since teamwork isn't in SkillAssessment
-    "adaptability": "adaptability",
+    "adaptability": "leadership", // Map adaptability to leadership
     "time-management": "timeManagement",
     "timemanagement": "timeManagement",
     
@@ -290,12 +288,12 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "writing": "communication",
     "management": "leadership",
     "leading": "leadership",
-    "problem": "analytical", // Changed to analytical
-    "solutions": "analytical", // Changed to analytical
+    "problem": "analytical", 
+    "solutions": "analytical", 
     "collaboration": "leadership", // Map collaboration to leadership
     "cooperative": "leadership", // Map cooperative to leadership
-    "flexibility": "adaptability",
-    "versatile": "adaptability",
+    "flexibility": "leadership", // Map flexibility to leadership
+    "versatile": "leadership", // Map versatile to leadership
     "planning": "timeManagement",
     "organization": "timeManagement"
   };
