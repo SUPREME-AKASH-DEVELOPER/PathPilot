@@ -887,9 +887,7 @@ const PathCreatorPage = () => {
         creative: 5, 
         communication: 6, 
         technical: 8,
-        leadership: 4,
-        // Removed adaptability as it's not part of SkillAssessment type
-        timeManagement: 5
+        leadership: 4
       };
       
       setSkillsData(defaultSkills);

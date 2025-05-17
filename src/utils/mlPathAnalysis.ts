@@ -234,9 +234,7 @@ function convertToSkillAssessment(skills: Record<string, number>): SkillAssessme
     creative: 0,
     technical: 0,
     communication: 0,
-    leadership: 0,
-    // Removed adaptability as it's not part of SkillAssessment type
-    timeManagement: 0
+    leadership: 0
   };
   
   // Update the default assessment with values from the input skills
@@ -273,8 +271,8 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "problemsolving": "analytical",  // Map to analytical
     "teamwork": "leadership",  // Map teamwork to leadership since teamwork isn't in SkillAssessment
     "adaptability": "leadership", // Map adaptability to leadership
-    "time-management": "timeManagement",
-    "timemanagement": "timeManagement",
+    "time-management": "leadership", // Mapped timeManagement to leadership
+    "timemanagement": "leadership", // Mapped timeManagement to leadership
     
     // Synonyms and related terms
     "analysis": "analytical",
@@ -294,8 +292,8 @@ function mapSkillToAssessmentKey(skill: string): string | null {
     "cooperative": "leadership", // Map cooperative to leadership
     "flexibility": "leadership", // Map flexibility to leadership
     "versatile": "leadership", // Map versatile to leadership
-    "planning": "timeManagement",
-    "organization": "timeManagement"
+    "planning": "leadership", // Mapped planning to leadership
+    "organization": "leadership" // Mapped organization to leadership
   };
   
   // Convert to lowercase for case-insensitive matching
