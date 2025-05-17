@@ -34,7 +34,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Google India",
       specialties: ["AI", "Machine Learning", "Software Engineering"],
       rating: 4.9,
-      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: Tomorrow",
       experience: 12
     },
@@ -45,7 +45,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Microsoft India",
       specialties: ["Data Science", "Python", "Big Data"],
       rating: 4.8,
-      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+      imageUrl: "/lovable-uploads/2349adf1-c21c-46b1-9619-c83a0e04ca6e.png",
       availability: "Next available: This week",
       experience: 8
     },
@@ -56,7 +56,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "TechNext Innovations",
       specialties: ["System Architecture", "Cloud Computing", "Leadership"],
       rating: 4.7,
-      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: Next week",
       experience: 15
     }
@@ -69,7 +69,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Design Mantra Studio",
       specialties: ["UX/UI Design", "Brand Identity", "Visual Design"],
       rating: 4.9,
-      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+      imageUrl: "/lovable-uploads/2349adf1-c21c-46b1-9619-c83a0e04ca6e.png",
       availability: "Next available: Tomorrow",
       experience: 10
     },
@@ -80,7 +80,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Pixel Media House",
       specialties: ["Content Creation", "Digital Marketing", "SEO"],
       rating: 4.7,
-      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: This week",
       experience: 7
     }
@@ -93,7 +93,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Finance India",
       specialties: ["Finance", "Economics", "Investment Strategy"],
       rating: 4.8,
-      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: Next week",
       experience: 14
     },
@@ -104,7 +104,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Unilever India",
       specialties: ["Marketing", "Brand Management", "Consumer Behavior"],
       rating: 4.6,
-      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+      imageUrl: "/lovable-uploads/2349adf1-c21c-46b1-9619-c83a0e04ca6e.png",
       availability: "Next available: Tomorrow",
       experience: 9
     }
@@ -117,7 +117,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Apollo Hospitals",
       specialties: ["Medicine", "Healthcare Management", "Research"],
       rating: 4.9,
-      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: This week",
       experience: 18
     },
@@ -128,7 +128,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Indian Institute of Science",
       specialties: ["Biotechnology", "Research", "Pharmaceuticals"],
       rating: 4.8,
-      imageUrl: "/lovable-uploads/41acc5c6-d972-4b8f-b3ca-3a4da987df1c.png",
+      imageUrl: "/lovable-uploads/2349adf1-c21c-46b1-9619-c83a0e04ca6e.png",
       availability: "Next available: Next week", 
       experience: 11
     }
@@ -141,7 +141,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Career Guidance Institute",
       specialties: ["Career Planning", "Student Counseling", "Skill Development"],
       rating: 4.9,
-      imageUrl: "/lovable-uploads/fd4dc9d2-b648-4027-aef2-be1793efaa7e.png",
+      imageUrl: "/lovable-uploads/a6630385-9451-4df1-bc1d-12056584b9ff.png",
       availability: "Next available: Tomorrow",
       experience: 15
     },
@@ -152,7 +152,7 @@ const mentors: Record<string, Mentor[]> = {
       organization: "Global Education Services India",
       specialties: ["Higher Education", "Study Abroad", "Admissions"],
       rating: 4.7,
-      imageUrl: "/lovable-uploads/86b25da1-c456-4f88-a7b1-bce2d68eb9fb.png",
+      imageUrl: "/lovable-uploads/2349adf1-c21c-46b1-9619-c83a0e04ca6e.png",
       availability: "Next available: This week",
       experience: 12
     }
@@ -229,7 +229,10 @@ export default function RecommendedMentors({ careerCategory }: RecommendedMentor
     localStorage.setItem('selectedMentorId', mentorId);
     
     // Show success toast
-    toast.success(`Navigating to ${mentorId} mentor profile`);
+    toast({
+      title: "Success",
+      description: `Booking session with mentor ${mentorId}`,
+    });
     
     // Navigate to the mentor detail page
     navigate(`/mentors/${mentorId}`);
