@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Timer, Brain, CircleHelp, ArrowRight, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { generateNextQuestion } from "@/lib/perplexity";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
 export interface Question {
@@ -75,7 +75,7 @@ export default function PathCreator({
   
   // Calculate the total number of answered questions
   const answeredQuestionsCount = Object.keys(answers).length;
-  const canForceSubmit = answeredQuestionsCount >= 15;
+  const canForceSubmit = answeredQuestionsCount >= 10; // Allow force submit after 10 questions
   
   // Update selected option when changing questions
   useEffect(() => {
@@ -114,10 +114,71 @@ export default function PathCreator({
   
   const handleNext = async () => {
     if (isLastQuestion) {
-      onComplete();
+      // Generate next question before moving forward
+      if (selectedOption && currentQuestion && onDynamicQuestionAdd) {
+        try {
+          setIsGeneratingNext(true);
+          
+          // Build question history
+          const questionHistory = Object.keys(answers).map(id => {
+            const questionIndex = questions.findIndex(q => q.id === Number(id));
+            if (questionIndex < 0) return { question: "", answer: "" };
+            return {
+              question: questions[questionIndex].question,
+              answer: answers[Number(id)]
+            };
+          }).filter(item => item.question !== "");
+          
+          // Get education stage from first question answer if available
+          const educationStage = answers[1] || 'General';
+          
+          // Call edge function to generate next question
+          const { data, error } = await supabase.functions.invoke('generate-quiz-question', {
+            body: { 
+              currentQuestion: currentQuestion.question,
+              selectedAnswer: selectedOption,
+              questionHistory: questionHistory,
+              educationStage: educationStage
+            }
+          });
+
+          if (error) throw error;
+
+          if (data && data.question && data.options) {
+            // Create new question object
+            const newQuestion: Question = {
+              id: questions.length + 1,
+              question: data.question,
+              options: data.options,
+              category: "dynamic",
+              difficulty: "intermediate",
+              weight: 1.2
+            };
+            
+            // Add to questions array
+            onDynamicQuestionAdd(newQuestion);
+            
+            toast({
+              title: "New Question Added",
+              description: "A personalized question has been generated based on your answers.",
+            });
+          }
+          
+          setIsGeneratingNext(false);
+        } catch (error) {
+          console.error("Failed to generate dynamic question:", error);
+          setIsGeneratingNext(false);
+          
+          toast({
+            title: "Generation Failed",
+            description: "Couldn't generate next question. You can still force submit.",
+            variant: "destructive"
+          });
+        }
+      }
+      
+      onNextQuestion();
     } else {
-      // Dynamic question generation disabled to prevent API issues
-      // Quiz now uses the predefined question set only
       onNextQuestion();
     }
   };
@@ -125,8 +186,8 @@ export default function PathCreator({
   // Handle force submit
   const handleForceSubmit = () => {
     toast({
-      title: "Generating Your Report",
-      description: `Creating your personalized path based on ${answeredQuestionsCount} answered questions.`,
+      title: "Generating Your Results",
+      description: `Creating your personalized career path based on ${answeredQuestionsCount} answered questions. More questions = better accuracy!`,
     });
     onComplete();
   };
@@ -236,7 +297,14 @@ export default function PathCreator({
       
       <div className="flex justify-between items-center text-sm text-gray-500 mt-2 mb-4">
         <span className="flex items-center">
-          <span>{t("question")} {currentQuestionIndex + 1} {t("of")} {questions.length}</span>
+          <span>
+            {t("question")} {currentQuestionIndex + 1}
+            {answeredQuestionsCount >= 10 && (
+              <span className="ml-2 text-amber-600 dark:text-amber-400 font-medium">
+                (Unlimited Mode - {answeredQuestionsCount} answered)
+              </span>
+            )}
+          </span>
           <span className="ml-3 flex items-center text-gray-400">
             <Timer className="w-4 h-4 mr-1" />
             {Math.floor(timeSpent / 60)}:{timeSpent % 60 < 10 ? '0' : ''}{timeSpent % 60}
@@ -346,21 +414,23 @@ export default function PathCreator({
           </Button>
           
           <div className="flex items-center gap-2">
-            {/* Force Submit button - only shown after 15+ questions answered */}
-            {canForceSubmit && !isLastQuestion && (
+            {/* Force Submit button - shown after 10+ questions answered for unlimited quiz */}
+            {canForceSubmit && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
                       onClick={handleForceSubmit}
                       variant="outline"
-                      className="border-amber-500 text-amber-600 hover:bg-amber-50"
+                      className="border-amber-500 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950"
                     >
-                      {t("forceSubmit") || "Force Submit"}
+                      {t("forceSubmit") || "Submit & Get Results"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="text-xs max-w-xs">Submit your answers now to get your results based on the {answeredQuestionsCount} questions you've answered</p>
+                    <p className="text-xs max-w-xs">
+                      You've answered {answeredQuestionsCount} questions. Submit now to get your personalized results, or continue for more accurate recommendations.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -374,11 +444,11 @@ export default function PathCreator({
               {isGeneratingNext ? (
                 <span className="flex items-center gap-2">
                   <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                  {t("generating")}...
+                  Generating...
                 </span>
               ) : (
                 <>
-                  {isLastQuestion ? t("submit") : t("next")}
+                  Continue
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

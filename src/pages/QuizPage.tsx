@@ -29,7 +29,8 @@ import {
   Heart,
   User,
   Lightbulb,
-  Compass
+  Compass,
+  Brain
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { analyzeQuizResponses } from "@/lib/perplexity";
@@ -980,12 +981,16 @@ const PathCreatorPage = () => {
                 className="text-center mb-8"
               >
                 <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                  Create Your Education &amp; Career Path
+                  Create Your Education & Career Path
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Answer a series of personalized questions to discover your ideal education and career path. 
-                  Our AI will adapt questions based on your responses to create a truly personalized experience.
+                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
+                  Answer personalized questions to discover your ideal education and career path. 
+                  Our AI generates unlimited questions based on your responses for the most accurate recommendations.
                 </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                  <Brain className="w-4 h-4" />
+                  <span>Answer at least 10 questions, then submit anytime for results</span>
+                </div>
               </motion.div>
               <StageSelector onSelectStage={handleStageSelection} />
             </div>
