@@ -14,11 +14,11 @@ export const ENV = {
   JWT_SECRET: "your_jwt_secret_key_here",
   
   // Google Gemini API
-  GEMINI_API_KEY: "AIzaSyCwBEPts8OarwTet1h-khpoCcpDkzXNM7Y",
-  GEMINI_MODEL: "gemini-2.0-flash",
+  GEMINI_API_KEY: import.meta.env.VITE_GEMINI_API_KEY || "",
+  GEMINI_MODEL: "gemini-2.0-flash-exp",
   
   // Perplexity AI API
-  PERPLEXITY_API_KEY: "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",
+  PERPLEXITY_API_KEY: import.meta.env.VITE_PERPLEXITY_API_KEY || "",
   
   // Add other environment variables as needed
 };
