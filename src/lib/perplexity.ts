@@ -25,7 +25,7 @@ interface PerplexityResponse {
 
 export async function queryPerplexityAI(
   messages: PerplexityMessage[],
-  model: string = 'llama-3.1-sonar-small-128k-online'
+  model: string = 'sonar'
 ): Promise<string> {
   try {
     const apiKey = getEnv('PERPLEXITY_API_KEY');
@@ -161,7 +161,7 @@ export async function analyzeQuizResponses(
     const result = await queryPerplexityAI([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
-    ], 'llama-3.1-sonar-large-128k-online'); // Using the large model for better analysis
+    ], 'sonar-pro'); // Using the pro model for better analysis
     
     try {
       const analysis = JSON.parse(result);
