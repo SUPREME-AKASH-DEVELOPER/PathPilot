@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { generateWithGemini } from "@/lib/gemini";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, MessageCircle, Send } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "@/hooks/use-toast";
 
 const GeminiChat: React.FC = () => {
   const { t, language } = useLanguage();
@@ -33,7 +34,18 @@ const GeminiChat: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const result = await generateWithGemini(userMessage);
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { message: userMessage }
+      });
+
+      if (error) throw error;
+
+      const result = data?.response || (
+        language === 'english'
+          ? "Sorry, I couldn't generate a response."
+          : "क्षमा करें, मैं प्रतिक्रिया नहीं दे सका।"
+      );
+      
       setChatHistory(prev => [...prev, {type: 'bot', text: result}]);
     } catch (error) {
       console.error("Error generating response:", error);
@@ -41,6 +53,12 @@ const GeminiChat: React.FC = () => {
         ? "Sorry, I couldn't process your request. Please try again."
         : "क्षमा करें, मैं आपके अनुरोध को प्रोसेस नहीं कर सका। कृपया पुनः प्रयास करें।";
       setChatHistory(prev => [...prev, {type: 'bot', text: errorMessage}]);
+      
+      toast({
+        title: language === 'english' ? "Error" : "त्रुटि",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
