@@ -116,52 +116,8 @@ export default function PathCreator({
     if (isLastQuestion) {
       onComplete();
     } else {
-      // Generate dynamic follow-up question based on current answer if not the last question
-      if (selectedOption && currentQuestion && onDynamicQuestionAdd && currentQuestionIndex + 1 === questions.length - 1) {
-        try {
-          setIsGeneratingNext(true);
-          
-          // Build question history
-          const questionHistory = Object.keys(answers).map(id => {
-            const questionIndex = questions.findIndex(q => q.id === Number(id));
-            if (questionIndex < 0) return { question: "", answer: "" };
-            return {
-              question: questions[questionIndex].question,
-              answer: answers[Number(id)]
-            };
-          }).filter(item => item.question !== "");
-          
-          // Get next dynamic question
-          const nextQuestion = await generateNextQuestion(
-            currentQuestion.question,
-            selectedOption,
-            questionHistory
-          );
-          
-          // Create new question object
-          const newQuestion: Question = {
-            id: questions.length + 1,
-            question: nextQuestion.question,
-            options: nextQuestion.options,
-            category: "dynamic",
-            difficulty: "intermediate",
-            weight: 1.2
-          };
-          
-          // Add to questions array
-          onDynamicQuestionAdd(newQuestion);
-          setIsGeneratingNext(false);
-          
-          toast({
-            title: "Path Updated",
-            description: "A personalized follow-up question has been added based on your answer.",
-          });
-        } catch (error) {
-          console.error("Failed to generate dynamic question:", error);
-          setIsGeneratingNext(false);
-        }
-      }
-      
+      // Dynamic question generation disabled to prevent API issues
+      // Quiz now uses the predefined question set only
       onNextQuestion();
     }
   };
