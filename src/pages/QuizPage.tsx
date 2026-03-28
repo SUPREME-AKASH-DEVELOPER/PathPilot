@@ -33,7 +33,7 @@ import {
   Brain
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { analyzeQuizResponses } from "@/lib/perplexity";
+import { supabase } from "@/integrations/supabase/client";
 import { useQuizResults } from "@/hooks/use-quiz-results";
 import { enhanceCareerMatchScores, enhanceSkillsAssessment } from "@/utils/mlPathAnalysis";
 
