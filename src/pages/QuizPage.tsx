@@ -728,8 +728,25 @@ const PathCreatorPage = () => {
         };
       });
       
-      // Use Perplexity AI to analyze responses
-      const analysis = await analyzeQuizResponses(questionAnswerPairs, selectedStage || "unknown");
+      // Use Lovable AI edge function to analyze responses
+      const analyzeUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-quiz`;
+      const analyzeResp = await fetch(analyzeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          questions: questionAnswerPairs, 
+          educationStage: selectedStage || "unknown" 
+        }),
+      });
+      
+      if (!analyzeResp.ok) {
+        throw new Error(`Analysis failed: ${analyzeResp.status}`);
+      }
+      
+      const analysis = await analyzeResp.json();
       
       // Apply ML enhancement to the AI analysis
       try {
