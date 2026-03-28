@@ -6,31 +6,58 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message } = await req.json();
+    const { messages, quizContext } = await req.json();
 
-    if (!message || typeof message !== 'string') {
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Message is required' }),
+        JSON.stringify({ error: 'Messages array is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY is not configured');
       return new Response(
         JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Calling Lovable AI Gateway...');
+    let systemContent = `You are PathPilot AI Assistant — an expert career guidance counselor specializing in the Indian education system and job market. 
+
+Your capabilities:
+- Deep knowledge of Indian education paths (after 10th, 12th, graduation)
+- Understanding of entrance exams (JEE, NEET, GATE, CAT, UPSC, etc.)
+- Knowledge of top Indian colleges and universities
+- Awareness of Indian job market trends and salary ranges
+- Expertise in career planning, skill development, and personal growth
+
+Guidelines:
+- Be warm, encouraging, and specific in your advice
+- Use markdown formatting for better readability (headers, bullet points, bold text)
+- Provide actionable steps, not just generic advice
+- Reference specific Indian institutions, exams, and opportunities when relevant
+- If the user has quiz results, reference those to give personalized advice
+- Keep responses focused and well-structured`;
+
+    if (quizContext) {
+      systemContent += `\n\nUser's Career Assessment Results:
+- Education Stage: ${quizContext.educationStage || 'Not specified'}
+- Strengths: ${quizContext.strengths?.join(', ') || 'Not available'}
+- Growth Areas: ${quizContext.weaknesses?.join(', ') || 'Not available'}
+- Recommended Paths: ${quizContext.recommendedPaths?.join(', ') || 'Not available'}
+- Top Career Matches: ${Object.entries(quizContext.careerMatchScores || {}).map(([career, score]) => `${career} (${score}%)`).join(', ') || 'Not available'}
+- Personality Type: ${quizContext.personalityProfile?.type || 'Not available'}
+
+Use this information to provide highly personalized career guidance.`;
+    }
+
+    console.log('Calling Lovable AI Gateway with streaming...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -41,15 +68,13 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          {
-            role: 'system',
-            content: 'You are PathPilot AI Assistant, a helpful career guidance assistant. Provide clear, concise, and encouraging advice about careers, education, and personal development.'
-          },
-          {
-            role: 'user',
-            content: message
-          }
+          { role: 'system', content: systemContent },
+          ...messages.map((m: { role: string; content: string }) => ({
+            role: m.role,
+            content: m.content
+          }))
         ],
+        stream: true,
       }),
     });
 
@@ -63,7 +88,6 @@ Deno.serve(async (req) => {
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
       if (response.status === 402) {
         return new Response(
           JSON.stringify({ error: 'AI service quota exceeded. Please contact support.' }),
@@ -77,15 +101,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const data = await response.json();
-    const generatedText = data.choices?.[0]?.message?.content || 'No response generated';
-
-    console.log('Successfully generated response');
-
-    return new Response(
-      JSON.stringify({ response: generatedText }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(

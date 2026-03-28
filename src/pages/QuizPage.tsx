@@ -32,8 +32,7 @@ import {
   Compass,
   Brain
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { analyzeQuizResponses } from "@/lib/perplexity";
+// Card imports removed - not needed here
 import { useQuizResults } from "@/hooks/use-quiz-results";
 import { enhanceCareerMatchScores, enhanceSkillsAssessment } from "@/utils/mlPathAnalysis";
 
@@ -728,8 +727,25 @@ const PathCreatorPage = () => {
         };
       });
       
-      // Use Perplexity AI to analyze responses
-      const analysis = await analyzeQuizResponses(questionAnswerPairs, selectedStage || "unknown");
+      // Use Lovable AI edge function to analyze responses
+      const analyzeUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-quiz`;
+      const analyzeResp = await fetch(analyzeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          questions: questionAnswerPairs, 
+          educationStage: selectedStage || "unknown" 
+        }),
+      });
+      
+      if (!analyzeResp.ok) {
+        throw new Error(`Analysis failed: ${analyzeResp.status}`);
+      }
+      
+      const analysis = await analyzeResp.json();
       
       // Apply ML enhancement to the AI analysis
       try {
@@ -866,8 +882,8 @@ const PathCreatorPage = () => {
         setCareerMatchData(analysis.careerMatchScores);
         
         // Find top career match from AI data
-        const topMatch = Object.entries(analysis.careerMatchScores)
-          .sort(([, a], [, b]) => b - a)[0];
+        const topMatch = Object.entries(analysis.careerMatchScores as Record<string, number>)
+          .sort(([, a], [, b]) => (b as number) - (a as number))[0];
         if (topMatch) {
           setTopCareerMatch(topMatch[0]);
         }
