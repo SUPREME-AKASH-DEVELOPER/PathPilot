@@ -32,8 +32,7 @@ import {
   Compass,
   Brain
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+// Card imports removed - not needed here
 import { useQuizResults } from "@/hooks/use-quiz-results";
 import { enhanceCareerMatchScores, enhanceSkillsAssessment } from "@/utils/mlPathAnalysis";
 
