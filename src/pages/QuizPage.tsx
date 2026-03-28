@@ -883,8 +883,8 @@ const PathCreatorPage = () => {
         setCareerMatchData(analysis.careerMatchScores);
         
         // Find top career match from AI data
-        const topMatch = Object.entries(analysis.careerMatchScores)
-          .sort(([, a], [, b]) => b - a)[0];
+        const topMatch = Object.entries(analysis.careerMatchScores as Record<string, number>)
+          .sort(([, a], [, b]) => (b as number) - (a as number))[0];
         if (topMatch) {
           setTopCareerMatch(topMatch[0]);
         }
